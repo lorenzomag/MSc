@@ -1,5 +1,7 @@
 # Project specific
 datasets/
+.envrc
+.vscode
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++,python,julia,root,git
