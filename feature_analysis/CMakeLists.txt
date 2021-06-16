@@ -4,7 +4,7 @@ project(features)
 
 find_package(ROOT)
 
-set(SOURCES src/features.C src/features.h)
+set(SOURCES src/features.C src/search.C src/search.h)
 
 include(${ROOT_USE_FILE})
 
