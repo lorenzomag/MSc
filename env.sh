@@ -7,7 +7,7 @@ export WORKSPACE_DIR="$PWD/"
 export DATASETS_DIR=$WORKSPACE_DIR"datasets/"
 export TUTORIALS_DIR=$WORKSPACE_DIR"tutorials/"
 
-export CURRENT_DATASET=$DATASETS_DIR"Lc_sample_1000files_2016MagDown.root"
+export CURRENT_DATASET=$DATASETS_DIR"MC_Xicp2LcKPi_Xic2930_MagUp.root"
 
 
 printf "WORKSPACE_DIR\t=\t$WORKSPACE_DIR\n" 
