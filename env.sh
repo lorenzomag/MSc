@@ -7,7 +7,7 @@ export WORKSPACE_DIR="$PWD/"
 export DATASETS_DIR=$WORKSPACE_DIR"datasets/"
 export TUTORIALS_DIR=$WORKSPACE_DIR"tutorials/"
 
-export CURRENT_DATASET=$DATASETS_DIR"MC_Xicp2LcKPi_Xic2930_MagUp.root"
+export CURRENT_DATASET=$DATASETS_DIR"MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root"
 
 
 printf "WORKSPACE_DIR\t=\t$WORKSPACE_DIR\n" 

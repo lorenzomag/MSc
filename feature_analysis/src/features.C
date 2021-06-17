@@ -1,6 +1,5 @@
 #include "search.h"
 
-#define getName(var) #var
 
 int features()
 {
