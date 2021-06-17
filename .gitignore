@@ -2,7 +2,7 @@
 datasets/
 .envrc
 .vscode
-
+training/
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++,python,julia,root,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,python,julia,root,git
