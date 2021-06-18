@@ -11,8 +11,8 @@ int features()
     TString inputFileName, outputFileName, exe_dir;
     set_file_names(inputFileName, exe_dir, outputFileName);
 
-    TFile *inputFile;
-    if (inputFile = new TFile(inputFileName, "READ"))
+    TFile inputFile(inputFileName, "READ");
+    if (inputFile.IsOpen())
     {
         std::cout << "Reading data from " << inputFileName << std::endl;
     }
@@ -23,31 +23,35 @@ int features()
     }
 
     // Get input trees
-    sig.SetTree((TTree *)inputFile->Get("LcKPiTree/DecayTree"), Search::input);
-    ws1.SetTree((TTree *)inputFile->Get("LcKPiTreeWS1/DecayTree"), Search::input);
-    ws2.SetTree((TTree *)inputFile->Get("LcKPiTreeWS2/DecayTree"), Search::input);
+    sig.SetTree((TTree *)inputFile.Get("LcKPiTree/DecayTree"), Search::input);
+    ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input);
+    ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input);
 
     // Set output trees
-    TFile *outputFile = new TFile(outputFileName, "RECREATE");
-    sig.SetTree(new TTree("FeaturesSig", "Features Tree for signal (Lc+ K- pi+)"), Search::output);
-    ws1.SetTree(new TTree("FeaturesWS1", "Features Tree for WS1 (Lc+ K+ pi-)"), Search::output);
-    ws2.SetTree(new TTree("FeaturesWS2", "Features Tree for WS2 (Lc+ K+ pi+)"), Search::output);
+    TFile outputFile(outputFileName, "RECREATE");
+    sig.SetTree("FeaturesSig", "Features Tree for signal (Lc+ K- pi+)", Search::output);
+    ws1.SetTree("FeaturesWS1", "Features Tree for WS1 (Lc+ K+ pi-)", Search::output);
+    ws2.SetTree("FeaturesWS2", "Features Tree for WS2 (Lc+ K+ pi+)", Search::output);
 
-    std::vector<Search *> searches = {&sig}; //, &ws1, &ws2};
+    std::cout << sig.GetTree(Search::input) << std::endl;
+
+    std::vector<Search *> searches = {&sig, &ws1, &ws2};
+
 
     TBranch *currentBranch;
     TObjArray *branches;
     for (Search *current_search : searches)
     {
+        std::cout << "Tree pointer from main(): " << current_search->GetTree(Search::input) << std::endl;
         branches = current_search->GetTree(Search::input)->GetListOfBranches();
         current_search->GetWSDescription();
         for (auto &particle : current_search->particles)
         {
 
             TString particle_name = particle.first;
-            std::cout << std::endl
-                      << particle_name << std::endl;
-            std::cout << "============" << std::endl;
+            // std::cout << std::endl
+            //           << particle_name << std::endl;
+            // std::cout << "============" << std::endl;
 
             std::map<TString, double> &feature_map = current_search->particles[particle_name].features;
             std::vector<TString> to_remove;
@@ -59,10 +63,11 @@ int features()
 
                 currentBranch = (TBranch *)branches->FindObject(full_feature_name);
 
+                // std::cout << currentBranch << std::endl;
                 if (currentBranch)
                 {
                     currentBranch->SetAddress(&feature.second);
-                    std::cout << "[INFO] " << full_feature_name << " added " << std::endl;
+                    // std::cout << "[INFO] " << full_feature_name << " added " << std::endl;
                 }
                 else
                 {
@@ -74,7 +79,7 @@ int features()
             for (auto feature : to_remove)
             {
                 feature_map.erase(feature);
-                std::cout << "[INFO] " << particle_name << feature << " is not a valid branch; ignored." << std::endl;
+                // std::cout << "[INFO] " << particle_name << feature << " is not a valid branch; ignored." << std::endl;
             }
         }
         // current_search->GetTree(Search::input)->GetEntry(4);
@@ -91,16 +96,17 @@ int features()
         //     // std::cout << feature.first << " " << feature.second << std::endl;
         // }
         // set_branch_args(particle.second);
+        // delete branches;
         std::cout << std::endl;
     }
 
     // for (Search *current_search : searches)
     // {
-    for (int i = 0; i < sig.GetTree(Search::input)->GetEntries(); i++)
-    {
-        sig.GetTree(Search::input)->GetEntry(i);
-        // std::cout << sig.particles["Lc"].features["_MM"] << std::endl;
-    }
+    // for (int i = 0; i < sig.GetTree(Search::input)->GetEntries(); i++)
+    // {
+    //     sig.GetTree(Search::input)->GetEntry(i);
+    //     // std::cout << sig.particles["Lc"].features["_MM"] << std::endl;
+    // }
     // for (auto &particle : current_search->particles)
     // {
     //     set_branch_args(particle.second);
@@ -117,10 +123,8 @@ int features()
 
     // // ws1.GetTree(Search::output)->Write();
 
-    // inputFile->Close();
-    // outputFile->Close();
-
-    // delete inputFile, outputFile;
+    inputFile.Close();
+    outputFile.Close();
     return 0;
 }
 

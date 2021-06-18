@@ -47,21 +47,35 @@ void Search::GetWSDescription()
                   << " pi" << m_WSDescription[1] << " / decays" << std::endl;
 };
 
-int Search::SetTree(TTree *tree, IO isInput)
+void Search::SetTree(TTree *tree, IO isInput)
 {
-    if (isInput)
+    if (isInput == Search::input)
     {
         m_inTree = tree;
     }
     else
-        m_outTree = tree;
-
-    return 0;
+    {
+        std::cerr << "[ERROR] Use \"int Search::SetTree(TString name, TString title, IO isInput)\" setter to set output tree." << std::endl
+                  << "If you want to set an input tree, IO argument needs to be \"input\"." << std::endl;
+        exit(5);
+    }
+};
+void Search::SetTree(TString name, TString title, IO isInput)
+{
+    if (isInput == Search::input)
+    {
+        std::cerr << "[ERROR] Use \"int Search::SetTree(TTree *tree, IO isInput)\" setter to set input tree." << std::endl
+                  << "If you want to set an output tree, IO argument needs to be \"output\"." << std::endl;
+    exit(6);
+    }
+    else
+        m_outTree = new TTree(name, title);
+    
 };
 
 TTree *Search::GetTree(IO isInput) const
 {
-    if (isInput)
+    if (isInput == Search::input)
         return m_inTree;
     else
         return m_outTree;

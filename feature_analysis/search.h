@@ -7,7 +7,7 @@ using json = nlohmann::json;
 struct PARTICLE
 {
     TString name;
-    std::map<TString,double> features;
+    std::map<TString, double> features;
 };
 
 // Class to contain everything relative to a run.
@@ -29,14 +29,13 @@ private:
     TTree *m_inTree, *m_outTree;
 
 public:
-
     std::map<TString, PARTICLE> particles;
 
-    Search(json& particle_list);
-    Search(json& particle_list, TString desc);
-    
+    Search(json &particle_list);
+    Search(json &particle_list, TString desc);
     void SetWSDescription(TString desc);
     void GetWSDescription();
-    int SetTree(TTree *tree, IO isInput);
+    void SetTree(TTree *tree, IO isInput);
+    void SetTree(TString name, TString title, IO isInput);
     TTree *GetTree(IO isInput) const;
 };
