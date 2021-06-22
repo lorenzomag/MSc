@@ -3,27 +3,36 @@
 // Class to contain everything relative to a run.
 // Which process was run, what particles were reconstructed,
 // relative analysis.
-Search::Search(json &particle_list) : m_nParticles(0), m_WSDescription("null")
+Search::Search(json &feature_list) : m_nParticles(0), m_nGlobals(0), m_WSDescription("null"), m_name("null")
 {
-    TString name;
-    for (auto particle : particle_list["particles"].items())
+    for (auto feature : feature_list["global"].items())
+    {
+        if (feature.value())
+        {
+            m_nGlobals++;
+            globals[feature.key()] = 0.0d;
+        }
+    }
+
+    for (auto particle : feature_list["particles"].items())
     {
         std::string particle_name = particle.key();
-        if (particle_list["particles"][particle_name]["include"])
+        if (feature_list["particles"][particle_name]["include"])
         {
 
             particles[particle_name] = PARTICLE();
             particles[particle_name].name = particle_name;
             m_nParticles++;
 
-            for (auto feature : particle_list["particles"][particle_name]["features"].items())
+            for (auto feature : feature_list["particles"][particle_name]["features"].items())
                 if (feature.value())
                     particles[particle_name].features[feature.key()] = 0.0d;
         }
     }
 };
 
-Search::Search(json &particle_list, TString desc) : Search(particle_list) { SetWSDescription(desc); };
+Search::Search(json &feature_list, TString desc) : Search(feature_list) { SetWSDescription(desc); };
+Search::Search(json &feature_list, TString name, TString desc) : Search(feature_list, desc) { m_name = name; };
 
 void Search::SetWSDescription(TString desc)
 {
@@ -43,8 +52,22 @@ void Search::SetWSDescription(TString desc)
 void Search::GetWSDescription()
 {
     if (m_WSDescription != "null")
-        std::cout << "Object representing / Xicst -> Lc+ K" << m_WSDescription[0]
-                  << " pi" << m_WSDescription[1] << " / decays" << std::endl;
+    {
+        if (m_name == "null")
+        {
+            std::cout << "Object representing / Xicst -> Lc+ K" << m_WSDescription[0]
+                      << " pi" << m_WSDescription[1] << " / decays" << std::endl;
+        }
+        else
+        {
+            std::cout << "\"" << this->GetName() << "\" search represents / Xicst -> Lc+ K" << m_WSDescription[0]
+                      << " pi" << m_WSDescription[1] << " / decays" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "[WARNING] Description of search has not been set yet!" << std::endl;
+    }
 };
 
 void Search::SetTree(TTree *tree, IO isInput)
@@ -66,12 +89,25 @@ void Search::SetTree(TString name, TString title, IO isInput)
     {
         std::cerr << "[ERROR] Use \"int Search::SetTree(TTree *tree, IO isInput)\" setter to set input tree." << std::endl
                   << "If you want to set an output tree, IO argument needs to be \"output\"." << std::endl;
-    exit(6);
+        exit(6);
     }
     else
         m_outTree = new TTree(name, title);
-    
 };
+
+void Search::SetName(TString name)
+{
+    m_name = name;
+};
+
+TString Search::GetName()
+{
+    if (m_name == "null")
+    {
+        std::cout << "[WARNING] Name of search has not been set yet!" << std::endl;
+    }
+    return m_name;
+}
 
 TTree *Search::GetTree(IO isInput) const
 {
@@ -79,4 +115,12 @@ TTree *Search::GetTree(IO isInput) const
         return m_inTree;
     else
         return m_outTree;
+};
+
+int Search::GetNGlobals(){
+    return m_nGlobals;
+};
+
+int Search::GetNParticles(){
+    return m_nParticles;
 };

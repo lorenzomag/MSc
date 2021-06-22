@@ -55,7 +55,7 @@ json select_features(feat_source option)
             {"HLT2TCK", false},
             {"GpsTime", false},
             {"Polarity", false},
-            {"nPV", false},
+            {"nPV", true},
             {"PVX", false},
             {"PVY", false},
             {"PVZ", false},

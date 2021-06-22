@@ -25,17 +25,25 @@ public:
 
 private:
     int m_nParticles;
+    int m_nGlobals;
+    TString m_name;
     TString m_WSDescription;
     TTree *m_inTree, *m_outTree;
 
 public:
     std::map<TString, PARTICLE> particles;
+    std::map<TString, double> globals;
 
-    Search(json &particle_list);
-    Search(json &particle_list, TString desc);
+    Search(json &feature_list);
+    Search(json &feature_list, TString desc);
+    Search(json &feature_list, TString name, TString desc);
     void SetWSDescription(TString desc);
     void GetWSDescription();
     void SetTree(TTree *tree, IO isInput);
     void SetTree(TString name, TString title, IO isInput);
     TTree *GetTree(IO isInput) const;
+    void SetName(TString name);
+    TString GetName();
+    int GetNGlobals();
+    int GetNParticles();
 };

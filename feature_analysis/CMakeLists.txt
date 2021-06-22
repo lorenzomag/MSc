@@ -4,11 +4,11 @@ project(features)
 
 find_package(ROOT)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-set(SOURCES features.C search.C select_features.C)
+set(SOURCES features.C search.C select_features.C draw.C)
 
 
 include(${ROOT_USE_FILE})

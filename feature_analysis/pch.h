@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -13,4 +14,6 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "TRandom.h"
+#include "TCanvas.h"
+#include "TH1D.h"
 #include "TSystem.h"
