@@ -5,6 +5,7 @@
 
 void draw_features(Search &sig, Search &ws1, Search &ws2)
 {
+    std::cout << std::endl << "Plotting feature comparisons between Signal and possible background sources (WS1 and WS2)" << std::endl;
     std::map<TString, std::vector<TString>> particles;
     std::set<TString> unique_features;
 
@@ -14,76 +15,54 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
         {
             if (unique_features.insert(particle_name + feature.first).second)
             {
-                std::cout << particle_name << feature.first << " = " << feature.second << std::endl;
                 particles[particle_name].push_back(feature.first);
             }
         }
     }
-    for (auto [name, feat] : sig.globals)
-    {
-        std::cout << name << " " << feat << std::endl;
-    }
 
     TObjArray Clist(0);
+
     TCanvas *c1 = new TCanvas("temp", "temp", 0, 0, 300, 200);
-    TH1D *h1 = new TH1D("sig", "temp", 1000, 0, 100);
-    TH1D *h2 = new TH1D("bkg1", "temp", 1000, 0, 100);
-    TH1D *h3 = new TH1D("bkg2", "temp", 1000, 0, 100);
+    TH1D *sigHist = new TH1D("Signal", "Signal", 1000, 0, 100);
+    TH1D *bkgHist1 = new TH1D("WS1", "WS1", 1000, 0, 100);
+    TH1D *bkgHist2 = new TH1D("WS2", "WS2", 1000, 0, 100);
 
-    h1->SetLineColor(kBlack);
-    h2->SetLineColor(kRed);
-    h2->SetLineColor(kGreen);
+    sigHist->SetLineColor(kBlack);
+    bkgHist1->SetLineColor(kRed);
+    bkgHist2->SetLineColor(kGreen + 1);
 
-    sig.GetTree(Search::input)->Draw("Xicst_ENDVERTEX_CHI2>>sig");
-    ws1.GetTree(Search::input)->Draw("Xicst_ENDVERTEX_CHI2>>bkg1");
-    ws2.GetTree(Search::input)->Draw("Xicst_ENDVERTEX_CHI2>>bkg2");
+    for (auto feature : unique_features)
+    {
+        std::cout << "Producting plots for " << feature << std::endl;
+        c1->SetTitle(feature);
+        c1->SetName(feature);
 
-    // float scaleFactor2 = h1->GetEntries() / h2->GetEntries();
-    // float scaleFactor3 = h1->GetEntries() / h3->GetEntries();
-    float scaleFactor23 = h2->GetEntries() / h3->GetEntries();
+        auto sigHistName = feature + ">>Signal";
+        auto bkgHistName1= feature + ">>WS1";
+        auto bkgHistName2 = feature + ">>WS2";
+        
+        // sigHist->SetTitle(feature);
+        // bkgHist1->SetTitle(feature);
+        // bkgHist2->SetTitle(feature);
 
-    // h2->Scale(scaleFactor2);
-    h3->Scale(scaleFactor23);
+        sig.GetTree(Search::input)->Draw(sigHistName);
+        ws1.GetTree(Search::input)->Draw(bkgHistName1);
+        ws2.GetTree(Search::input)->Draw(bkgHistName2);
 
-    h2->Draw();
-    h3->Draw("SAME");
-    c1->Write();
-    c1->Clear();
+        float scaleFactorSig_WS1 = sigHist->GetEntries() / bkgHist1->GetEntries();
+        float scaleFactorSig_WS2 = sigHist->GetEntries() / bkgHist2->GetEntries();
+        float scaleFactorWS1_WS2 = bkgHist1->GetEntries() / bkgHist2->GetEntries();
 
-    // ws1.GetTree(Search::input)->SetLineColor(kGreen);
-    // sig.GetTree(Search::input)->SetLineColor(kRed);
+        bkgHist1->Scale(scaleFactorSig_WS1);
+        bkgHist2->Scale(scaleFactorSig_WS2);
 
-    // ws1.GetTree(Search::input)->Draw("Lc_M");
-    // sig.GetTree(Search::input)->Draw("Lc_M", "", "SAME");
-    // c1->Write();
-
-    // for (TString feature : unique_features)
-    // {
-
-    //     TString name1 = feature + ">>sig";
-    //     TString name2 = feature + ">>bgk";
-
-    //     h1->SetLineColor(kBlack);
-    //     h2->SetLineColor(kRed);
-    //     std::cout << name1 << std::endl << name2 << std::endl;
-
-    //     sig.GetTree(Search::input)->Draw(feature);
-    //     ws1.GetTree(Search::input)->Draw(feature);
-
-    //     float scaleFactor = h1->GetEntries() / h2->GetEntries();
-
-    //     h2->Scale(scaleFactor);
-
-    //     h2->Draw();
-    //     h1->Draw("SAME");
-    //     h1->Write();
-    //     h2->Write();
-
-    //     delete h1;
-    //     delete h2;
-    // }
-
-    // TH1D hist("asd", "fe ", 100, 10, 20);
+        sigHist->Draw();
+        bkgHist1->Draw("SAME");
+        bkgHist2->Draw("SAME");
+        c1->BuildLegend();
+        c1->Write();
+        c1->Clear();
+    }
 
 #ifndef run_with_root
 
