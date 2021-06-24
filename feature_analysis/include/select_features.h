@@ -1,5 +1,5 @@
-#pragma once
-#include "pch.h"
+#ifndef SELECT_FEATS
+#define SELECT_FEATS
 
 using json = nlohmann::json;
 
@@ -11,3 +11,5 @@ enum feat_source
 };
 
 json select_features(feat_source);
+
+#endif // SELECT_FEATS

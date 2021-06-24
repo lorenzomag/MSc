@@ -1,8 +1,10 @@
-#include "features.h"
-#include "TCanvas.h"
-#include "TH1D.h"
+#include "pch.h"
+#include "search.h"
+#include "select_features.h"
+#include "draw.h"
 
-int features()
+#include "main.h"
+int main()
 {
     json j_db = select_features(feat_source::from_file);
 
@@ -118,9 +120,4 @@ void set_file_names(TString &inputFileName, TString &exe_dir, TString &outputFil
         inputFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
         std::cout << "Using default file name: " << inputFileName << std::endl;
     }
-}
-
-int main()
-{
-    return features();
 }

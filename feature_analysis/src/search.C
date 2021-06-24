@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "search.h"
 
 // Class to contain everything relative to a run.
@@ -10,7 +12,7 @@ Search::Search(json &feature_list) : m_nParticles(0), m_nGlobals(0), m_WSDescrip
         if (feature.value())
         {
             m_nGlobals++;
-            globals[feature.key()] = 0.0d;
+            globals[feature.key()] = 0.0;
         }
     }
 
@@ -26,7 +28,7 @@ Search::Search(json &feature_list) : m_nParticles(0), m_nGlobals(0), m_WSDescrip
 
             for (auto feature : feature_list["particles"][particle_name]["features"].items())
                 if (feature.value())
-                    particles[particle_name].features[feature.key()] = 0.0d;
+                    particles[particle_name].features[feature.key()] = 0.0;
         }
     }
 };

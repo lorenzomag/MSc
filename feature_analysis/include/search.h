@@ -1,5 +1,5 @@
-#pragma once
-#include "pch.h"
+#ifndef SEARCH
+#define SEARCH
 
 using json = nlohmann::json;
 
@@ -47,3 +47,5 @@ public:
     int GetNGlobals();
     int GetNParticles();
 };
+
+#endif // SEARCH

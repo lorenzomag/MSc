@@ -1,5 +1,7 @@
-#pragma once
+#ifndef PCH
+#define PCH
 
+#include <cassert>
 #include <map>
 #include <memory>
 #include <set>
@@ -8,7 +10,6 @@
 #include <iomanip>
 #include <fstream>
 
-#include "json.hpp"
 #include "TString.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -17,3 +18,7 @@
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TSystem.h"
+
+#include "json.hpp"
+
+#endif // PCH
