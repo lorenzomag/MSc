@@ -24,38 +24,71 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
         std::cout << name << " " << feat << std::endl;
     }
 
-    TCanvas *c1 = new TCanvas("Overlap", "Overlapping histograms", 0, 0, 300, 200);
-    // TH1D h1("temp", "Aacca", 5000, 2000, 5000);
-    // TH1D h2("temp2", "Aacca2", 5000, 2000, 5000);
-    ws1.GetTree(Search::input)->SetLineColor(kBlack);
-    ws2.GetTree(Search::input)->SetLineColor(kBlue);
+    TObjArray Clist(0);
+    TCanvas *c1 = new TCanvas("temp", "temp", 0, 0, 300, 200);
+    TH1D *h1 = new TH1D("sig", "temp", 1000, 0, 100);
+    TH1D *h2 = new TH1D("bkg1", "temp", 1000, 0, 100);
+    TH1D *h3 = new TH1D("bkg2", "temp", 1000, 0, 100);
 
-    ws2.GetTree(Search::input)->Draw("Lc_M");
-    ws1.GetTree(Search::input)->Draw("Lc_M", "", "SAME");
+    h1->SetLineColor(kBlack);
+    h2->SetLineColor(kRed);
+    h2->SetLineColor(kGreen);
 
-    // h1.Draw();
-    // h2.Draw("same");
+    sig.GetTree(Search::input)->Draw("Xicst_ENDVERTEX_CHI2>>sig");
+    ws1.GetTree(Search::input)->Draw("Xicst_ENDVERTEX_CHI2>>bkg1");
+    ws2.GetTree(Search::input)->Draw("Xicst_ENDVERTEX_CHI2>>bkg2");
+
+    // float scaleFactor2 = h1->GetEntries() / h2->GetEntries();
+    // float scaleFactor3 = h1->GetEntries() / h3->GetEntries();
+    float scaleFactor23 = h2->GetEntries() / h3->GetEntries();
+
+    // h2->Scale(scaleFactor2);
+    h3->Scale(scaleFactor23);
+
+    h2->Draw();
+    h3->Draw("SAME");
     c1->Write();
     c1->Clear();
-    c1->SetName("ciao");
 
-    ws1.GetTree(Search::input)->SetLineColor(kGreen);
-    ws2.GetTree(Search::input)->SetLineColor(kRed);
+    // ws1.GetTree(Search::input)->SetLineColor(kGreen);
+    // sig.GetTree(Search::input)->SetLineColor(kRed);
 
-    ws1.GetTree(Search::input)->Draw("Lc_M");
-    ws2.GetTree(Search::input)->Draw("Lc_M", "", "SAME");
-    c1->Write();
+    // ws1.GetTree(Search::input)->Draw("Lc_M");
+    // sig.GetTree(Search::input)->Draw("Lc_M", "", "SAME");
+    // c1->Write();
 
-    // h1.Write();
-    // h2.Write();
+    // for (TString feature : unique_features)
+    // {
 
-    TH1D hist("asd", "fe ", 100, 10, 20);
+    //     TString name1 = feature + ">>sig";
+    //     TString name2 = feature + ">>bgk";
 
+    //     h1->SetLineColor(kBlack);
+    //     h2->SetLineColor(kRed);
+    //     std::cout << name1 << std::endl << name2 << std::endl;
+
+    //     sig.GetTree(Search::input)->Draw(feature);
+    //     ws1.GetTree(Search::input)->Draw(feature);
+
+    //     float scaleFactor = h1->GetEntries() / h2->GetEntries();
+
+    //     h2->Scale(scaleFactor);
+
+    //     h2->Draw();
+    //     h1->Draw("SAME");
+    //     h1->Write();
+    //     h2->Write();
+
+    //     delete h1;
+    //     delete h2;
+    // }
+
+    // TH1D hist("asd", "fe ", 100, 10, 20);
 
 #ifndef run_with_root
 
+    delete c1;
     // gDirectory->GetList()->ls();
 
-    delete c1;
 #endif
 };
