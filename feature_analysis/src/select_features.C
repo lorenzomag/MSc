@@ -244,13 +244,6 @@ json select_features(feat_source option)
                 {"_TRACK_CloneDist", false},
                 {"_TRACK_Likelihood", false}};
         }
-        // std::cout
-        //     << std::setw(4) << j_db << std::endl;
-
-        // for (auto i : j_db["particles"].items())
-        // {
-        //     std::cout << i.key() << std::endl;
-        // }
 
         std::ofstream myfile;
         myfile.open("default_settings.json");

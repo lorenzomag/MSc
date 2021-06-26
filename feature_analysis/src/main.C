@@ -58,8 +58,11 @@ int main()
         std::cout << std::endl;
         current_search->GetWSDescription();
 
-        for (auto &[feat_name, feat_val] : current_search->globals)
+        for (auto &feature : current_search->globals)
         {
+            auto feat_name = feature.first;
+            auto feat_val = feature.second;
+
             currentBranch = (TBranch *)branches->FindObject(feat_name);
             if (currentBranch)
             {
@@ -67,6 +70,7 @@ int main()
                 std::cout << "[INFO] " << feat_name << " added at " << &feat_val << std::endl;
             }
         }
+        
         for (auto &particle : current_search->particles)
         {
 
@@ -112,7 +116,7 @@ int main()
     return 0;
 }
 
-void set_file_names(TString& signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
+void set_file_names(TString &signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
 {
     inputFileName = getenv("CURRENT_DATASET");
     exe_dir = getenv("WORKSPACE_DIR");
