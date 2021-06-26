@@ -18,6 +18,11 @@
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TSystem.h"
+#include "TRint.h"
+#include "TApplication.h"
+#include "TStyle.h"
+#include "THStack.h"
+
 
 #include "json.hpp"
 

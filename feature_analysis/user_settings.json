@@ -13,7 +13,7 @@
         "PVNTRACKS": false,
         "PVX": false,
         "PVXERR": false,
-        "PVY": true,
+        "PVY": false,
         "PVYERR": false,
         "PVZ": false,
         "PVZERR": false,
@@ -79,11 +79,11 @@
                 "_ENDVERTEX_ZERR": false,
                 "_ETA": false,
                 "_FDCHI2_ORIVX": false,
-                "_FDCHI2_OWNPV": true,
+                "_FDCHI2_OWNPV": false,
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
+                "_IPCHI2_OWNPV": true,
                 "_IP_OWNPV": false,
                 "_M": false,
                 "_M12_DTF_Lc_PV": false,
@@ -135,7 +135,7 @@
                 "_OWNPV_CHI2": false,
                 "_OWNPV_COV_": false,
                 "_OWNPV_NDOF": false,
-                "_OWNPV_X": true,
+                "_OWNPV_X": false,
                 "_OWNPV_XERR": false,
                 "_OWNPV_Y": false,
                 "_OWNPV_YERR": false,
@@ -391,7 +391,7 @@
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
+                "_IPCHI2_OWNPV": true,
                 "_IP_OWNPV": false,
                 "_M": false,
                 "_M12_DTF_Lc_PV": false,
@@ -506,7 +506,7 @@
                 "_hasRich": false,
                 "_isMuon": false
             },
-            "include": false
+            "include": true
         },
         "Xicst": {
             "features": {
@@ -530,7 +530,7 @@
                 "_Dau3_PY_DTF_Lc_PV": false,
                 "_Dau3_PZ_DTF_Lc_PV": false,
                 "_Dau3_P_DTF_Lc_PV": false,
-                "_ENDVERTEX_CHI2": false,
+                "_ENDVERTEX_CHI2": true,
                 "_ENDVERTEX_COV_": false,
                 "_ENDVERTEX_NDOF": false,
                 "_ENDVERTEX_X": false,
@@ -581,7 +581,7 @@
                 "_MC_GD_MOTHER_KEY": false,
                 "_MC_MOTHER_ID": false,
                 "_MC_MOTHER_KEY": false,
-                "_MM": false,
+                "_MM": true,
                 "_MMERR": false,
                 "_M_DTF_Lc": false,
                 "_M_DTF_PV": false,
@@ -660,7 +660,7 @@
                 "_hasRich": false,
                 "_isMuon": false
             },
-            "include": false
+            "include": true
         },
         "p": {
             "features": {
@@ -853,7 +853,7 @@
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
+                "_IPCHI2_OWNPV": true,
                 "_IP_OWNPV": false,
                 "_M": false,
                 "_M12_DTF_Lc_PV": false,
@@ -968,7 +968,7 @@
                 "_hasRich": false,
                 "_isMuon": false
             },
-            "include": false
+            "include": true
         },
         "pip": {
             "features": {

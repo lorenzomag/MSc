@@ -12,11 +12,21 @@ int main()
     Search ws1(j_db, "Ws1", "+-");
     Search ws2(j_db, "Ws2", "++");
 
-    TString inputFileName, outputFileName, exe_dir;
-    set_file_names(inputFileName, exe_dir, outputFileName);
+    TString signalInputFileName, inputFileName, outputFileName, exe_dir;
+    set_file_names(signalInputFileName, inputFileName, exe_dir, outputFileName);
 
     TFile inputFile(inputFileName, "READ");
+    TFile signalInputFile(signalInputFileName, "READ");
     if (inputFile.IsOpen())
+    {
+        std::cout << "Reading data from " << inputFileName << std::endl;
+    }
+    else
+    {
+        std::cout << "[ERROR] Input file " << inputFileName << " could not be found." << std::endl;
+        exit(3);
+    }
+    if (signalInputFile.IsOpen())
     {
         std::cout << "Reading data from " << inputFileName << std::endl;
     }
@@ -27,7 +37,7 @@ int main()
     }
 
     // Get input trees
-    sig.SetTree((TTree *)inputFile.Get("LcKPiTree/DecayTree"), Search::input);
+    sig.SetTree((TTree *)signalInputFile.Get("LcKPiTree/DecayTree"), Search::input);
     ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input);
     ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input);
 
@@ -102,7 +112,7 @@ int main()
     return 0;
 }
 
-void set_file_names(TString &inputFileName, TString &exe_dir, TString &outputFileName)
+void set_file_names(TString& signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
 {
     inputFileName = getenv("CURRENT_DATASET");
     exe_dir = getenv("WORKSPACE_DIR");
@@ -120,4 +130,6 @@ void set_file_names(TString &inputFileName, TString &exe_dir, TString &outputFil
         inputFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
         std::cout << "Using default file name: " << inputFileName << std::endl;
     }
+
+    signalFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
 }
