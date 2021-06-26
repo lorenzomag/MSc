@@ -2,10 +2,15 @@
 #include "search.h"
 #include "main.h"
 #include "draw.h"
+#include "ROOT/RDataFrame.hxx"
+
+using namespace ROOT;
 
 void draw_features(Search &sig, Search &ws1, Search &ws2)
 {
-    std::cout << std::endl << "Plotting feature comparisons between Signal and possible background sources (WS1 and WS2)" << std::endl;
+    RDF::RResultPtr<TH1D> aaas();
+    std::cout << std::endl
+              << "Plotting feature comparisons between Signal and possible background sources (WS1 and WS2)" << std::endl;
     std::map<TString, std::vector<TString>> particles;
     std::set<TString> unique_features;
 
@@ -20,47 +25,62 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
         }
     }
 
-    TObjArray Clist(0);
+    RDataFrame sig_df(*sig.GetTree(Search::input));
+    RDataFrame ws1_df(*ws1.GetTree(Search::input));
+    RDataFrame ws2_df(*ws2.GetTree(Search::input));
 
-    TCanvas *c1 = new TCanvas("temp", "temp", 0, 0, 300, 200);
-    TH1D *sigHist = new TH1D("Signal", "Signal", 1000, 0, 100);
-    TH1D *bkgHist1 = new TH1D("WS1", "WS1", 1000, 0, 100);
-    TH1D *bkgHist2 = new TH1D("WS2", "WS2", 1000, 0, 100);
-
-    sigHist->SetLineColor(kBlack);
-    bkgHist1->SetLineColor(kRed);
-    bkgHist2->SetLineColor(kGreen + 1);
+    TCanvas *c1 = new TCanvas("temp", "temp", 300, 300, 500, 500);
+    RDF::RResultPtr<TH1D> sigHist;
+    RDF::RResultPtr<TH1D> bkgHist1;
+    RDF::RResultPtr<TH1D> bkgHist2;
 
     for (auto feature : unique_features)
     {
         std::cout << "Producting plots for " << feature << std::endl;
-        c1->SetTitle(feature);
+        THStack *hs = new THStack("hs", "temp");
         c1->SetName(feature);
+        c1->SetTitle(feature);
+        hs->SetTitle(feature);
 
-        auto sigHistName = feature + ">>Signal";
-        auto bkgHistName1= feature + ">>WS1";
-        auto bkgHistName2 = feature + ">>WS2";
-        
-        // sigHist->SetTitle(feature);
-        // bkgHist1->SetTitle(feature);
-        // bkgHist2->SetTitle(feature);
+        if (feature.Contains("CHI2"))
+        {
+            std::cout << feature << " contains Chi2" << std::endl;
+            std::string filter_req = (std::string)feature + ">0";
+            sigHist = sig_df.Filter(filter_req).Histo1D(feature);
+            bkgHist1 = ws1_df.Filter(filter_req).Histo1D(feature);
+            bkgHist2 = ws2_df.Filter(filter_req).Histo1D(feature);
+        }
+        else
+        {
+            sigHist = sig_df.Histo1D(feature);
+            bkgHist1 = ws1_df.Histo1D(feature);
+            bkgHist2 = ws2_df.Histo1D(feature);
+        }
+        sigHist->SetLineColor(kBlack);
+        bkgHist1->SetLineColor(kRed);
+        bkgHist2->SetLineColor(kGreen);
 
-        sig.GetTree(Search::input)->Draw(sigHistName);
-        ws1.GetTree(Search::input)->Draw(bkgHistName1);
-        ws2.GetTree(Search::input)->Draw(bkgHistName2);
+        sigHist->SetNameTitle("Signal", "Signal");
+        bkgHist1->SetNameTitle("WS1", "Wrong Sign 1");
+        bkgHist2->SetNameTitle("WS2", "Wrong Sign 2");
 
-        float scaleFactorSig_WS1 = sigHist->GetEntries() / bkgHist1->GetEntries();
-        float scaleFactorSig_WS2 = sigHist->GetEntries() / bkgHist2->GetEntries();
-        float scaleFactorWS1_WS2 = bkgHist1->GetEntries() / bkgHist2->GetEntries();
+        bkgHist1->Scale(sigHist->GetEntries() / bkgHist1->GetEntries());
+        bkgHist2->Scale(sigHist->GetEntries() / bkgHist2->GetEntries());
 
-        bkgHist1->Scale(scaleFactorSig_WS1);
-        bkgHist2->Scale(scaleFactorSig_WS2);
+        hs->Add(sigHist.GetPtr());
+        hs->Add(bkgHist1.GetPtr(), "HIST");
+        hs->Add(bkgHist2.GetPtr(), "HIST");
 
-        sigHist->Draw();
-        bkgHist1->Draw("SAME");
-        bkgHist2->Draw("SAME");
+        // gStyle->SetOptStat(kFALSE);
+        // sigHist->Draw();
+        // bkgHist1->Draw("SAME HIST");
+        // bkgHist2->Draw("SAME HIST");
+        // htemp->Reset();
+        hs->Draw("nostack");
         c1->BuildLegend();
         c1->Write();
+        delete hs;
+
         c1->Clear();
     }
 
