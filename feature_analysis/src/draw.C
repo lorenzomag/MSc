@@ -14,9 +14,11 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
     std::map<TString, std::vector<TString>> particles;
     std::set<TString> unique_features;
 
-    for (auto [particle_name, particle] : sig.particles)
+    for (auto particle : sig.particles)
     {
-        for (auto feature : particle.features)
+        auto particle_name = particle.first;
+        auto particle_instance = particle.second;
+        for (auto feature : particle_instance.features)
         {
             if (unique_features.insert(particle_name + feature.first).second)
             {
