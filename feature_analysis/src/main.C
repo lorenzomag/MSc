@@ -16,7 +16,6 @@ int main()
     set_file_names(signalInputFileName, inputFileName, exe_dir, outputFileName);
 
     TFile inputFile(inputFileName, "READ");
-    TFile signalInputFile(signalInputFileName, "READ");
     if (inputFile.IsOpen())
     {
         std::cout << "Reading data from " << inputFileName << std::endl;
@@ -26,6 +25,8 @@ int main()
         std::cout << "[ERROR] Input file " << inputFileName << " could not be found." << std::endl;
         exit(3);
     }
+
+    TFile signalInputFile(signalInputFileName, "READ");
     if (signalInputFile.IsOpen())
     {
         std::cout << "Reading data from " << inputFileName << std::endl;
@@ -70,7 +71,7 @@ int main()
                 std::cout << "[INFO] " << feat_name << " added at " << &feat_val << std::endl;
             }
         }
-        
+
         for (auto &particle : current_search->particles)
         {
 
@@ -118,7 +119,24 @@ int main()
 
 void set_file_names(TString &signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
 {
-    inputFileName = getenv("CURRENT_DATASET");
+    TString defaultName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
+
+    inputFileName = getenv("CURRENT_BKG_DATASET");
+    if (!inputFileName)
+    {
+        std::cout << inputFileName << " could not be found." << std::endl;
+        inputFileName = defaultName;
+        std::cout << "Using default file name: " << inputFileName << std::endl;
+    }
+
+    signalFileName = getenv("CURRENT_SIG_DATASET");
+    if (!signalFileName)
+    {
+        std::cout << signalFileName << " could not be found." << std::endl;
+        signalFileName = defaultName;
+        std::cout << "Using default file name: " << signalFileName << std::endl;
+    }
+
     exe_dir = getenv("WORKSPACE_DIR");
     if (exe_dir)
     {
@@ -128,12 +146,4 @@ void set_file_names(TString &signalFileName, TString &inputFileName, TString &ex
     {
         outputFileName = "../features.root";
     }
-    if (!inputFileName)
-    {
-        std::cout << inputFileName << " could not be found." << std::endl;
-        inputFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
-        std::cout << "Using default file name: " << inputFileName << std::endl;
-    }
-
-    signalFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
 }
