@@ -144,6 +144,6 @@ void set_file_names(TString &signalFileName, TString &inputFileName, TString &ex
 //    }
 //    else
 //    {
-    outputFileName = "../features.root";
+    outputFileName = "features.root";
 //    }
 }
