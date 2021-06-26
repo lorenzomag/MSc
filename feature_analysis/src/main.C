@@ -137,13 +137,13 @@ void set_file_names(TString &signalFileName, TString &inputFileName, TString &ex
         std::cout << "Using default file name: " << signalFileName << std::endl;
     }
 
-    exe_dir = getenv("WORKSPACE_DIR");
-    if (exe_dir)
-    {
-        outputFileName = exe_dir + "/feature_analysis/features.root";
-    }
-    else
-    {
-        outputFileName = "../features.root";
-    }
+//    exe_dir = getenv("WORKSPACE_DIR");
+//    if (exe_dir)
+//    {
+//        outputFileName = exe_dir + "/feature_analysis/features.root";
+//    }
+//    else
+//    {
+    outputFileName = "../features.root";
+//    }
 }
