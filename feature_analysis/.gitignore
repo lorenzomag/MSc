@@ -1,3 +1,4 @@
 features.root
 test/
 analyse_features
+default_settings.json

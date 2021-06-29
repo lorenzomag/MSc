@@ -1,6 +1,12 @@
 #include "pch.h"
-
+#include <algorithm>
 #include "select_features.h"
+
+std::vector<TString> include_particles = {
+    "Xicst",
+    "Lc",
+    "pibach",
+    "Kbach"};
 
 json select_features(feat_source option)
 {
@@ -34,6 +40,7 @@ json select_features(feat_source option)
 
     if (option == feat_source::default_values)
     {
+
         std::string particle_list[] = {
             "Lc",
             "Km",
@@ -64,7 +71,7 @@ json select_features(feat_source option)
             {"PVXERR", false},
             {"PVYERR", false},
             {"PVZERR", false},
-            {"PVCHI2", false},
+            {"PVCHI2", true},
             {"PVNDOF", false},
             {"PVNTRACKS", false},
             {"nPVs", false},
@@ -91,8 +98,11 @@ json select_features(feat_source option)
 
         for (auto particle_name : particle_list)
         {
+            if (std::find(include_particles.begin(), include_particles.end(), particle_name) != include_particles.end())
+                j_db["particles"][particle_name]["include"] = true;
+            else
+                j_db["particles"][particle_name]["include"] = false;
 
-            j_db["particles"][particle_name]["include"] = true;
             j_db["particles"][particle_name]["features"] = {
                 {"_ENDVERTEX_X", false},
                 {"_ENDVERTEX_Y", false},
@@ -102,7 +112,6 @@ json select_features(feat_source option)
                 {"_ENDVERTEX_ZERR", false},
                 {"_ENDVERTEX_CHI2", true},
                 {"_ENDVERTEX_NDOF", false},
-                {"_ENDVERTEX_COV_", false},
                 {"_OWNPV_X", false},
                 {"_OWNPV_Y", false},
                 {"_OWNPV_Z", false},
@@ -111,13 +120,12 @@ json select_features(feat_source option)
                 {"_OWNPV_ZERR", false},
                 {"_OWNPV_CHI2", true},
                 {"_OWNPV_NDOF", false},
-                {"_OWNPV_COV_", false},
                 {"_IP_OWNPV", false},
-                {"_IPCHI2_OWNPV", false},
+                {"_IPCHI2_OWNPV", true},
                 {"_FD_OWNPV", false},
                 {"_FDCHI2_OWNPV", false},
                 {"_DIRA_OWNPV", false},
-                {"_P", true},
+                {"_P", false},
                 {"_PT", true},
                 {"_PE", false},
                 {"_PX", false},
@@ -127,29 +135,29 @@ json select_features(feat_source option)
                 {"_MMERR", false},
                 {"_M", true},
                 {"_BKGCAT", false},
-                {"_falseID", false},
-                {"_MC_MOTHER_ID", false},
+                {"_TRUEID", true},
+                {"_MC_MOTHER_ID", true},
                 {"_MC_MOTHER_KEY", false},
                 {"_MC_GD_MOTHER_ID", false},
                 {"_MC_GD_MOTHER_KEY", false},
                 {"_MC_GD_GD_MOTHER_ID", false},
                 {"_MC_GD_GD_MOTHER_KEY", false},
-                {"_falseP_E", false},
-                {"_falseP_X", false},
-                {"_falseP_Y", false},
-                {"_falseP_Z", false},
-                {"_falsePT", false},
-                {"_falseORIGINVERTEX_X", false},
-                {"_falseORIGINVERTEX_Y", false},
-                {"_falseORIGINVERTEX_Z", false},
-                {"_falseENDVERTEX_X", false},
-                {"_falseENDVERTEX_Y", false},
-                {"_falseENDVERTEX_Z", false},
-                {"_falseISSTABLE", false},
-                {"_falseTAU", false},
-                {"_ID", true},
+                {"_TRUEP_E", false},
+                {"_TRUEP_X", false},
+                {"_TRUEP_Y", false},
+                {"_TRUEP_Z", false},
+                {"_TRUEPT", false},
+                {"_TRUEORIGINVERTEX_X", false},
+                {"_TRUEORIGINVERTEX_Y", false},
+                {"_TRUEORIGINVERTEX_Z", false},
+                {"_TRUEENDVERTEX_X", false},
+                {"_TRUEENDVERTEX_Y", false},
+                {"_TRUEENDVERTEX_Z", false},
+                {"_TRUEISSTABLE", false},
+                {"_TRUETAU", false},
+                {"_ID", false},
                 {"_TAU", true},
-                {"_TAUERR", true},
+                {"_TAUERR", false},
                 {"_TAUCHI2", true},
                 {"_CHI2NDOF_DTF_Lc", false},
                 {"_CHI2NDOF_DTF_Lc_PV", false},
@@ -163,18 +171,17 @@ json select_features(feat_source option)
                 {"_Dau3_P_DTF_Lc_PV", false},
                 {"_M_DTF_Lc", false},
                 {"_M_DTF_PV", false},
-                {"_ORIVX_X", true},
-                {"_ORIVX_Y", true},
-                {"_ORIVX_Z", true},
-                {"_ORIVX_XERR", true},
-                {"_ORIVX_YERR", true},
-                {"_ORIVX_ZERR", true},
+                {"_ORIVX_X", false},
+                {"_ORIVX_Y", false},
+                {"_ORIVX_Z", false},
+                {"_ORIVX_XERR", false},
+                {"_ORIVX_YERR", false},
+                {"_ORIVX_ZERR", false},
                 {"_ORIVX_CHI2", true},
-                {"_ORIVX_NDOF", true},
-                {"_ORIVX_COV_", true},
+                {"_ORIVX_NDOF", false},
                 {"_FD_ORIVX", false},
                 {"_FDCHI2_ORIVX", false},
-                {"_DIRA_ORIVX", false},
+                {"_DIRA_ORIVX", true},
                 {"_BPVVDCHI2", false},
                 {"_DOCA12", false},
                 {"_DOCA13", false},
@@ -216,13 +223,13 @@ json select_features(feat_source option)
                 {"_PIDK", false},
                 {"_PIDp", false},
                 {"_PIDd", false},
-                {"_ProbNNe", true},
+                {"_ProbNNe", false},
                 {"_ProbNNk", true},
                 {"_ProbNNp", true},
                 {"_ProbNNpi", true},
-                {"_ProbNNmu", true},
-                {"_ProbNNd", true},
-                {"_ProbNNghost", true},
+                {"_ProbNNmu", false},
+                {"_ProbNNd", false},
+                {"_ProbNNghost", false},
                 {"_hasMuon", false},
                 {"_isMuon", false},
                 {"_hasRich", false},
@@ -242,7 +249,9 @@ json select_features(feat_source option)
                 {"_TRACK_MatchCHI2", false},
                 {"_TRACK_GhostProb", false},
                 {"_TRACK_CloneDist", false},
-                {"_TRACK_Likelihood", false}};
+                {"_TRACK_Likelihood", false},
+                {"_TRACK_Likelihood", false}
+            };
         }
 
         std::ofstream myfile;

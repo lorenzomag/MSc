@@ -6,7 +6,7 @@
 #include "main.h"
 int main()
 {
-    json j_db = select_features(feat_source::from_file);
+    json j_db = select_features(feat_source::default_values);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
@@ -48,7 +48,7 @@ int main()
     // ws1.SetTree("FeaturesWS1", "Features Tree for WS1 (Lc+ K+ pi-)", Search::output);
     // ws2.SetTree("FeaturesWS2", "Features Tree for WS2 (Lc+ K+ pi+)", Search::output);
 
-    std::vector<Search *> searches = {&sig, &ws1}; //, &ws2};
+    std::vector<Search *> searches = {&sig, &ws1, &ws2};
 
     TBranch *currentBranch;
     TObjArray *branches;
