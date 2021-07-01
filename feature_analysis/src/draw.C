@@ -30,7 +30,7 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
     RDataFrame sig_df(*sig.GetTree(Search::input));
     RDataFrame ws1_df(*ws1.GetTree(Search::input));
     RDataFrame ws2_df(*ws2.GetTree(Search::input));
-    TCanvas *c1 = new TCanvas("temp", "temp", 800, 800);
+    TCanvas *c1 = new TCanvas("temp", "temp",1000,2000);
 
     RDF::RResultPtr<TH1D> sigHist;
     RDF::RResultPtr<TH1D> bkgHist1;
@@ -45,7 +45,7 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
 
         for (auto feature_name : particle.second)
         {
-            c1->Divide(3, 1);
+            c1->Divide(1,3);
             auto feature = particle.first + feature_name;
             std::cout << "Producting plots for " << feature << std::endl;
 
@@ -68,9 +68,9 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
             }
             else
             {
-                sigHist = sig_df.Histo1D(feature);
-                bkgHist1 = ws1_df.Histo1D(feature);
-                bkgHist2 = ws2_df.Histo1D(feature);
+                sigHist = sig_df.Histo1D({"","",1000,0,0},feature);
+                bkgHist1 = ws1_df.Histo1D({"","",1000,0,0},feature);
+                bkgHist2 = ws2_df.Histo1D({"","",1000,0,0},feature);
             }
             sigHist->SetLineColor(kBlack);
             bkgHist1->SetLineColor(kRed);
@@ -98,13 +98,16 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
 
             c1->cd(1);
             hsWS1->Draw("nostack");
+            gPad->BuildLegend(0.8,0.7,0.9,0.9);
             c1->cd(2);
             hsWS2->Draw("nostack");
+            gPad->BuildLegend(0.8,0.7,0.9,0.9);
             c1->cd(3);
             hsBkg->Draw("nostack");
+            gPad->BuildLegend(0.8,0.7,0.9,0.9);
 
             c1->Write();
-            c1->BuildLegend();
+            // c1->BuildLegend();
             delete hsWS1;
             delete hsWS2;
             delete hsBkg;
