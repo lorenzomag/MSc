@@ -2,16 +2,23 @@
 #include "search.h"
 #include "main.h"
 #include "draw.h"
+#include "ROOT/RDataFrame.hxx"
+
+using namespace ROOT;
 
 void draw_features(Search &sig, Search &ws1, Search &ws2)
 {
-    std::cout << std::endl << "Plotting feature comparisons between Signal and possible background sources (WS1 and WS2)" << std::endl;
+
+    std::cout << std::endl
+              << "Plotting feature comparisons between Signal and possible background sources (WS1 and WS2)" << std::endl;
     std::map<TString, std::vector<TString>> particles;
     std::set<TString> unique_features;
 
-    for (auto [particle_name, particle] : sig.particles)
+    for (auto particle : ws1.particles)
     {
-        for (auto feature : particle.features)
+        auto particle_name = particle.first;
+        auto particle_instance = particle.second;
+        for (auto feature : particle_instance.features)
         {
             if (unique_features.insert(particle_name + feature.first).second)
             {
@@ -20,54 +27,96 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
         }
     }
 
-    TObjArray Clist(0);
+    RDataFrame sig_df(*sig.GetTree(Search::input));
+    RDataFrame ws1_df(*ws1.GetTree(Search::input));
+    RDataFrame ws2_df(*ws2.GetTree(Search::input));
+    TCanvas *c1 = new TCanvas("temp", "temp",1000,2000);
 
-    TCanvas *c1 = new TCanvas("temp", "temp", 0, 0, 300, 200);
-    TH1D *sigHist = new TH1D("Signal", "Signal", 1000, 0, 100);
-    TH1D *bkgHist1 = new TH1D("WS1", "WS1", 1000, 0, 100);
-    TH1D *bkgHist2 = new TH1D("WS2", "WS2", 1000, 0, 100);
+    RDF::RResultPtr<TH1D> sigHist;
+    RDF::RResultPtr<TH1D> bkgHist1;
+    RDF::RResultPtr<TH1D> bkgHist2;
 
-    sigHist->SetLineColor(kBlack);
-    bkgHist1->SetLineColor(kRed);
-    bkgHist2->SetLineColor(kGreen + 1);
-
-    for (auto feature : unique_features)
+    for (auto particle : particles)
     {
-        std::cout << "Producting plots for " << feature << std::endl;
-        c1->SetTitle(feature);
-        c1->SetName(feature);
+        std::cout << std::endl
+                  << "Scanning particle " << particle.first << std::endl;
+        gDirectory->mkdir(particle.first);
+        gDirectory->cd(particle.first);
 
-        auto sigHistName = feature + ">>Signal";
-        auto bkgHistName1= feature + ">>WS1";
-        auto bkgHistName2 = feature + ">>WS2";
-        
-        // sigHist->SetTitle(feature);
-        // bkgHist1->SetTitle(feature);
-        // bkgHist2->SetTitle(feature);
+        for (auto feature_name : particle.second)
+        {
+            c1->Divide(1,3);
+            auto feature = particle.first + feature_name;
+            std::cout << "Producting plots for " << feature << std::endl;
 
-        sig.GetTree(Search::input)->Draw(sigHistName);
-        ws1.GetTree(Search::input)->Draw(bkgHistName1);
-        ws2.GetTree(Search::input)->Draw(bkgHistName2);
+            THStack *hsBkg = new THStack("hsBkg", feature);
+            THStack *hsWS1 = new THStack("hsWS1", feature);
+            THStack *hsWS2 = new THStack("hsWS2", feature);
+            c1->SetName(feature);
+            c1->SetTitle(feature);
 
-        float scaleFactorSig_WS1 = sigHist->GetEntries() / bkgHist1->GetEntries();
-        float scaleFactorSig_WS2 = sigHist->GetEntries() / bkgHist2->GetEntries();
-        float scaleFactorWS1_WS2 = bkgHist1->GetEntries() / bkgHist2->GetEntries();
+            auto x_min = sig_df.Min(feature).GetValue();
+            auto x_max = sig_df.Max(feature).GetValue();
 
-        bkgHist1->Scale(scaleFactorSig_WS1);
-        bkgHist2->Scale(scaleFactorSig_WS2);
+            if (feature.Contains("CHI2"))
+            {
+                // std::cout << feature << " contains Chi2" << std::endl;
+                std::string filter_req = (std::string)feature + ">= 0";
+                sigHist = sig_df.Filter(filter_req).Histo1D({"","",1000,0,0},feature);
+                bkgHist1 = ws1_df.Filter(filter_req).Histo1D({"","",1000,0,0},feature);
+                bkgHist2 = ws2_df.Filter(filter_req).Histo1D({"","",1000,0,0},feature);
+            }
+            else
+            {
+                sigHist = sig_df.Histo1D({"","",1000,0,0},feature);
+                bkgHist1 = ws1_df.Histo1D({"","",1000,0,0},feature);
+                bkgHist2 = ws2_df.Histo1D({"","",1000,0,0},feature);
+            }
+            sigHist->SetLineColor(kBlack);
+            bkgHist1->SetLineColor(kRed);
+            bkgHist2->SetLineColor(kGreen);
 
-        sigHist->Draw();
-        bkgHist1->Draw("SAME");
-        bkgHist2->Draw("SAME");
-        c1->BuildLegend();
-        c1->Write();
-        c1->Clear();
+            // sigHist->SetLineWidth();
+            // bkgHist1->SetLineWidth(2);
+            // bkgHist2->SetLineWidth(2);
+
+            sigHist->SetNameTitle("Signal", "Signal");
+            bkgHist1->SetNameTitle("WS1", "Wrong Sign 1");
+            bkgHist2->SetNameTitle("WS2", "Wrong Sign 2");
+
+            bkgHist1->Scale(sigHist->GetEntries() / bkgHist1->GetEntries());
+            bkgHist2->Scale(sigHist->GetEntries() / bkgHist2->GetEntries());
+
+            hsWS1->Add(sigHist.GetPtr());
+            hsWS1->Add(bkgHist1.GetPtr(), "HIST");
+
+            hsWS2->Add(sigHist.GetPtr());
+            hsWS2->Add(bkgHist2.GetPtr(), "HIST");
+
+            hsBkg->Add(bkgHist1.GetPtr(), "HIST");
+            hsBkg->Add(bkgHist2.GetPtr(), "HIST");
+
+            c1->cd(1);
+            hsWS1->Draw("nostack");
+            gPad->BuildLegend(0.8,0.7,0.9,0.9);
+            c1->cd(2);
+            hsWS2->Draw("nostack");
+            gPad->BuildLegend(0.8,0.7,0.9,0.9);
+            c1->cd(3);
+            hsBkg->Draw("nostack");
+            gPad->BuildLegend(0.8,0.7,0.9,0.9);
+
+            c1->Write();
+            // c1->BuildLegend();
+            delete hsWS1;
+            delete hsWS2;
+            delete hsBkg;
+
+            c1->Clear();
+            std::cout << std::endl;
+        }
+        gDirectory->cd("../");
     }
 
-#ifndef run_with_root
-
     delete c1;
-    // gDirectory->GetList()->ls();
-
-#endif
 };
