@@ -6,7 +6,7 @@
 #include "main.h"
 int main()
 {
-    json j_db = select_features(feat_source::from_file);
+    json j_db = select_features(feat_source::default_values);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
@@ -16,7 +16,6 @@ int main()
     set_file_names(signalInputFileName, inputFileName, exe_dir, outputFileName);
 
     TFile inputFile(inputFileName, "READ");
-    TFile signalInputFile(signalInputFileName, "READ");
     if (inputFile.IsOpen())
     {
         std::cout << "Reading data from " << inputFileName << std::endl;
@@ -26,6 +25,8 @@ int main()
         std::cout << "[ERROR] Input file " << inputFileName << " could not be found." << std::endl;
         exit(3);
     }
+
+    TFile signalInputFile(signalInputFileName, "READ");
     if (signalInputFile.IsOpen())
     {
         std::cout << "Reading data from " << inputFileName << std::endl;
@@ -47,7 +48,7 @@ int main()
     // ws1.SetTree("FeaturesWS1", "Features Tree for WS1 (Lc+ K+ pi-)", Search::output);
     // ws2.SetTree("FeaturesWS2", "Features Tree for WS2 (Lc+ K+ pi+)", Search::output);
 
-    std::vector<Search *> searches = {&sig, &ws1}; //, &ws2};
+    std::vector<Search *> searches = {&sig, &ws1, &ws2};
 
     TBranch *currentBranch;
     TObjArray *branches;
@@ -58,8 +59,11 @@ int main()
         std::cout << std::endl;
         current_search->GetWSDescription();
 
-        for (auto &[feat_name, feat_val] : current_search->globals)
+        for (auto &feature : current_search->globals)
         {
+            auto feat_name = feature.first;
+            auto feat_val = feature.second;
+
             currentBranch = (TBranch *)branches->FindObject(feat_name);
             if (currentBranch)
             {
@@ -67,6 +71,7 @@ int main()
                 std::cout << "[INFO] " << feat_name << " added at " << &feat_val << std::endl;
             }
         }
+
         for (auto &particle : current_search->particles)
         {
 
@@ -112,24 +117,33 @@ int main()
     return 0;
 }
 
-void set_file_names(TString& signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
+void set_file_names(TString &signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
 {
-    inputFileName = getenv("CURRENT_DATASET");
-    exe_dir = getenv("WORKSPACE_DIR");
-    if (exe_dir)
-    {
-        outputFileName = exe_dir + "/feature_analysis/features.root";
-    }
-    else
-    {
-        outputFileName = "../features.root";
-    }
+    TString defaultName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
+
+    inputFileName = getenv("CURRENT_BKG_DATASET");
     if (!inputFileName)
     {
         std::cout << inputFileName << " could not be found." << std::endl;
-        inputFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
+        inputFileName = defaultName;
         std::cout << "Using default file name: " << inputFileName << std::endl;
     }
 
-    signalFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
+    signalFileName = getenv("CURRENT_SIG_DATASET");
+    if (!signalFileName)
+    {
+        std::cout << signalFileName << " could not be found." << std::endl;
+        signalFileName = defaultName;
+        std::cout << "Using default file name: " << signalFileName << std::endl;
+    }
+
+//    exe_dir = getenv("WORKSPACE_DIR");
+//    if (exe_dir)
+//    {
+//        outputFileName = exe_dir + "/feature_analysis/features.root";
+//    }
+//    else
+//    {
+    outputFileName = "features.root";
+//    }
 }

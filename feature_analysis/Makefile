@@ -1,4 +1,4 @@
-.PHONY: default run clean build
+.PHONY: branches default run clean build
 
 default:
 	cmake --build build/
@@ -14,3 +14,5 @@ build:
 	cmake -B build .
 	cmake --build build/
 
+branches:
+	python3 select_branches/getBranchNames.py
