@@ -6,7 +6,7 @@
 #include "main.h"
 int main()
 {
-    json j_db = select_features(feat_source::from_file);
+    json j_db = select_features(feat_source::default_values);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
