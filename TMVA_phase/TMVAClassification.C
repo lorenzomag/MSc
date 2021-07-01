@@ -1,4 +1,3 @@
-
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -84,7 +83,7 @@ int TMVAClassification(TString myMethodList = "")
 #endif
 
 #ifdef R__HAS_TMVACPU
-   Use["DNN_CPU"] = 0; // Multi-core accelerated DNN.
+   Use["DNN_CPU"] = 1; // Multi-core accelerated DNN.
 #else
    Use["DNN_CPU"] = 0;
 #endif
@@ -200,7 +199,7 @@ int TMVAClassification(TString myMethodList = "")
    //TString outfileName( "TMVA_set8.root" );
    //TString outfileName( "TMVA_set9.root" );
    // TString outfileName( "TMVA_set10.root" );
-   TString outfileName("TMVA_set11.root");
+   TString outfileName("TMVA_set12.root");
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
 
    // Create the factory object. Later you can choose the methods
