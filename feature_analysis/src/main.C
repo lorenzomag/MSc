@@ -6,7 +6,7 @@
 #include "main.h"
 int main()
 {
-    json j_db = select_features(feat_source::default_values);
+    json j_db = select_features(feat_source::from_file);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
@@ -18,7 +18,7 @@ int main()
     TFile inputFile(inputFileName, "READ");
     if (inputFile.IsOpen())
     {
-        std::cout << "Reading data from " << inputFileName << std::endl;
+        std::cout << "Reading data from " << inputFileName << " for background data." << std::endl;
     }
     else
     {
@@ -29,11 +29,11 @@ int main()
     TFile signalInputFile(signalInputFileName, "READ");
     if (signalInputFile.IsOpen())
     {
-        std::cout << "Reading data from " << inputFileName << std::endl;
+        std::cout << "Reading data from " << signalInputFileName << " for signal data." << std::endl;
     }
     else
     {
-        std::cout << "[ERROR] Input file " << inputFileName << " could not be found." << std::endl;
+        std::cout << "[ERROR] Input file " << signalInputFileName << " could not be found." << std::endl;
         exit(3);
     }
 
@@ -44,9 +44,9 @@ int main()
 
     // Set output trees
     TFile outputFile(outputFileName, "RECREATE");
-    // sig.SetTree("FeaturesSig", "Features Tree for signal (Lc+ K- pi+)", Search::output);
-    // ws1.SetTree("FeaturesWS1", "Features Tree for WS1 (Lc+ K+ pi-)", Search::output);
-    // ws2.SetTree("FeaturesWS2", "Features Tree for WS2 (Lc+ K+ pi+)", Search::output);
+    sig.SetTree("LcKPiTree/DecayTree", "Features Tree for signal (Lc+ K- pi+)", Search::output);
+    ws1.SetTree("LcKPiTreeWS1/DecayTree", "Features Tree for WS1 (Lc+ K+ pi-)", Search::output);
+    ws2.SetTree("LcKPiTreeWS2/DecayTree", "Features Tree for WS2 (Lc+ K+ pi+)", Search::output);
 
     std::vector<Search *> searches = {&sig, &ws1, &ws2};
 
@@ -55,6 +55,10 @@ int main()
 
     for (Search *current_search : searches)
     {
+        auto is_MC = current_search->GetName() == "Sig" ? true : false;
+        bool has_TRUEID = false;
+        bool has_ID = false;
+
         branches = current_search->GetTree(Search::input)->GetListOfBranches();
         std::cout << std::endl;
         current_search->GetWSDescription();
@@ -68,6 +72,7 @@ int main()
             if (currentBranch)
             {
                 currentBranch->SetAddress(&feat_val);
+                current_search->GetTree(Search::output)->Branch(feat_name, &feat_val);
                 std::cout << "[INFO] " << feat_name << " added at " << &feat_val << std::endl;
             }
         }
@@ -92,7 +97,13 @@ int main()
                 if (currentBranch)
                 {
                     currentBranch->SetAddress(&feature.second);
+                    current_search->GetTree(Search::output)->Branch(full_feature_name, &feature.second);
                     std::cout << "[INFO] " << full_feature_name << " added " << std::endl;
+
+                    if (full_feature_name == "Xicst_TRUEID")
+                        has_TRUEID = true;
+                    if (full_feature_name == "Xicst_ID")
+                        has_ID = true;
                 }
                 else
                 {
@@ -106,8 +117,37 @@ int main()
                 feature_map.erase(feature);
                 std::cout << "[WARNING] " << particle_name << feature << " is not a valid branch; ignored." << std::endl;
             }
+
+
+            if (is_MC)
+            {
+                std::cout << "[INFO] Checking for presence of truth branches." << std::endl;
+                if (!has_ID)
+                {
+                    current_search->GetTree(Search::input)->SetBranchAddress("Xicst_ID", &feature_map["Xicst_ID"]);
+                }
+            }
+        }
+
+        // auto n_entries = current_search->GetTree(Search::input)->GetEntries();
+        auto n_entries = 10;
+
+        std::cout << "\nFilling output trees" << std::endl;
+        for (int i = 0; i < n_entries; i++)
+        {
+            current_search->GetTree(Search::input)->GetEntry(i);
+
+            // if ()
+            //     current_search->GetTree(Search::output)->Fill();
+
+            if (i % n_entries == 10000)
+                std::cout << i << "/" << n_entries << std::endl;
         }
     }
+
+    sig.GetTree(Search::output)->Write();
+    ws1.GetTree(Search::output)->Write();
+    ws2.GetTree(Search::output)->Write();
 
     draw_features(sig, ws1, ws2);
 
@@ -137,13 +177,5 @@ void set_file_names(TString &signalFileName, TString &inputFileName, TString &ex
         std::cout << "Using default file name: " << signalFileName << std::endl;
     }
 
-//    exe_dir = getenv("WORKSPACE_DIR");
-//    if (exe_dir)
-//    {
-//        outputFileName = exe_dir + "/feature_analysis/features.root";
-//    }
-//    else
-//    {
     outputFileName = "features.root";
-//    }
 }

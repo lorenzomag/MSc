@@ -27,9 +27,9 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
         }
     }
 
-    RDataFrame sig_df(*sig.GetTree(Search::input));
-    RDataFrame ws1_df(*ws1.GetTree(Search::input));
-    RDataFrame ws2_df(*ws2.GetTree(Search::input));
+    RDataFrame sig_df(*sig.GetTree(Search::output));
+    RDataFrame ws1_df(*ws1.GetTree(Search::output));
+    RDataFrame ws2_df(*ws2.GetTree(Search::output));
     TCanvas *c1 = new TCanvas("temp", "temp",1000,2000);
 
     RDF::RResultPtr<TH1D> sigHist;
