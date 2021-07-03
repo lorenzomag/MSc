@@ -20,7 +20,8 @@ public:
     enum IO
     {
         input,
-        output
+        output,
+        clone
     };
 
 private:
@@ -39,10 +40,10 @@ public:
     Search(json &feature_list, TString name, TString desc);
     void SetWSDescription(TString desc);
     void GetWSDescription();
-    void SetTree(TTree *tree, IO isInput);
-    void SetTree(TString name, TString title, IO isInput);
+    TTree* SetTree(TString name, TString title, IO isInput);
+    TTree *SetTree(TTree *tree, IO isInput, TString name="", TString title="");
     TTree *GetTree(IO isInput) const;
-    void SetName(TString name);
+    void SetName(TString);
     TString GetName();
     int GetNGlobals();
     int GetNParticles();

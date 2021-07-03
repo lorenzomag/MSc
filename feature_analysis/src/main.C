@@ -38,15 +38,12 @@ int main()
     }
 
     // Get input trees
-    sig.SetTree((TTree *)signalInputFile.Get("LcKPiTree/DecayTree"), Search::input);
-    ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input);
-    ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input);
+    sig.SetTree((TTree *)signalInputFile.Get("LcKPiTree/DecayTree"), Search::input,"LcKPiTree","LcKPiTree");
+    ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input,"LcKPiTreeWS1","LcKPiTreeWS1");
+    ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input,"LcKPiTreeWS2","LcKPiTreeWS2");
 
     // Set output trees
     TFile outputFile(outputFileName, "RECREATE");
-    sig.SetTree("LcKPiTree/DecayTree", "Features Tree for signal (Lc+ K- pi+)", Search::output);
-    ws1.SetTree("LcKPiTreeWS1/DecayTree", "Features Tree for WS1 (Lc+ K+ pi-)", Search::output);
-    ws2.SetTree("LcKPiTreeWS2/DecayTree", "Features Tree for WS2 (Lc+ K+ pi+)", Search::output);
 
     std::vector<Search *> searches = {&sig, &ws1, &ws2};
 
@@ -58,8 +55,12 @@ int main()
         auto is_MC = current_search->GetName() == "Sig" ? true : false;
         bool has_TRUEID = false;
         bool has_ID = false;
+        int Xicst_TRUEID, Xicst_ID;
 
-        branches = current_search->GetTree(Search::input)->GetListOfBranches();
+        TTree *input_tree = current_search->GetTree(Search::input);
+        input_tree->SetBranchStatus("*", 0);
+
+        branches = input_tree->GetListOfBranches();
         std::cout << std::endl;
         current_search->GetWSDescription();
 
@@ -71,8 +72,9 @@ int main()
             currentBranch = (TBranch *)branches->FindObject(feat_name);
             if (currentBranch)
             {
-                currentBranch->SetAddress(&feat_val);
-                current_search->GetTree(Search::output)->Branch(feat_name, &feat_val);
+                // currentBranch->SetAddress(&feat_val);
+                // current_search->GetTree(Search::output)->Branch(feat_name, &feat_val);
+                input_tree->SetBranchStatus(feat_name, 1);
                 std::cout << "[INFO] " << feat_name << " added at " << &feat_val << std::endl;
             }
         }
@@ -96,8 +98,9 @@ int main()
 
                 if (currentBranch)
                 {
-                    currentBranch->SetAddress(&feature.second);
-                    current_search->GetTree(Search::output)->Branch(full_feature_name, &feature.second);
+                    // currentBranch->SetAddress(&feature.second);
+                    // current_search->GetTree(Search::output)->Branch(full_feature_name, &feature.second);
+                    input_tree->SetBranchStatus(full_feature_name, 1);
                     std::cout << "[INFO] " << full_feature_name << " added " << std::endl;
 
                     if (full_feature_name == "Xicst_TRUEID")
@@ -118,36 +121,49 @@ int main()
                 std::cout << "[WARNING] " << particle_name << feature << " is not a valid branch; ignored." << std::endl;
             }
 
-
             if (is_MC)
             {
                 std::cout << "[INFO] Checking for presence of truth branches." << std::endl;
                 if (!has_ID)
                 {
-                    current_search->GetTree(Search::input)->SetBranchAddress("Xicst_ID", &feature_map["Xicst_ID"]);
+                    input_tree->SetBranchStatus("Xicst_ID", 1);
+                    input_tree->SetBranchAddress("Xicst_ID", &Xicst_ID);
+                }
+
+                if (!has_TRUEID)
+                {
+                    input_tree->SetBranchStatus("Xicst_TRUEID", 1);
+                    input_tree->SetBranchAddress("Xicst_TRUEID", &Xicst_TRUEID);
                 }
             }
         }
 
-        // auto n_entries = current_search->GetTree(Search::input)->GetEntries();
-        auto n_entries = 10;
-
         std::cout << "\nFilling output trees" << std::endl;
+        TTree *output_tree = current_search->SetTree(input_tree->CloneTree(0), Search::clone);
+
+        std::cout << output_tree << "  " << current_search->GetTree(Search::output) << std::endl;
+        std::cout << output_tree << "  " << current_search->GetTree(Search::output) << std::endl;
+
+        auto n_entries = input_tree->GetEntries();
+
+        if (is_MC)
+            std::cout << "Filling for " << current_search->GetName() << std::endl;
         for (int i = 0; i < n_entries; i++)
         {
-            current_search->GetTree(Search::input)->GetEntry(i);
+            input_tree->GetEntry(i);
+            if (Xicst_TRUEID == Xicst_ID)
+            {
+                output_tree->Fill();
+            }
 
-            // if ()
-            //     current_search->GetTree(Search::output)->Fill();
-
-            if (i % n_entries == 10000)
-                std::cout << i << "/" << n_entries << std::endl;
+            if (i % 10000 == 0)
+            {
+                // std::cout << (double)i * 100 / n_entries << "% : " << i << "/" << n_entries << std::endl;
+            }
         }
-    }
 
-    sig.GetTree(Search::output)->Write();
-    ws1.GetTree(Search::output)->Write();
-    ws2.GetTree(Search::output)->Write();
+        output_tree->Write();
+    }
 
     draw_features(sig, ws1, ws2);
 
@@ -157,16 +173,16 @@ int main()
     return 0;
 }
 
-void set_file_names(TString &signalFileName, TString &inputFileName, TString &exe_dir, TString &outputFileName)
+void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString &exe_dir, TString &outputFileName)
 {
     TString defaultName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
 
-    inputFileName = getenv("CURRENT_BKG_DATASET");
-    if (!inputFileName)
+    bkgInputFileName = getenv("CURRENT_BKG_DATASET");
+    if (!bkgInputFileName)
     {
-        std::cout << inputFileName << " could not be found." << std::endl;
-        inputFileName = defaultName;
-        std::cout << "Using default file name: " << inputFileName << std::endl;
+        std::cout << bkgInputFileName << " could not be found." << std::endl;
+        bkgInputFileName = defaultName;
+        std::cout << "Using default file name: " << bkgInputFileName << std::endl;
     }
 
     signalFileName = getenv("CURRENT_SIG_DATASET");

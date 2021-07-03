@@ -72,11 +72,20 @@ void Search::GetWSDescription()
     }
 };
 
-void Search::SetTree(TTree *tree, IO isInput)
+TTree *Search::SetTree(TTree *tree, IO isInput, TString name, TString title)
 {
+    if (name != "")
+        tree->SetName(name);
+    if (title != "")
+        tree->SetTitle(title);
+        
     if (isInput == Search::input)
     {
         m_inTree = tree;
+    }
+    else if (isInput == Search::clone)
+    {
+        m_outTree = tree;
     }
     else
     {
@@ -84,17 +93,29 @@ void Search::SetTree(TTree *tree, IO isInput)
                   << "If you want to set an input tree, IO argument needs to be \"input\"." << std::endl;
         exit(5);
     }
-};
-void Search::SetTree(TString name, TString title, IO isInput)
-{
+
     if (isInput == Search::input)
+        return m_inTree;
+    else
+        return m_outTree;
+};
+TTree *Search::SetTree(TString name, TString title, IO isInput)
+{
+    if (isInput == Search::input || isInput == Search::clone)
     {
-        std::cerr << "[ERROR] Use \"int Search::SetTree(TTree *tree, IO isInput)\" setter to set input tree." << std::endl
+        std::cerr << "[ERROR] Use \"int Search::SetTree(TTree *tree, IO isInput)\" setter to set input tree or to clone a tree." << std::endl
                   << "If you want to set an output tree, IO argument needs to be \"output\"." << std::endl;
         exit(6);
     }
     else
+    {
         m_outTree = new TTree(name, title);
+    }
+
+    if (isInput == Search::input)
+        return m_inTree;
+    else
+        return m_outTree;
 };
 
 void Search::SetName(TString name)
@@ -119,10 +140,12 @@ TTree *Search::GetTree(IO isInput) const
         return m_outTree;
 };
 
-int Search::GetNGlobals(){
+int Search::GetNGlobals()
+{
     return m_nGlobals;
 };
 
-int Search::GetNParticles(){
+int Search::GetNParticles()
+{
     return m_nParticles;
 };
