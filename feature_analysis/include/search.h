@@ -7,7 +7,7 @@ using json = nlohmann::json;
 struct PARTICLE
 {
     TString name;
-    std::map<TString, double> features;
+    std::vector<TString> features;
 };
 
 // Class to contain everything relative to a run.
@@ -33,7 +33,7 @@ private:
 
 public:
     std::map<TString, PARTICLE> particles;
-    std::map<TString, double> globals;
+    std::vector<TString> globals;
 
     Search(json &feature_list);
     Search(json &feature_list, TString desc);

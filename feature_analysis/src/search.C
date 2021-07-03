@@ -12,7 +12,7 @@ Search::Search(json &feature_list) : m_nParticles(0), m_nGlobals(0), m_WSDescrip
         if (feature.value())
         {
             m_nGlobals++;
-            globals[feature.key()] = 0.0;
+            globals.push_back(feature.key());
         }
     }
 
@@ -28,7 +28,7 @@ Search::Search(json &feature_list) : m_nParticles(0), m_nGlobals(0), m_WSDescrip
 
             for (auto feature : feature_list["particles"][particle_name]["features"].items())
                 if (feature.value())
-                    particles[particle_name].features[feature.key()] = 0.0;
+                    particles[particle_name].features.push_back(feature.key());
         }
     }
 };
@@ -78,7 +78,7 @@ TTree *Search::SetTree(TTree *tree, IO isInput, TString name, TString title)
         tree->SetName(name);
     if (title != "")
         tree->SetTitle(title);
-        
+
     if (isInput == Search::input)
     {
         m_inTree = tree;

@@ -6,7 +6,7 @@
 #include "main.h"
 int main()
 {
-    json j_db = select_features(feat_source::from_file);
+    json j_db = select_features(feat_source::default_values);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
@@ -38,9 +38,9 @@ int main()
     }
 
     // Get input trees
-    sig.SetTree((TTree *)signalInputFile.Get("LcKPiTree/DecayTree"), Search::input,"LcKPiTree","LcKPiTree");
-    ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input,"LcKPiTreeWS1","LcKPiTreeWS1");
-    ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input,"LcKPiTreeWS2","LcKPiTreeWS2");
+    sig.SetTree((TTree *)signalInputFile.Get("LcKPiTree/DecayTree"), Search::input, "LcKPiTree", "LcKPiTree");
+    ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input, "LcKPiTreeWS1", "LcKPiTreeWS1");
+    ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input, "LcKPiTreeWS2", "LcKPiTreeWS2");
 
     // Set output trees
     TFile outputFile(outputFileName, "RECREATE");
@@ -66,16 +66,11 @@ int main()
 
         for (auto &feature : current_search->globals)
         {
-            auto feat_name = feature.first;
-            auto feat_val = feature.second;
-
-            currentBranch = (TBranch *)branches->FindObject(feat_name);
+            currentBranch = (TBranch *)branches->FindObject(feature);
             if (currentBranch)
             {
-                // currentBranch->SetAddress(&feat_val);
-                // current_search->GetTree(Search::output)->Branch(feat_name, &feat_val);
-                input_tree->SetBranchStatus(feat_name, 1);
-                std::cout << "[INFO] " << feat_name << " added at " << &feat_val << std::endl;
+                input_tree->SetBranchStatus(feature, 1);
+                std::cout << "[INFO] " << feature << " added" << std::endl;
             }
         }
 
@@ -87,19 +82,16 @@ int main()
                       << particle_name << std::endl;
             std::cout << "============" << std::endl;
 
-            std::map<TString, double> &feature_map = current_search->particles[particle_name].features;
+            std::vector<TString> &feature_vector = current_search->particles[particle_name].features;
             std::vector<TString> to_remove;
-            for (auto &feature : feature_map)
+            for (auto feature : feature_vector)
             {
-                TString feature_name = feature.first;
-                TString full_feature_name = particle_name + feature_name;
+                TString full_feature_name = particle_name + feature;
 
                 currentBranch = (TBranch *)branches->FindObject(full_feature_name);
 
                 if (currentBranch)
                 {
-                    // currentBranch->SetAddress(&feature.second);
-                    // current_search->GetTree(Search::output)->Branch(full_feature_name, &feature.second);
                     input_tree->SetBranchStatus(full_feature_name, 1);
                     std::cout << "[INFO] " << full_feature_name << " added " << std::endl;
 
@@ -110,15 +102,19 @@ int main()
                 }
                 else
                 {
-                    to_remove.push_back(feature_name);
+                    to_remove.push_back(feature);
                 }
             }
 
             std::cout << std::endl;
-            for (auto feature : to_remove)
+            for (auto feature_it = to_remove.begin(); feature_it != to_remove.end(); feature_it++)
             {
-                feature_map.erase(feature);
-                std::cout << "[WARNING] " << particle_name << feature << " is not a valid branch; ignored." << std::endl;
+                auto pos = std::find(feature_vector.begin(), feature_vector.end(), *feature_it);
+                if (pos != feature_vector.end())
+                {
+                    std::cout << "[WARNING] " << particle_name << *feature_it << " is not a valid branch; ignored." << std::endl;
+                    feature_vector.erase(pos);
+                }
             }
 
             if (is_MC)
@@ -138,27 +134,22 @@ int main()
             }
         }
 
-        std::cout << "\nFilling output trees" << std::endl;
+        std::cout << "\n[INFO] Filling output trees" << std::endl;
         TTree *output_tree = current_search->SetTree(input_tree->CloneTree(0), Search::clone);
-
-        std::cout << output_tree << "  " << current_search->GetTree(Search::output) << std::endl;
-        std::cout << output_tree << "  " << current_search->GetTree(Search::output) << std::endl;
 
         auto n_entries = input_tree->GetEntries();
 
-        if (is_MC)
-            std::cout << "Filling for " << current_search->GetName() << std::endl;
         for (int i = 0; i < n_entries; i++)
         {
             input_tree->GetEntry(i);
-            if (Xicst_TRUEID == Xicst_ID)
+            if (  (is_MC && (Xicst_TRUEID == Xicst_ID) )  || !is_MC)
             {
                 output_tree->Fill();
-            }
+            }            
 
-            if (i % 10000 == 0)
+            if (i % 20000 == 0)
             {
-                // std::cout << (double)i * 100 / n_entries << "% : " << i << "/" << n_entries << std::endl;
+                std::cout << (double)i * 100 / n_entries << "% : " << i << "/" << n_entries << std::endl;
             }
         }
 

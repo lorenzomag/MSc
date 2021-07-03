@@ -20,9 +20,9 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
         auto particle_instance = particle.second;
         for (auto feature : particle_instance.features)
         {
-            if (unique_features.insert(particle_name + feature.first).second)
+            if (unique_features.insert(particle_name + feature).second)
             {
-                particles[particle_name].push_back(feature.first);
+                particles[particle_name].push_back(feature);
             }
         }
     }
