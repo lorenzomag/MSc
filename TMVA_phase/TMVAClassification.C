@@ -27,7 +27,7 @@ int TMVAClassification(TString myMethodList = "")
    //     mylinux~> root -l TMVAClassification.C\‍(\"myMethod1,myMethod2,myMethod3\"\‍)
 
    //---------------------------------------------------------------
-   // This loads the library
+   // This loads the library     
    TMVA::Tools::Instance();
 
    // Default MVA methods to be trained + tested
@@ -77,7 +77,7 @@ int TMVAClassification(TString myMethodList = "")
    Use["CFMlpANN"] = 0; // Depreciated ANN from ALEPH
    Use["TMlpANN"] = 0;  // ROOT's own ANN
 #ifdef R__HAS_TMVAGPU
-   Use["DNN_GPU"] = 0; // CUDA-accelerated DNN training.
+   Use["DNN_GPU"] = 1; // CUDA-accelerated DNN training.
 #else
    Use["DNN_GPU"] = 0;
 #endif
@@ -136,27 +136,15 @@ int TMVAClassification(TString myMethodList = "")
    // (it is also possible to use ASCII format as input -> see TMVA Users Guide)
    TFile *sigInput(0);
    TFile *bkgInput(0);
-   //TString signalFileName = "./tmva_class_example.root";
-   //TString signalFileName = "/eos/lhcb/wg/Charm/Xic2LcK_temp/LcK_Turbo_2016_MagDown.root";
-   //TString signalFileName = "/eos/lhcb/wg/Charm/Xic2LcK_temp/LcK_Turbo_2016_MagDown.root";
-   // TString signalFileName = "/eos/lhcb/user/f/feoliva/Analysis/XicpStStToLcKPi_all.root";
-   // TString signalFileName = "/eos/lhcb/user/f/feoliva/Analysis/May/XicpStStToLcKPi_all.root";
 
-   //TString signalFileName = "/eos/lhcb/user/f/feoliva/Analysis/Xicpstar_100files/XicpStStToLcKPi_all.root";
-   //TString signalFileName = "/eos/lhcb/user/f/feoliva/Analysis/Xicp_newvar/XicpStStToLcKPi_var_all.root";
-   //TString signalFileName = "/eos/lhcb/user/f/feoliva/Analysis/LcStudy_sweights.root";
-   TString signalFileName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
-   TString bkgFileName = "/home/loren/MSc/datasets/Data_1000files2016_WSfixed.root";
+   TString signalFileName = "features.root";
+   TString bkgFileName = "features.root";
 
    if (!gSystem->AccessPathName(signalFileName))
    {
       sigInput = TFile::Open(signalFileName); // check if file in local directory exists
    }
-   else
-   {
-      TFile::SetCacheFileDir(".");
-      sigInput = TFile::Open("http://root.cern.ch/files/tmva_class_example.root", "CACHEREAD");
-   }
+
    if (!sigInput)
    {
       std::cout << "ERROR: could not open data file" << std::endl;
@@ -164,16 +152,11 @@ int TMVAClassification(TString myMethodList = "")
    }
    std::cout << "--- TMVAClassification       : Using input file: " << sigInput->GetName() << std::endl;
 
-
    if (!gSystem->AccessPathName(bkgFileName))
    {
       bkgInput = TFile::Open(bkgFileName); // check if file in local directory exists
    }
-   else
-   {
-      TFile::SetCacheFileDir(".");
-      bkgInput = TFile::Open("http://root.cern.ch/files/tmva_class_example.root", "CACHEREAD");
-   }
+
    if (!bkgInput)
    {
       std::cout << "ERROR: could not open data file" << std::endl;
@@ -184,22 +167,12 @@ int TMVAClassification(TString myMethodList = "")
    // Register the training and test trees
 
    //TTree *signalTree     = (TTree*)input->Get("Lc2PKPiTree/DecayTree");
-   TTree *signalTree = (TTree *)sigInput->Get("LcKPiTree/DecayTree");
+   TTree *signalTree = (TTree *)sigInput->Get("LcKPiTree");
    //TTree *background     = (TTree*)input->Get("Lc2PKPiTree/DecayTree");
-   TTree *background = (TTree *)bkgInput->Get("LcKPiTreeWS1/DecayTree");
+   TTree *background = (TTree *)bkgInput->Get("LcKPiTreeWS1");
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
-   //TString outfileName( "TMVA_set1.root" );
-   //TString outfileName( "TMVA_set2.root" );
-   //TString outfileName( "TMVA_set3.root" );
-   //TString outfileName( "TMVA_set4.root" );
-   //TString outfileName( "TMVA_set5.root" );
-   //TString outfileName( "TMVA_set6.root" );
-   //TString outfileName( "TMVA_set7.root" );
-   //TString outfileName( "TMVA_set8.root" );
-   //TString outfileName( "TMVA_set9.root" );
-   // TString outfileName( "TMVA_set10.root" );
-   TString outfileName("TMVA_set12.root");
+   TString outfileName("TMVA_test.root");
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
 
    // Create the factory object. Later you can choose the methods
@@ -213,7 +186,8 @@ int TMVAClassification(TString myMethodList = "")
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,
-                                              "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
+                                              "!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification");
+   //  "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
    TMVA::DataLoader *dataloader = new TMVA::DataLoader("dataset");
    // If you wish to modify default settings
@@ -228,105 +202,28 @@ int TMVAClassification(TString myMethodList = "")
 
    //TMVA variable to use for the training
 
-   //dataloader->AddVariable("Lc_M", "Lc_M", "", 'F');
-
-   /*dataloader->AddVariable("Lc_ENDVERTEX_CHI2:=log(Lc_ENDVERTEX_CHI2)", 'F');
-    dataloader->AddVariable("Lc_DIRA_OWNPV:=log(1-Lc_DIRA_OWNPV)", 'F');
-    dataloader->AddVariable("Lc_IPCHI2_OWNPV:=log(Lc_IPCHI2_OWNPV)", 'F');
-    dataloader->AddVariable("Lc_FD_OWNPV:=log(Lc_FDCHI2_OWNPV)", 'F');
-
-    dataloader->AddVariable("p_PT:=log(p_PT)",'F');
-    dataloader->AddVariable("p_IPCHI2_OWNPV:=log(p_IPCHI2_OWNPV)", 'F');
-    dataloader->AddVariable("p_ProbNNp:=sqrt(1-p_ProbNNp)", 'F');
-
-    dataloader->AddVariable("Km_PT:=log(Km_PT)", 'F');
-    dataloader->AddVariable("Km_IPCHI2_OWNPV:=log(Km_IPCHI2_OWNPV)", 'F');
-    dataloader->AddVariable("pip_ProbNNpi:=sqrt(1-pip_ProbNNpi)", 'F');     
-
-    dataloader->AddVariable("pip_PT:=log(pip_PT)", 'F');
-    dataloader->AddVariable("pip_IPCHI2_OWNPV:=log(pip_IPCHI2_OWNPV)", 'F');
-    dataloader->AddVariable("pip_ProbNNpi:=sqrt(1-pip_ProbNNpi)", 'F');     */
-
-   //Emmy's variables
-
    dataloader->AddVariable("log(Xicst_ENDVERTEX_CHI2)", "Xicst_ENDVERTEX_CHI2", "", 'F');
-   // dataloader->AddVariable("log(1-Lc_DIRA_OWNPV)", "Lc_DIRA_OWNPV", "", 'F');
    dataloader->AddVariable("log(Xicst_IPCHI2_OWNPV)", "Xicst_IPCHI2_OWNPV", "", 'F');
    dataloader->AddVariable("log(Xicst_FDCHI2_OWNPV)", "Xicst_FDCHI2_OWNPV", "", 'F');
 
    dataloader->AddVariable("log(Lc_PT)", "Lc_PT", "", 'F');
    dataloader->AddVariable("log(Lc_IPCHI2_OWNPV)", "Lc_IPCHI2_OWNPV", "", 'F');
-   // dataloader->AddVariable("1-sqrt(1-p_ProbNNp)", "p_ProbNNp", "", 'F');
 
    dataloader->AddVariable("log(Kbach_PT)", "Kbach_PT", "", 'F');
    dataloader->AddVariable("log(Kbach_IPCHI2_OWNPV)", "Kbach_IPCHI2_OWNPV", "", 'F');
-    dataloader->AddVariable("1-sqrt(1-Kbach_ProbNNk)", "Kbach_ProbNNk", "", 'F');
+   dataloader->AddVariable("1-sqrt(1-Kbach_ProbNNk)", "Kbach_ProbNNk", "", 'F');
 
    dataloader->AddVariable("log(pibach_PT)", "pibach_PT", "", 'F');
    dataloader->AddVariable("log(pibach_IPCHI2_OWNPV)", "pibach_IPCHI2_OWNPV", "", 'F');
    dataloader->AddVariable("1-sqrt(1-pibach_ProbNNpi)", "pibach_ProbNNpi", "", 'F');
-
-   //dataloader->AddVariable("log(Lc_IP_OWNPV)", "Lc_IP_OWNPV", "", 'F');
-   //dataloader->AddVariable("log(Lc_FD_OWNPV)", "Lc_FD_OWNPV", "", 'F');
-   //dataloader->AddVariable("sum:=p_PT+pip_PT+Km_PT", "sum", "", 'F');
-   //dataloader->AddVariable("log(p_P)", "p_P", "", 'F');
-   //dataloader->AddVariable("log(p_PE)", "p_PE", "", 'F');
-   //dataloader->AddVariable("log(Km_P)", "Km_P", "", 'F');
-   //dataloader->AddVariable("log(Km_PE)", "Km_PE", "", 'F');
-   //dataloader->AddVariable("log(pip_P)", "pip_P", "", 'F');
-   //dataloader->AddVariable("log(pip_PE)", "pip_PE", "", 'F');
-   //dataloader->AddVariable("Min(pip_PT,p_PT,Km_PT)", "min_PT", "", 'F');
-   //Add variables
-   //
-
-   //dataloader->AddVariable("log(Lc_OWNPV_CHI2)", "Lc_OWNPV_CHI2", "", 'F');
-   //  dataloader->AddVariable("1-sqrt(1-p_MC15TuneV1_ProbNNp)", "p_MC15TuneV1_ProbNNp", "", 'F');
-   //  dataloader->AddVariable("1-sqrt(1-Km_MC15TuneV1_ProbNNk)", "Km_MC15TuneV1_ProbNNk", "", 'F');
-   //  dataloader->AddVariable("1-sqrt(1-pip_MC15TuneV1_ProbNNpi)", "pip_MC15TuneV1_ProbNNpi", "", 'F');
-
-   // dataloader->AddVariable("Lc_ETA", "Lc_ETA", "", 'F');
-   //dataloader->AddVariable("log(Lc_DOCAMAX)", "Lc_DOCAMAX", "", 'F');
-   //dataloader->AddVariable("log(Lc_DOCAMIN)", "Lc_DOCAMIN", "", 'F');
-   //dataloader->AddVariable("log(Lc_DOCACHI2MAX)", "Lc_DOCACHI2MAX", "", 'F');
-   //dataloader->AddVariable("log(Lc_DOCA12)", "Lc_DOCA12", "", 'F');
-   //dataloader->AddVariable("log(Lc_DOCA13)", "Lc_DOCA13", "", 'F');
-   //dataloader->AddVariable("log(Lc_DOCA23)", "Lc_DOCA23", "", 'F');
-   //dataloader->AddVariable("log(p_ID)", "p_ID", "", 'F');
-   //dataloader->AddVariable("log(Km_ID)", "Km_ID", "", 'F');
-   //dataloader->AddVariable("log(pip_ID)", "pip_ID", "", 'F');
-   // dataloader->AddVariable("1-sqrt(1-p_ProbNNghost)", "p_ProbNNghost", "", 'F');
-   //dataloader->AddVariable("1-sqrt(1-Km_ProbNNghost)", "Km_ProbNNghost", "", 'F');
-   //dataloader->AddVariable("1-sqrt(1-pip_ProbNNghost)", "pip_ProbNNghost", "", 'F');
-   //dataloader->AddVariable("log(Lc_ENDVERTEX_Z)", "Lc_ENDVERTEX_Z", "", 'F');
-   //dataloader->AddVariable("1-sqrt(1-Km_ProbNNp)", "Km_ProbNNp", "", 'F');
-   //dataloader->AddVariable("1-sqrt(1-pip_ProbNNp)", "pip_ProbNNp", "", 'F');
-   //dataloader->AddVariable("1-sqrt(1-p_ProbNNk)", "p_ProbNNk", "", 'F');
-   //dataloader->AddVariable("1-sqrt(1-p_ProbNNpi)", "p_ProbNNpi", "", 'F');
-
-   //dataloader->AddVariable("p_ORIVX_CHI2", "p_ORIVX_CHI2", "", 'F');
-   //dataloader->AddVariable("Km_ORIVX_CHI2", "Km_ORIVX_CHI2", "", 'F');
-   //dataloader->AddVariable("pip_ORIVX_CHI2", "pip_ORIVX_CHI2", "", 'F');
-
-   // dataloader->AddVariable("log(Lc_TAU)", "Lc_TAU", "", 'F');
-   // dataloader->AddVariable("log(Lc_TAUCHI2)", "Lc_TAUCHI2", "", 'F');
-   //dataloader->AddVariable("log(Lc_BPVVDCHI2)", "Lc_BPVVDCHI2", "", 'F');
-   //dataloader->AddVariable("log(Lc_CHI2NDOF_DTF_Lc_PV)", "Lc_DTFNOF_CHI2", "", 'F');
-   //dataloader->AddVariable("Lc_M12_DTF_Lc_PV", "Lc_M12", "", 'F');
-   //dataloader->AddVariable("Lc_M13_DTF_Lc_PV", "Lc_M13", "", 'F');
-   //dataloader->AddVariable("Lc_M23_DTF_Lc_PV", "Lc_M23", "", 'F');
-   //dataloader->AddVariable("log(Lc_PT)", "Lc_PT", "", 'F');
-
-   //dataloader->AddVariable("p_OWNPV_CHI2", "p_OWNPV_CHI2", "", 'F');
-   //dataloader->AddVariable("Km_OWNPV_CHI2", "Km_OWNPV_CHI2", "", 'F');
-   //dataloader->AddVariable("pip_OWNPV_CHI2", "pip_OWNPV_CHI2", "", 'F');
-   //dataloader->AddVariable("log(Lc_TAUCHI2)", "Lc_TAUCHI2", "", 'F');
+   dataloader->AddVariable("pibach_ProbNNpi:=sqrt(1-pibach_ProbNNpi)", 'F');
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
    // input variables, the response values of all trained MVAs, and the spectator variables
 
-   //dataloader->AddSpectator( "spec1 := var1*2",  "Spectator 1", "units", 'F' );
-   //dataloader->AddSpectator( "spec2 := var1*3",  "Spectator 2", "units", 'F' );
+   dataloader->AddSpectator( "Xicst_ID",  "", 'F' );
+   dataloader->AddSpectator( "Xicst_M", "", 'F' );
 
    // global event weights per tree (see below for setting event-wise weights)
    //Double_t signalWeight     = 1.0;
@@ -409,7 +306,7 @@ int TMVAClassification(TString myMethodList = "")
    // TCut mycutb = "(Lc_M > 2220 && Lc_M < 2230) || (Lc_M > 2340 && Lc_M < 2350)"; // sidebands
    //TCut mycuts = "Lc_M > 2268 && Lc_M < 2305"; // signal region
    // TCut mycuts = "Lc_M > 2268 && Lc_M < 2308";                                   // signal region
-                                                                                 // TCut mycutb = "(Lc_M > 2230 && Lc_M < 2250) || (Lc_M > 2320 && Lc_M < 2340)"; // sidebands
+   // TCut mycutb = "(Lc_M > 2230 && Lc_M < 2250) || (Lc_M > 2320 && Lc_M < 2340)"; // sidebands
    // TCut mycutb = "(Lc_M > 2230 && Lc_M < 2250) || (Lc_M > 2320 && Lc_M < 2340)"; // sidebands
 
    //TCut mycutb = "Lc_M > 2268 && Lc_M < 2308"; // signal region

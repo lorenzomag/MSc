@@ -55,6 +55,7 @@ int main()
         auto is_MC = current_search->GetName() == "Sig" ? true : false;
         bool has_TRUEID = false;
         bool has_ID = false;
+        bool has_M = false;
         int Xicst_TRUEID, Xicst_ID;
 
         TTree *input_tree = current_search->GetTree(Search::input);
@@ -99,6 +100,8 @@ int main()
                         has_TRUEID = true;
                     if (full_feature_name == "Xicst_ID")
                         has_ID = true;
+                    if (full_feature_name == "Xicst_M")
+                        has_M = true;
                 }
                 else
                 {
@@ -117,14 +120,18 @@ int main()
                 }
             }
 
+            if (!has_ID)
+            {
+                input_tree->SetBranchStatus("Xicst_ID", 1);
+            }
+            if (!has_M)
+            {
+                input_tree->SetBranchStatus("Xicst_M", 1);
+            }
             if (is_MC)
             {
                 std::cout << "[INFO] Checking for presence of truth branches." << std::endl;
-                if (!has_ID)
-                {
-                    input_tree->SetBranchStatus("Xicst_ID", 1);
-                    input_tree->SetBranchAddress("Xicst_ID", &Xicst_ID);
-                }
+                input_tree->SetBranchAddress("Xicst_ID", &Xicst_ID);
 
                 if (!has_TRUEID)
                 {
@@ -142,10 +149,10 @@ int main()
         for (int i = 0; i < n_entries; i++)
         {
             input_tree->GetEntry(i);
-            if (  (is_MC && (Xicst_TRUEID == Xicst_ID) )  || !is_MC)
+            if ((is_MC && (Xicst_TRUEID == Xicst_ID)) || !is_MC)
             {
                 output_tree->Fill();
-            }            
+            }
 
             if (i % 20000 == 0)
             {
