@@ -70,20 +70,20 @@ int TMVAClassification(TString myMethodList = "")
    Use["FDA_GAMT"] = 0;
    Use["FDA_MCMT"] = 0;
    //
-   // Neural Networks (all are feed-forward Multilayer Perceptrons)
+   // Neural Networks (all are feed-forward Multilayer Perceptrons) 
    Use["MLP"] = 0;      // Recommended ANN
    Use["MLPBFGS"] = 0;  // Recommended ANN with optional training method
    Use["MLPBNN"] = 0;   // Recommended ANN with BFGS training method and bayesian regulator
    Use["CFMlpANN"] = 0; // Depreciated ANN from ALEPH
    Use["TMlpANN"] = 0;  // ROOT's own ANN
 #ifdef R__HAS_TMVAGPU
-   Use["DNN_GPU"] = 1; // CUDA-accelerated DNN training.
+   Use["DNN_GPU"] = 0; // CUDA-accelerated DNN training.
 #else
    Use["DNN_GPU"] = 0;
 #endif
 
 #ifdef R__HAS_TMVACPU
-   Use["DNN_CPU"] = 1; // Multi-core accelerated DNN.
+   Use["DNN_CPU"] = 0; // Multi-core accelerated DNN.
 #else
    Use["DNN_CPU"] = 0;
 #endif
@@ -137,8 +137,8 @@ int TMVAClassification(TString myMethodList = "")
    TFile *sigInput(0);
    TFile *bkgInput(0);
 
-   TString signalFileName = "features.root";
-   TString bkgFileName = "features.root";
+   TString signalFileName = "inputDataset.root";
+   TString bkgFileName = "inputDataset.root";
 
    if (!gSystem->AccessPathName(signalFileName))
    {
@@ -172,7 +172,7 @@ int TMVAClassification(TString myMethodList = "")
    TTree *background = (TTree *)bkgInput->Get("LcKPiTreeWS1");
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
-   TString outfileName("TMVA_test.root");
+   TString outfileName("TMVA_transformations.root");
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
 
    // Create the factory object. Later you can choose the methods
@@ -186,7 +186,7 @@ int TMVAClassification(TString myMethodList = "")
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,
-                                              "!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification");
+                                              "!V:!Silent:Color:DrawProgressBar:Transformations=I;G;D;G;D:AnalysisType=Classification");
    //  "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
    TMVA::DataLoader *dataloader = new TMVA::DataLoader("dataset");
@@ -322,7 +322,7 @@ int TMVAClassification(TString myMethodList = "")
 
    dataloader->PrepareTrainingAndTestTree(mycuts, mycutb,
 
-                                          "nTrain_Signal=10000:nTrain_Background=10000:nTest_Signal=10000:nTest_Background=10000:SplitMode=Random:NormMode=NumEvents:!V");
+                                          "nTrain_Signal=20000:nTrain_Background=100000:nTest_Signal=20000:nTest_Background=100000:SplitMode=Random:NormMode=NumEvents:!V");
 
    //"nTrain_Signal=5000:nTrain_Background=5000:nTest_Signal=5000:nTest_Background=5000:SplitMode=Random:NormMode=NumEvents:!V" );
    // Cut optimisation
