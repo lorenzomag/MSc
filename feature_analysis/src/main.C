@@ -5,6 +5,8 @@
 
 #include "main.h"
 
+bool truth_match = false;
+
 int main()
 {
     json j_db = select_features(feat_source::default_values);
@@ -191,7 +193,7 @@ int main()
         for (int i = 0; i < n_entries; i++)
         {
             input_tree->GetEntry(i);
-            if ((is_MC && (Xicst_TRUEID == Xicst_ID)) || !is_MC)
+            if ((is_MC && (truth_match && Xicst_TRUEID == Xicst_ID)) || !is_MC || !truth_match)
             {
                 output_tree->Fill();
             }
