@@ -3,6 +3,8 @@ datasets/
 .envrc
 .vscode
 training/
+non_zero_TRUEID.root
+truth_matched.root
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/c++,python,julia,root,git
