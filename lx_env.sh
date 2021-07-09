@@ -6,8 +6,8 @@
 export WORKSPACE_DIR="$PWD"
 export DATASETS_DIR="/eos/lhcb/user/f/feoliva/public"
 export TUTORIALS_DIR=$WORKSPACE_DIR"/tutorials"
-export CURRENT_SIG_DATASET=$DATASETS_DIR"/MC_production_XicStSt+/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8_addTruth.root"
-export CURRENT_BKG_DATASET=$DATASETS_DIR"/Data_1000files2016_WSfixed.root"
+export CURRENT_SIG_DATASET=$DATASETS_DIR"/MC_Xi_DecFile26265970_CutLcMVAresponse_TruthMatched.root"
+export CURRENT_BKG_DATASET=$DATASETS_DIR"/Data_Xic_WS1_addMVAresponse.root"
 
 
 printf "WORKSPACE_DIR\t\t=\t$WORKSPACE_DIR\n" 
