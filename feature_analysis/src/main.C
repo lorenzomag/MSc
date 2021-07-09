@@ -4,6 +4,7 @@
 #include "draw.h"
 
 #include "main.h"
+
 int main()
 {
     json j_db = select_features(feat_source::default_values);
@@ -38,14 +39,55 @@ int main()
     }
 
     // Get input trees
-    sig.SetTree((TTree *)signalInputFile.Get("LcKPiTree/DecayTree"), Search::input, "LcKPiTree", "LcKPiTree");
-    ws1.SetTree((TTree *)inputFile.Get("LcKPiTreeWS1/DecayTree"), Search::input, "LcKPiTreeWS1", "LcKPiTreeWS1");
-    ws2.SetTree((TTree *)inputFile.Get("LcKPiTreeWS2/DecayTree"), Search::input, "LcKPiTreeWS2", "LcKPiTreeWS2");
+    std::vector<Search *> searches;
+    for (auto search : set::use)
+    {
+        TString tree_name;
+        if (search.second)
+        {
+            switch (search.first)
+            {
+            case set::type::signal:
+                std::cout << "SIGNAL is in" << std::endl;
+                tree_name = "LcKPiTree/DecayTree";
+                if (signalInputFile.Get(tree_name))
+                    sig.SetTree((TTree *)signalInputFile.Get(tree_name), Search::input, "LcKPiTree", "LcKPiTree");
+                else if (inputFile.Get("DecayTree"))
+                    sig.SetTree((TTree *)signalInputFile.Get("DecayTree"), Search::input, "LcKPiTree", "LcKPiTree");
+                else
+                    return (-1);
+
+                searches.push_back(&sig);
+                break;
+            case set::type::ws1:
+                tree_name = "LcKPiTreeWS1/DecayTree";
+                if (inputFile.Get(tree_name))
+                    ws1.SetTree((TTree *)inputFile.Get(tree_name), Search::input, "LcKPiTreeWS1", "LcKPiTreeWS1");
+                else if (inputFile.Get("DecayTree"))
+                    ws1.SetTree((TTree *)inputFile.Get("DecayTree"), Search::input, "LcKPiTreeWS1", "LcKPiTreeWS1");
+                else
+                    return (-1);
+
+                std::cout << "WS1 is in" << std::endl;
+                searches.push_back(&ws1);
+                break;
+            case set::type::ws2:
+                tree_name = "LcKPiTreeWS2/DecayTree";
+                if (inputFile.Get(tree_name))
+                    ws2.SetTree((TTree *)inputFile.Get(tree_name), Search::input, "LcKPiTreeWS2", "LcKPiTreeWS2");
+                else if (inputFile.Get("DecayTree"))
+                    ws2.SetTree((TTree *)inputFile.Get("DecayTree"), Search::input, "LcKPiTreeWS2", "LcKPiTreeWS2");
+                else
+                    return (-1);
+                searches.push_back(&ws2);
+                std::cout << "WS2 is in" << std::endl;
+                break;
+            }
+        }
+    }
 
     // Set output trees
     TFile outputFile(outputFileName, "RECREATE");
-
-    std::vector<Search *> searches = {&sig, &ws1, &ws2};
 
     TBranch *currentBranch;
     TObjArray *branches;
@@ -163,7 +205,19 @@ int main()
         output_tree->Write();
     }
 
-    draw_features(sig, ws1, ws2);
+    bool is_sig = set::use.at(set::type::signal);
+    bool is_ws1 = set::use.at(set::type::ws1);
+    bool is_ws2 = set::use.at(set::type::ws2);
+
+    if (is_sig && is_ws1 && is_ws2)
+        draw_features(sig, ws1, ws2);
+    else if (is_sig && is_ws1 && !is_ws2)
+        draw_features(sig, ws1);
+    else if (is_sig && is_ws2 && !is_ws1)
+        draw_features(sig, ws2);
+    else
+        std::cout << "For the output file to be populated by histograms,"
+                     " a signal tree and at least a Wrong Sign background tree must be properly provided.";
 
     inputFile.Close();
     outputFile.Close();
