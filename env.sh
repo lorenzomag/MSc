@@ -6,8 +6,8 @@
 export WORKSPACE_DIR="$PWD"
 export DATASETS_DIR=$WORKSPACE_DIR"/datasets"
 export TUTORIALS_DIR=$WORKSPACE_DIR"/tutorials"
-
-export CURRENT_SIG_DATASET=$DATASETS_DIR"/MC_Xi_DecFile26265970_CutLcMVAresponse_TruthMatched.root"
+export VCPKG_ROOT=$WORKSPACE_DIR"/vcpkg"
+export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruthDecFile26265973_LcCutTruthMatched.root"
 export CURRENT_BKG_DATASET=$DATASETS_DIR"/Data_Xic_WS1_addMVAresponse.root"
 
 

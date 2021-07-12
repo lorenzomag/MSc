@@ -1,3 +1,0 @@
-/home/loren/MSc/utils/bin/CMakeFiles/rebuild_cache.dir
-/home/loren/MSc/utils/bin/CMakeFiles/edit_cache.dir
-/home/loren/MSc/utils/bin/CMakeFiles/converter.dir
