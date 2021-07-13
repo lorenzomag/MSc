@@ -7,6 +7,11 @@ namespace po = boost::program_options;
 
 namespace settings_selection
 {
+
+    int features_ID;
+    int methods_ID;
+    int version;
+    
     int select_options(int ac, char **av)
     {
         // Declare the supported options.
