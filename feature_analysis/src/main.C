@@ -2,13 +2,17 @@
 #include "search.h"
 #include "select_features.h"
 #include "draw.h"
+// #include "settings_selection.hpp"
 
 #include "main.h"
 
-bool truth_match = false;
+bool truth_match = true;
 
-int main()
+// namespace setting = settings_selection;
+// extern int setting::version;
+int main(int ac, char **av)
 {
+
     json j_db = select_features(feat_source::default_values);
 
     Search sig(j_db, "Sig", "-+");
@@ -211,15 +215,15 @@ int main()
     bool is_ws1 = set::use.at(set::type::ws1);
     bool is_ws2 = set::use.at(set::type::ws2);
 
-    if (is_sig && is_ws1 && is_ws2)
-        draw_features(sig, ws1, ws2);
-    else if (is_sig && is_ws1 && !is_ws2)
-        draw_features(sig, ws1);
-    else if (is_sig && is_ws2 && !is_ws1)
-        draw_features(sig, ws2);
-    else
-        std::cout << "For the output file to be populated by histograms,"
-                     " a signal tree and at least a Wrong Sign background tree must be properly provided.";
+    // if (is_sig && is_ws1 && is_ws2)
+    //     draw_features(sig, ws1, ws2);
+    // else if (is_sig && is_ws1 && !is_ws2)
+    //     draw_features(sig, ws1);
+    // else if (is_sig && is_ws2 && !is_ws1)
+    //     draw_features(sig, ws2);
+    // else
+    //     std::cout << "For the output file to be populated by histograms,"
+    //                  " a signal tree and at least a Wrong Sign background tree must be properly provided.";
 
     inputFile.Close();
     outputFile.Close();
