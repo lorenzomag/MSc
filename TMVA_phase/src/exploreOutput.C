@@ -19,6 +19,8 @@
 #include "TMVA/TMVAGui.h"
 #include "ROOT/RDataFrame.hxx"
 
+// #include "punzi_fom.C"
+
 void get_file(NFD::UniquePath &inputFile, nfdfilteritem_t *filterItem);
 
 void exploreOutput()
@@ -43,28 +45,33 @@ void exploreOutput()
     std::string method_dir_prefix = "Method_";
     TFile* outFile = new TFile("analysis_output.root","RECREATE");
     auto method_dirs = gDirectory->GetListOfKeys()->MakeIterator();
-    while (auto key = (TObject *)method_dirs->Next())
-    {
-        if (((TString)key->GetName()).BeginsWith(method_dir_prefix))
-        {
-            gDirectory->cd(key->GetName());
 
-            auto methods = gDirectory->GetListOfKeys()->MakeIterator();
-            while (auto method = (TDirectory *)methods->Next())
-            {
-                gDirectory->cd(method->GetName());
-                std::cout << method->GetName() << std::endl;
+    // double opt_cut_bdt = punzi_fom("../output/TMVA_methodSample.root","Method_BDT", "BDT");
+    // double opt_cut_bdtg = punzi_fom("../output/TMVA_methodSample.root","Method_BDT", "BDTG");
 
-                TString hist_name = "MVA_" + (TString)method->GetName() + "rejBvsS";
-                auto hist = (TH1D *)method->Get(  hist_name  );
-                hist->Write();
+    // TH1D *hist;
+    // while (auto key = (TObject *)method_dirs->Next())
+    // {
+    //     if (((TString)key->GetName()).BeginsWith(method_dir_prefix))
+    //     {
+    //         gDirectory->cd(key->GetName());
 
-                gDirectory->cd("..");
-            }
-            gDirectory->cd("..");
-        }
-    }
-    hist->Close();
+    //         auto methods = gDirectory->GetListOfKeys()->MakeIterator();
+    //         while (auto method = (TDirectory *)methods->Next())
+    //         {
+    //             gDirectory->cd(method->GetName());
+    //             std::cout << method->GetName() << std::endl;
+
+    //             TString hist_name = "MVA_" + (TString)method->GetName() + "rejBvsS";
+    //             hist = (TH1D *)method->Get(  hist_name  );
+    //             hist->Write();
+
+    //             gDirectory->cd("..");
+    //         }
+    //         gDirectory->cd("..");
+    //     }
+    // }
+    // delete hist;
     // TCanvas *canv = new TCanvas("canv", "canv");
     // canv->Divide(2, 2);
 
@@ -88,7 +95,7 @@ void exploreOutput()
     // auto hist4 = test_df.Filter("BDTG<0").Histo1D("Xicst_M");
     // hist4->Draw();
 
-    // canv->Draw();d
+    // canv->SaveAs("Canv.png");
 }
 
 void get_file(NFD::UniquePath &inputFile, nfdfilteritem_t *filterItem)
