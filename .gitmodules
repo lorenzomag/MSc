@@ -1,0 +1,3 @@
+[submodule "utils/nativefiledialog-extended"]
+	path = utils/nativefiledialog-extended
+	url = git@github.com:btzy/nativefiledialog-extended.git
