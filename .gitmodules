@@ -1,6 +1,0 @@
-[submodule "TMVA_phase/nativefiledialog-extended"]
-	path = TMVA_phase/nativefiledialog-extended
-	url = git@github.com:btzy/nativefiledialog-extended.git
-[submodule "vcpkg"]
-	path = vcpkg
-	url = https://github.com/Microsoft/vcpkg.git
