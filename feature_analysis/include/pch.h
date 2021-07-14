@@ -24,6 +24,6 @@
 #include "THStack.h"
 
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 #endif // PCH

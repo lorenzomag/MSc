@@ -10,7 +10,7 @@ export VCPKG_ROOT=$WORKSPACE_DIR"/vcpkg"
 #export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruth_allMasses_LcCutTruthMatched.root"
 export CURRENT_BKG_DATASET=$DATASETS_DIR"/Data_Xic_WS1_addMVAresponse.root"
 export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruthDecFile26265973_LcCutTruthMatched.root"
-
+export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH":"$WORKSPACE_DIR
 
 printf "WORKSPACE_DIR\t\t=\t$WORKSPACE_DIR\n" 
 printf "DATASETS_DIR\t\t=\t$DATASETS_DIR\n" 

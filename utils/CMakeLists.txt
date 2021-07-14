@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
-project(testing_stuff)
+project(utils)
 
-
+add_subdirectory(sqlite)
 add_subdirectory(settings_selection)
+add_subdirectory(nativefiledialog-extended)
