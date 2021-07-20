@@ -7,9 +7,9 @@ export WORKSPACE_DIR="$PWD"
 export DATASETS_DIR=$WORKSPACE_DIR"/datasets"
 export TUTORIALS_DIR=$WORKSPACE_DIR"/tutorials"
 export VCPKG_ROOT=$WORKSPACE_DIR"/vcpkg"
-#export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruth_allMasses_LcCutTruthMatched.root"
+export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruth_allMasses_LcCutTruthMatched_IDpart.root"
 export CURRENT_BKG_DATASET=$DATASETS_DIR"/Data_Xic_WS1_addMVAresponse.root"
-export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruthDecFile26265973_LcCutTruthMatched.root"
+#export CURRENT_SIG_DATASET=$DATASETS_DIR"/mcsampletruthDecFile26265973_LcCutTruthMatched.root"
 export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH":"$WORKSPACE_DIR
 
 printf "WORKSPACE_DIR\t\t=\t$WORKSPACE_DIR\n" 
