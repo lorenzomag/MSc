@@ -4,7 +4,7 @@ default:
 	cmake --build build/
 
 run: default
-	@./analyse_features
+	@./bin/analyse_features
 
 clean:
 	@rm -rv build/*
