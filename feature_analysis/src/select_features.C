@@ -15,7 +15,7 @@ json select_features(feat_source option)
     {
 
         std::ifstream inFile;
-        std::string inFileName = "user_settings.json";
+        std::string inFileName = "/home/loren/MSc/feature_analysis/user_settings.json";
         inFile.open(inFileName);
         if (inFile.is_open())
         {
@@ -253,6 +253,7 @@ json select_features(feat_source option)
 			{"_TRACK_GhostProb", false},
 			{"_TRACK_CloneDist", false},
 			{"_TRACK_Likelihood", true},
+			{"_MassID", true},
 // END LIST OF PARTICLE FEATURES
             };
         }
