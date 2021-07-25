@@ -11,8 +11,7 @@ clean:
 	@rm -v analyse_features
 
 build:
-	cmake -B build .
+	cmake -B build -H. -DCMAKE_BUILD_TYPE=Release
 	cmake --build build/
-
 branches:
 	python3 select_branches/getBranchNames.py

@@ -14,4 +14,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${ROOT_LIBRARIES}
                     # PUBLIC settings_selection
                     )
 target_precompile_headers(${PROJECT_NAME} PUBLIC ../include/pch.h)
-
+target_compile_options(${PROJECT_NAME} PUBLIC
+    "$<$<CONFIG:DEBUG>:-O0;-g>"
+    "$<$<CONFIG:RELEASE>:-O3;-DNDEBUG;-march=native>"
+)
