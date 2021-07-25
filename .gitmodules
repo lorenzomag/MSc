@@ -4,3 +4,6 @@
 [submodule "utils/yaml-cpp"]
 	path = utils/yaml-cpp
 	url = git@github.com:jbeder/yaml-cpp.git
+[submodule "utils/SQLiteCpp"]
+	path = utils/SQLiteCpp
+	url = git@github.com:SRombauts/SQLiteCpp.git
