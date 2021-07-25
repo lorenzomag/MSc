@@ -253,7 +253,6 @@ json select_features(feat_source option)
 			{"_TRACK_GhostProb", false},
 			{"_TRACK_CloneDist", false},
 			{"_TRACK_Likelihood", true},
-			{"_MassID", true},
 // END LIST OF PARTICLE FEATURES
             };
         }
