@@ -1,7 +1,5 @@
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 
-get_target_property(NFD_HEADERS nfd INCLUDE_DIRECTORIES)
-
 add_executable(run_TMVA TMVAClassification.C)
 
 target_link_libraries(run_TMVA 
@@ -9,7 +7,7 @@ target_link_libraries(run_TMVA
 	PRIVATE nfd)
 target_include_directories(run_TMVA 
 	PUBLIC ../include
-	PRIVATE ${NFD_HEADERS}
+	PRIVATE $ENV{WORKSPACE_DIR}/include
 	)
 	
 	
@@ -20,18 +18,18 @@ target_link_libraries(apply_TMVA
 	PRIVATE nfd)
 target_include_directories(apply_TMVA 
 	PUBLIC ../include
-	PRIVATE ${NFD_HEADERS}
+	PRIVATE $ENV{WORKSPACE_DIR}/include
 	)
 	
 	
 add_executable(analyse_output exploreOutput.C)
-	
+
 target_link_libraries(analyse_output 
 	PUBLIC ${ROOT_LIBRARIES}
 	PRIVATE nfd)
 target_include_directories(analyse_output 
 	PUBLIC ../include
-	PRIVATE ${NFD_HEADERS}
+	PRIVATE $ENV{WORKSPACE_DIR}/include
 	)
 
 

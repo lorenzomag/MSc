@@ -4,15 +4,14 @@ default:
 	cmake --build build/
 
 run: default
-	@./analyse_features
+	@./bin/analyse_features
 
 clean:
 	@rm -rv build/*
 	@rm -v analyse_features
 
 build:
-	cmake -B build .
+	cmake -B build -H. -DCMAKE_BUILD_TYPE=Release
 	cmake --build build/
-
 branches:
 	python3 select_branches/getBranchNames.py

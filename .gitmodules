@@ -1,6 +1,9 @@
-[submodule "TMVA_phase/nativefiledialog-extended"]
-	path = TMVA_phase/nativefiledialog-extended
+[submodule "utils/nativefiledialog-extended"]
+	path = utils/nativefiledialog-extended
 	url = git@github.com:btzy/nativefiledialog-extended.git
-[submodule "vcpkg"]
-	path = vcpkg
-	url = https://github.com/Microsoft/vcpkg.git
+[submodule "utils/yaml-cpp"]
+	path = utils/yaml-cpp
+	url = git@github.com:jbeder/yaml-cpp.git
+[submodule "utils/SQLiteCpp"]
+	path = utils/SQLiteCpp
+	url = git@github.com:SRombauts/SQLiteCpp.git

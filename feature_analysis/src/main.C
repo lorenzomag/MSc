@@ -104,6 +104,7 @@ int main(int ac, char **av)
         bool has_TRUEID = false;
         bool has_ID = false;
         bool has_M = false;
+        bool has_MassID = false;
         int Xicst_TRUEID, Xicst_ID;
 
         TTree *input_tree = current_search->GetTree(Search::input);
@@ -150,6 +151,8 @@ int main(int ac, char **av)
                         has_ID = true;
                     if (full_feature_name == "Xicst_M")
                         has_M = true;
+                    if (full_feature_name == "Xicst_MassID")
+                        has_MassID = true;
                 }
                 else
                 {
@@ -171,19 +174,27 @@ int main(int ac, char **av)
             if (!has_ID)
             {
                 input_tree->SetBranchStatus("Xicst_ID", 1);
+                std::cout << "[INFO] Xicst_ID added\n";
             }
             if (!has_M)
             {
                 input_tree->SetBranchStatus("Xicst_M", 1);
+                std::cout << "[INFO] Xicst_M added\n";
             }
             if (is_MC)
             {
                 std::cout << "[INFO] Checking for presence of truth branches." << std::endl;
                 input_tree->SetBranchAddress("Xicst_ID", &Xicst_ID);
+                if (!has_MassID)
+                {
+                    input_tree->SetBranchStatus("Xicst_MassID", 1);
+                    std::cout << "[INFO] Xicst_MassID added\n";
+                }
 
                 if (!has_TRUEID)
                 {
                     input_tree->SetBranchStatus("Xicst_TRUEID", 1);
+                    std::cout << "[INFO] Xicst_TRUEID added\n";
                     input_tree->SetBranchAddress("Xicst_TRUEID", &Xicst_TRUEID);
                 }
             }
@@ -215,15 +226,15 @@ int main(int ac, char **av)
     bool is_ws1 = set::use.at(set::type::ws1);
     bool is_ws2 = set::use.at(set::type::ws2);
 
-    // if (is_sig && is_ws1 && is_ws2)
-    //     draw_features(sig, ws1, ws2);
-    // else if (is_sig && is_ws1 && !is_ws2)
-    //     draw_features(sig, ws1);
-    // else if (is_sig && is_ws2 && !is_ws1)
-    //     draw_features(sig, ws2);
-    // else
-    //     std::cout << "For the output file to be populated by histograms,"
-    //                  " a signal tree and at least a Wrong Sign background tree must be properly provided.";
+    if (is_sig && is_ws1 && is_ws2)
+        draw_features(sig, ws1, ws2);
+    else if (is_sig && is_ws1 && !is_ws2)
+        draw_features(sig, ws1);
+    else if (is_sig && is_ws2 && !is_ws1)
+        draw_features(sig, ws2);
+    else
+        std::cout << "For the output file to be populated by histograms,"
+                     " a signal tree and at least a Wrong Sign background tree must be properly provided.";
 
     inputFile.Close();
     outputFile.Close();

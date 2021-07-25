@@ -16,7 +16,7 @@ namespace set
     const std::map<set::type, bool> use = {
         {set::type::signal, true},
         {set::type::ws1, true},
-        {set::type::ws2, true}};
+        {set::type::ws2, false}};
 }
 
 #endif // FEATURES
