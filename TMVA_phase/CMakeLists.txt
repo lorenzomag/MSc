@@ -7,5 +7,5 @@ find_package(ROOT COMPONENTS TMVA TMVAGui)
 
 include(${ROOT_USE_FILE})
 
-add_subdirectory(nfd)
+add_subdirectory("$ENV{WORKSPACE_DIR}/utils/nativefiledialog-extended" "nfd")
 add_subdirectory(src)
