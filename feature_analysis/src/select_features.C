@@ -252,7 +252,9 @@ json select_features(feat_source option)
 			{"_TRACK_MatchCHI2", false},
 			{"_TRACK_GhostProb", false},
 			{"_TRACK_CloneDist", false},
-			{"_TRACK_Likelihood", true},
+			{"_InvM", true},
+			{"_MassID", true},
+			{"_WidthID", true},
 // END LIST OF PARTICLE FEATURES
             };
         }
