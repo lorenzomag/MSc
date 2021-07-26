@@ -114,7 +114,6 @@ void draw_features(Search &sig, Search &bkg)
 
                     std::string mass_cut = (std::string) "Xicst_MassID == " + std::to_string(mass);
                     auto mass_df = sig_df.Filter(mass_cut);
-                    std::cout << feature << std::endl;
                     if (feature.Contains("CHI2"))
                     {
                         // std::cout << feature << " contains Chi2" << std::endl;

@@ -13,7 +13,7 @@ bool truth_match = true;
 int main(int ac, char **av)
 {
 
-    json j_db = select_features(feat_source::default_values);
+    json j_db = select_features(feat_source::from_file);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
