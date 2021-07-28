@@ -22,9 +22,11 @@
 using namespace ROOT;
 
 void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString &exe_dir, TString &outputFileName);
-void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString meth_dir="Method_BDT", TString method="BDT")
-{
 
+// void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString meth_dir="Method_BDT", TString method="BDT")
+void punzi_fom(int run, TString meth_dir="Method_BDT", TString method="BDT")
+{
+    TString filename = (TString)"/home/loren/MSc/TMVA_phase/TMVA_run" + run + (TString)".root";
     TFile *f = TFile::Open(filename);
     TString get_argS = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effS";
     TString get_argB = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effB";
@@ -63,13 +65,19 @@ void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString me
     double numB = mass_distribution->Integral(min,max);
 
 
-
+    TString title_s = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Signal Efficiency";
+    TString title_b = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Background Efficiency";
+    TString title_punzi = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Punzi FoM";
     TCanvas *cS = new TCanvas("cS", "", 800, 400);
+    histS->SetTitle(title_s);
     histS->Draw();
     cS->SaveAs("effS.pdf");
     TCanvas *cB = new TCanvas("cB", "", 800, 400);
+    histB->SetTitle(title_s);
     histB->Draw();
     cB->SaveAs("effB.pdf");
+
+    punzi_curve->SetTitle(title_punzi);
 
     gStyle->SetPalette(kRainBow);
     TCanvas *corrS = new TCanvas("corrS", "", 800, 400);
@@ -99,7 +107,7 @@ void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString me
         //double formula = newS/(sqrt(newS+newB));
         double formula;
         //if (newB != 0){
-        formula = newS / (5. / 3. + (sqrt(newB)));
+        formula = newS / (5. / 2. + (sqrt(newB)));
         punzi_curve->SetBinContent(i, formula);
         //}
         //
@@ -121,7 +129,7 @@ void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString me
     punzi_curve->SetMarkerStyle(22);
     // punzi_curve->GetXaxis()->SetTitle("MLP response");
     punzi_curve->GetXaxis()->SetTitle("BDT response");
-    punzi_curve->GetYaxis()->SetTitle("Significance");
+    punzi_curve->GetYaxis()->SetTitle("Punzi FoM");
     punzi_curve->SetMarkerColor(kOrange);
     punzi_curve->Draw("p");
     //cFOM->SaveAs("FOMcurve.pdf");

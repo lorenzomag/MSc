@@ -71,7 +71,7 @@ int TMVAClassification(TString myMethodList = "")
    Use["FDA_MCMT"] = 0;
    //
    // Neural Networks (all are feed-forward Multilayer Perceptrons) 
-   Use["MLP"] = 0;      // Recommended ANN
+   Use["MLP"] = 1;      // Recommended ANN
    Use["MLPBFGS"] = 0;  // Recommended ANN with optional training method
    Use["MLPBNN"] = 0;   // Recommended ANN with BFGS training method and bayesian regulator
    Use["CFMlpANN"] = 0; // Depreciated ANN from ALEPH
@@ -137,8 +137,8 @@ int TMVAClassification(TString myMethodList = "")
    TFile *sigInput(0);
    TFile *bkgInput(0);
 
-   TString signalFileName = "inputDataset.root";
-   TString bkgFileName = "inputDataset.root";
+   TString signalFileName = "features_masses.root";
+   TString bkgFileName = "features_masses.root";
 
    if (!gSystem->AccessPathName(signalFileName))
    {
@@ -172,7 +172,7 @@ int TMVAClassification(TString myMethodList = "")
    TTree *background = (TTree *)bkgInput->Get("LcKPiTreeWS1");
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
-   TString outfileName("TMVA_transformations.root");
+   TString outfileName("TMVA_run3.root");
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
 
    // Create the factory object. Later you can choose the methods
@@ -186,7 +186,8 @@ int TMVAClassification(TString myMethodList = "")
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,
-                                              "!V:!Silent:Color:DrawProgressBar:Transformations=I;G;D;G;D:AnalysisType=Classification");
+                                              "!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification");
+                                             //  "!V:!Silent:Color:DrawProgressBar:Transformations=I;G;D;G;D:AnalysisType=Classification");
    //  "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
    TMVA::DataLoader *dataloader = new TMVA::DataLoader("dataset");
@@ -205,18 +206,18 @@ int TMVAClassification(TString myMethodList = "")
    dataloader->AddVariable("log(Xicst_ENDVERTEX_CHI2)", "Xicst_ENDVERTEX_CHI2", "", 'F');
    dataloader->AddVariable("log(Xicst_IPCHI2_OWNPV)", "Xicst_IPCHI2_OWNPV", "", 'F');
    dataloader->AddVariable("log(Xicst_FDCHI2_OWNPV)", "Xicst_FDCHI2_OWNPV", "", 'F');
-
    dataloader->AddVariable("log(Lc_PT)", "Lc_PT", "", 'F');
    dataloader->AddVariable("log(Lc_IPCHI2_OWNPV)", "Lc_IPCHI2_OWNPV", "", 'F');
-
+   dataloader->AddVariable("log(Kbach_PT)", "Kbach_PT", "", 'F');
    dataloader->AddVariable("log(Kbach_PT)", "Kbach_PT", "", 'F');
    dataloader->AddVariable("log(Kbach_IPCHI2_OWNPV)", "Kbach_IPCHI2_OWNPV", "", 'F');
    dataloader->AddVariable("1-sqrt(1-Kbach_ProbNNk)", "Kbach_ProbNNk", "", 'F');
-
+   dataloader->AddVariable("log(Xicst_PT)", "Xicst_PT", "", 'F');
    dataloader->AddVariable("log(pibach_PT)", "pibach_PT", "", 'F');
    dataloader->AddVariable("log(pibach_IPCHI2_OWNPV)", "pibach_IPCHI2_OWNPV", "", 'F');
-   dataloader->AddVariable("1-sqrt(1-pibach_ProbNNpi)", "pibach_ProbNNpi", "", 'F');
+   // dataloader->AddVariable("1-sqrt(1-pibach_ProbNNpi)", "pibach_ProbNNpi", "", 'F');
    dataloader->AddVariable("pibach_ProbNNpi:=sqrt(1-pibach_ProbNNpi)", 'F');
+
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
