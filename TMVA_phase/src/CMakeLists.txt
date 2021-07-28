@@ -11,15 +11,15 @@ target_include_directories(run_TMVA
 	)
 	
 	
-# add_executable(apply_TMVA TMVAClassificationApplication.C)
+add_executable(apply_TMVA TMVAClassificationApplication.C)
 	
-# target_link_libraries(apply_TMVA 
-# 	PUBLIC ${ROOT_LIBRARIES}
-# 	PRIVATE nfd)
-# target_include_directories(apply_TMVA 
-# 	PUBLIC ../include
-# 	PRIVATE $ENV{WORKSPACE_DIR}/include
-# 	)
+target_link_libraries(apply_TMVA 
+	PUBLIC ${ROOT_LIBRARIES}
+	PRIVATE nfd)
+target_include_directories(apply_TMVA 
+	PUBLIC ../include
+	PRIVATE $ENV{WORKSPACE_DIR}/include
+	)
 	
 	
 # add_executable(analyse_output exploreOutput.C)
