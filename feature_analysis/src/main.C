@@ -6,14 +6,14 @@
 
 #include "main.h"
 
-bool truth_match = true;
+bool truth_match = false;
 
 // namespace setting = settings_selection;
 // extern int setting::version;
 int main(int ac, char **av)
 {
 
-    json j_db = select_features(feat_source::from_file);
+    json j_db = select_features(feat_source::default_values);
 
     Search sig(j_db, "Sig", "-+");
     Search ws1(j_db, "Ws1", "+-");
