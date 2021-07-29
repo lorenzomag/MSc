@@ -284,7 +284,7 @@ int TMVAClassification(TString myMethodList = "")
 
    // Apply additional cuts on the signal and background samples (can be different)
    TCut mycuts = ""; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-   TCut mycutb = ""; // for example: TCut mycutb = "abs(var1)<0.5";
+   TCut mycutb = mycuts; // for example: TCut mycutb = "abs(var1)<0.5";
 
    // Tell the dataloader how to use the training and testing events
    //
@@ -323,7 +323,7 @@ int TMVAClassification(TString myMethodList = "")
 
    dataloader->PrepareTrainingAndTestTree(mycuts, mycutb,
 
-                                          "nTrain_Signal=20000:nTrain_Background=100000:nTest_Signal=20000:nTest_Background=100000:SplitMode=Random:NormMode=NumEvents:!V");
+                                          "nTrain_Signal=100000:nTrain_Background=100000:nTest_Signal=100000:nTest_Background=100000:SplitMode=Random:NormMode=NumEvents:!V");
 
    //"nTrain_Signal=5000:nTrain_Background=5000:nTest_Signal=5000:nTest_Background=5000:SplitMode=Random:NormMode=NumEvents:!V" );
    // Cut optimisation
@@ -548,7 +548,7 @@ int TMVAClassification(TString myMethodList = "")
    // STILL EXPERIMENTAL and only implemented for BDT's !
    //
    //     factory->OptimizeAllMethods("SigEffAtBkg0.01","Scan");
-   //     factory->OptimizeAllMethods("ROCIntegral","FitGA");
+   factory->OptimizeAllMethods("ROCIntegral","FitGA");
    //
    // --------------------------------------------------------------------------------------------------
 
