@@ -23,10 +23,10 @@ using namespace ROOT;
 
 void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString &exe_dir, TString &outputFileName);
 
-// void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString meth_dir="Method_BDT", TString method="BDT")
-void punzi_fom(int run, TString meth_dir="Method_BDT", TString method="BDT")
+// void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString meth_dir="Method_BDT", TString method="BDTG")
+void punzi_fom(int run=1, TString meth_dir="Method_BDT", TString method="BDTG")
 {
-    TString filename = (TString)"/home/loren/MSc/TMVA_phase/TMVA_run" + run + (TString)".root";
+    TString filename = (TString)"/home/loren/MSc/TMVA_phase/output/TMVA_run" + run + (TString)".root";
     TFile *f = TFile::Open(filename);
     TString get_argS = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effS";
     TString get_argB = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effB";
@@ -53,16 +53,21 @@ void punzi_fom(int run, TString meth_dir="Method_BDT", TString method="BDT")
 
     set_file_names(signalInputFileName, bkgInputFileName, exe_dir, outputFileName);
 
-    TFile inputFile(bkgInputFileName, "READ");
-    TTree *treeS = (TTree *)inputFile.Get("DecayTree");
-    RDataFrame tree_df(*treeS);
+    // TFile inputFile(bkgInputFileName, "READ");
+    // TTree *treeS = (TTree *)inputFile.Get("DecayTree");
+    RDataFrame tree_df("DecayTree",bkgInputFileName);
 
     auto mass_distribution = tree_df.Histo1D("Xicst_M");
 
-    int min = mass_distribution->FindBin(mass - width);
-    int max = mass_distribution->FindBin(mass + width);
+    int min_m = mass - 3*width;
+    int max_m = mass + 3*width;
+    // int min = mass_distribution->FindBin(mass - 3*width);
+    // int max = mass_distribution->FindBin(mass + 3*width);
+    auto massCut = [&min_m, &max_m](double m) { return (m > min_m) && (m < max_m); };
 
-    double numB = mass_distribution->Integral(min,max);
+    auto numB = tree_df.Filter(massCut,{"Xicst_M"}).Count();
+
+    // double numB = mass_distribution->Integral(min,max);
 
 
     TString title_s = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Signal Efficiency";
@@ -100,7 +105,7 @@ void punzi_fom(int run, TString meth_dir="Method_BDT", TString method="BDT")
         //double newS = 0;
         //double newB = 0;
         double newS = effS;
-        double newB = effB * numB;
+        double newB = effB * *numB;
 
         //std::cout << "newS = " << newS << ", newB = " << newB << std::endl;
 
