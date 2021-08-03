@@ -164,7 +164,7 @@ void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString 
 {
     TString defaultName = "/home/loren/MSc/datasets/mcsampletruthDecFile26265973_LcCutTruthMatched_IDpart.root";
 
-    bkgInputFileName = getenv("CURRENT_BKG_DATASET");
+    bkgInputFileName = getenv("CURRENT_WS1_DATASET");
     if (!bkgInputFileName)
     {
         std::cout << bkgInputFileName << " could not be found." << std::endl;
@@ -172,7 +172,7 @@ void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString 
         std::cout << "Using default file name: " << bkgInputFileName << std::endl;
     }
 
-    signalFileName = getenv("CURRENT_SIG_DATASET");
+    signalFileName = getenv("CURRENT_MC_DATASET");
     if (!signalFileName)
     {
         std::cout << signalFileName << " could not be found." << std::endl;

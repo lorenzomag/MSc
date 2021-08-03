@@ -1,6 +1,6 @@
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 
-add_executable(run_TMVA TMVAClassification.C)
+add_executable(run_TMVA classification.C)
 
 target_link_libraries(run_TMVA 
 	PUBLIC ${ROOT_LIBRARIES}

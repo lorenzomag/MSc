@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <SQLiteCpp/SQLiteCpp.h>
 
 #include "TChain.h"
 #include "TFile.h"
@@ -16,8 +17,16 @@
 #include "TMVA/Tools.h"
 #include "TMVA/TMVAGui.h"
 
+const int run = 3;
+
+
 int TMVAClassification(TString myMethodList = "")
 {
+   std::string db_name = getenv("DATABASE");
+   SQLite::Database db(db_name, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+
+
+
    // The explicit loading of the shared libTMVA is done in TMVAlogon.C, defined in .rootrc
    // if you use your private .rootrc, or run from a different directory, please copy the
    // corresponding lines from .rootrc
@@ -137,8 +146,8 @@ int TMVAClassification(TString myMethodList = "")
    TFile *sigInput(0);
    TFile *bkgInput(0);
 
-   TString signalFileName = "features_masses.root";
-   TString bkgFileName = "features_masses.root";
+   TString signalFileName = "input_features_selVars.root";
+   TString bkgFileName = "input_features_selVars.root";
 
    if (!gSystem->AccessPathName(signalFileName))
    {
@@ -217,7 +226,6 @@ int TMVAClassification(TString myMethodList = "")
    dataloader->AddVariable("log(pibach_IPCHI2_OWNPV)", "pibach_IPCHI2_OWNPV", "", 'F');
    // dataloader->AddVariable("1-sqrt(1-pibach_ProbNNpi)", "pibach_ProbNNpi", "", 'F');
    dataloader->AddVariable("pibach_ProbNNpi:=sqrt(1-pibach_ProbNNpi)", 'F');
-
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
