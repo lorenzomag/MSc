@@ -11,7 +11,7 @@ export DATASETS_DIR=$WORKSPACE_DIR"/datasets"
 export CURRENT_SIG_DATASET=""
 export CURRENT_MC_DATASET=$DATASETS_DIR"/LcKPiMC_allVars_mID.root"
 export CURRENT_WS1_DATASET=$DATASETS_DIR"/Data_WS1_LcCut.root"
-export CURRENT_WS2_DATASET=""
+export CURRENT_WS2_DATASET=$DATASETS_DIR"/Data_WS2_LcCut.root"
 
 # Set CMake prefix path for installing libraries for project
 export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH":"$WORKSPACE_DIR
