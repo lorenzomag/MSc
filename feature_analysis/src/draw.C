@@ -2,6 +2,8 @@
 #include "search.h"
 #include "draw.h"
 #include "ROOT/RDataFrame.hxx"
+
+#include "lhcbStyle.C"
 using namespace ROOT;
 
 std::vector<double> masses = {2942, 2964.3, 3055.9, 3077.2};
@@ -10,7 +12,7 @@ bool has_masses = true;
 
 void draw_features(Search &sig, Search &bkg)
 {
-
+    set_style();
     std::cout << std::endl
               << "Plotting feature comparisons between Signal and possible background sources (WS1 and/or WS2)" << std::endl;
     std::map<TString, std::vector<TString>> particles;
@@ -102,9 +104,10 @@ void draw_features(Search &sig, Search &bkg)
                 gDirectory->cd("masses");
 
                 THStack *hsMasses = new THStack("hsMasses", feature);
-                auto name_title = feature + " (masses)";
+                auto name_title = feature + " (mass comparison)";
                 c1->SetName(name_title);
                 c1->SetTitle(name_title);
+                // hsMasses->SetNameTitle(name_title, name_title);
 
                 hsMasses->Add(sigHist.GetPtr());
 
@@ -114,7 +117,6 @@ void draw_features(Search &sig, Search &bkg)
 
                     std::string mass_cut = (std::string) "Xicst_MassID == " + std::to_string(mass);
                     auto mass_df = sig_df.Filter(mass_cut);
-                    std::cout << feature << std::endl;
                     if (feature.Contains("CHI2"))
                     {
                         // std::cout << feature << " contains Chi2" << std::endl;
@@ -134,8 +136,12 @@ void draw_features(Search &sig, Search &bkg)
 
                     i++;
                 }
+
                 hsMasses->Draw("nostack");
                 gPad->BuildLegend(0.6, 0.7, 0.9, 0.9);
+                gPad->Modified();
+                gPad->Update();
+
 
                 c1->Write();
                 // c1->BuildLegend();

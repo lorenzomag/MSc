@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <SQLiteCpp/SQLiteCpp.h>
 
 #include "TChain.h"
 #include "TFile.h"
@@ -16,8 +17,16 @@
 #include "TMVA/Tools.h"
 #include "TMVA/TMVAGui.h"
 
+const int run = 3;
+
+
 int TMVAClassification(TString myMethodList = "")
 {
+   std::string db_name = getenv("DATABASE");
+   SQLite::Database db(db_name, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+
+
+
    // The explicit loading of the shared libTMVA is done in TMVAlogon.C, defined in .rootrc
    // if you use your private .rootrc, or run from a different directory, please copy the
    // corresponding lines from .rootrc
@@ -71,7 +80,7 @@ int TMVAClassification(TString myMethodList = "")
    Use["FDA_MCMT"] = 0;
    //
    // Neural Networks (all are feed-forward Multilayer Perceptrons) 
-   Use["MLP"] = 0;      // Recommended ANN
+   Use["MLP"] = 1;      // Recommended ANN
    Use["MLPBFGS"] = 0;  // Recommended ANN with optional training method
    Use["MLPBNN"] = 0;   // Recommended ANN with BFGS training method and bayesian regulator
    Use["CFMlpANN"] = 0; // Depreciated ANN from ALEPH
@@ -137,8 +146,8 @@ int TMVAClassification(TString myMethodList = "")
    TFile *sigInput(0);
    TFile *bkgInput(0);
 
-   TString signalFileName = "inputDataset.root";
-   TString bkgFileName = "inputDataset.root";
+   TString signalFileName = "input_features_selVars.root";
+   TString bkgFileName = "input_features_selVars.root";
 
    if (!gSystem->AccessPathName(signalFileName))
    {
@@ -172,7 +181,7 @@ int TMVAClassification(TString myMethodList = "")
    TTree *background = (TTree *)bkgInput->Get("LcKPiTreeWS1");
 
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
-   TString outfileName("TMVA_transformations.root");
+   TString outfileName("TMVA_run3.root");
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
 
    // Create the factory object. Later you can choose the methods
@@ -186,7 +195,8 @@ int TMVAClassification(TString myMethodList = "")
    // All TMVA output can be suppressed by removing the "!" (not) in
    // front of the "Silent" argument in the option string
    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,
-                                              "!V:!Silent:Color:DrawProgressBar:Transformations=I;G;D;G;D:AnalysisType=Classification");
+                                              "!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification");
+                                             //  "!V:!Silent:Color:DrawProgressBar:Transformations=I;G;D;G;D:AnalysisType=Classification");
    //  "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification");
 
    TMVA::DataLoader *dataloader = new TMVA::DataLoader("dataset");
@@ -205,17 +215,16 @@ int TMVAClassification(TString myMethodList = "")
    dataloader->AddVariable("log(Xicst_ENDVERTEX_CHI2)", "Xicst_ENDVERTEX_CHI2", "", 'F');
    dataloader->AddVariable("log(Xicst_IPCHI2_OWNPV)", "Xicst_IPCHI2_OWNPV", "", 'F');
    dataloader->AddVariable("log(Xicst_FDCHI2_OWNPV)", "Xicst_FDCHI2_OWNPV", "", 'F');
-
    dataloader->AddVariable("log(Lc_PT)", "Lc_PT", "", 'F');
    dataloader->AddVariable("log(Lc_IPCHI2_OWNPV)", "Lc_IPCHI2_OWNPV", "", 'F');
-
+   dataloader->AddVariable("log(Kbach_PT)", "Kbach_PT", "", 'F');
    dataloader->AddVariable("log(Kbach_PT)", "Kbach_PT", "", 'F');
    dataloader->AddVariable("log(Kbach_IPCHI2_OWNPV)", "Kbach_IPCHI2_OWNPV", "", 'F');
    dataloader->AddVariable("1-sqrt(1-Kbach_ProbNNk)", "Kbach_ProbNNk", "", 'F');
-
+   dataloader->AddVariable("log(Xicst_PT)", "Xicst_PT", "", 'F');
    dataloader->AddVariable("log(pibach_PT)", "pibach_PT", "", 'F');
    dataloader->AddVariable("log(pibach_IPCHI2_OWNPV)", "pibach_IPCHI2_OWNPV", "", 'F');
-   dataloader->AddVariable("1-sqrt(1-pibach_ProbNNpi)", "pibach_ProbNNpi", "", 'F');
+   // dataloader->AddVariable("1-sqrt(1-pibach_ProbNNpi)", "pibach_ProbNNpi", "", 'F');
    dataloader->AddVariable("pibach_ProbNNpi:=sqrt(1-pibach_ProbNNpi)", 'F');
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
@@ -283,7 +292,7 @@ int TMVAClassification(TString myMethodList = "")
 
    // Apply additional cuts on the signal and background samples (can be different)
    TCut mycuts = ""; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-   TCut mycutb = ""; // for example: TCut mycutb = "abs(var1)<0.5";
+   TCut mycutb = mycuts; // for example: TCut mycutb = "abs(var1)<0.5";
 
    // Tell the dataloader how to use the training and testing events
    //
@@ -322,7 +331,7 @@ int TMVAClassification(TString myMethodList = "")
 
    dataloader->PrepareTrainingAndTestTree(mycuts, mycutb,
 
-                                          "nTrain_Signal=20000:nTrain_Background=100000:nTest_Signal=20000:nTest_Background=100000:SplitMode=Random:NormMode=NumEvents:!V");
+                                          "nTrain_Signal=100000:nTrain_Background=100000:nTest_Signal=100000:nTest_Background=100000:SplitMode=Random:NormMode=NumEvents:!V");
 
    //"nTrain_Signal=5000:nTrain_Background=5000:nTest_Signal=5000:nTest_Background=5000:SplitMode=Random:NormMode=NumEvents:!V" );
    // Cut optimisation
@@ -547,7 +556,7 @@ int TMVAClassification(TString myMethodList = "")
    // STILL EXPERIMENTAL and only implemented for BDT's !
    //
    //     factory->OptimizeAllMethods("SigEffAtBkg0.01","Scan");
-   //     factory->OptimizeAllMethods("ROCIntegral","FitGA");
+   factory->OptimizeAllMethods("ROCIntegral","FitGA");
    //
    // --------------------------------------------------------------------------------------------------
 

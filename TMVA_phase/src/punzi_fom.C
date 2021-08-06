@@ -22,9 +22,11 @@
 using namespace ROOT;
 
 void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString &exe_dir, TString &outputFileName);
-void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString meth_dir="Method_BDT", TString method="BDT")
-{
 
+// void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString meth_dir="Method_BDT", TString method="BDTG")
+void punzi_fom(int run=1, TString meth_dir="Method_BDT", TString method="BDTG")
+{
+    TString filename = (TString)"/home/loren/MSc/TMVA_phase/output/TMVA_run" + run + (TString)".root";
     TFile *f = TFile::Open(filename);
     TString get_argS = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effS";
     TString get_argB = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effB";
@@ -51,25 +53,36 @@ void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString me
 
     set_file_names(signalInputFileName, bkgInputFileName, exe_dir, outputFileName);
 
-    TFile inputFile(bkgInputFileName, "READ");
-    TTree *treeS = (TTree *)inputFile.Get("DecayTree");
-    RDataFrame tree_df(*treeS);
+    // TFile inputFile(bkgInputFileName, "READ");
+    // TTree *treeS = (TTree *)inputFile.Get("DecayTree");
+    RDataFrame tree_df("DecayTree",bkgInputFileName);
 
     auto mass_distribution = tree_df.Histo1D("Xicst_M");
 
-    int min = mass_distribution->FindBin(mass - width);
-    int max = mass_distribution->FindBin(mass + width);
+    int min_m = mass - 3*width;
+    int max_m = mass + 3*width;
+    // int min = mass_distribution->FindBin(mass - 3*width);
+    // int max = mass_distribution->FindBin(mass + 3*width);
+    auto massCut = [&min_m, &max_m](double m) { return (m > min_m) && (m < max_m); };
 
-    double numB = mass_distribution->Integral(min,max);
+    auto numB = tree_df.Filter(massCut,{"Xicst_M"}).Count();
+
+    // double numB = mass_distribution->Integral(min,max);
 
 
-
+    TString title_s = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Signal Efficiency";
+    TString title_b = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Background Efficiency";
+    TString title_punzi = (TString)"Run: " + run + (TString)"     Method: " + method + (TString)";MVA Cut; Punzi FoM";
     TCanvas *cS = new TCanvas("cS", "", 800, 400);
+    histS->SetTitle(title_s);
     histS->Draw();
     cS->SaveAs("effS.pdf");
     TCanvas *cB = new TCanvas("cB", "", 800, 400);
+    histB->SetTitle(title_s);
     histB->Draw();
     cB->SaveAs("effB.pdf");
+
+    punzi_curve->SetTitle(title_punzi);
 
     gStyle->SetPalette(kRainBow);
     TCanvas *corrS = new TCanvas("corrS", "", 800, 400);
@@ -92,14 +105,14 @@ void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString me
         //double newS = 0;
         //double newB = 0;
         double newS = effS;
-        double newB = effB * numB;
+        double newB = effB * *numB;
 
         //std::cout << "newS = " << newS << ", newB = " << newB << std::endl;
 
         //double formula = newS/(sqrt(newS+newB));
         double formula;
         //if (newB != 0){
-        formula = newS / (5. / 3. + (sqrt(newB)));
+        formula = newS / (5. / 2. + (sqrt(newB)));
         punzi_curve->SetBinContent(i, formula);
         //}
         //
@@ -121,7 +134,7 @@ void punzi_fom(TString filename = "../output/TMVA_methodSample.root", TString me
     punzi_curve->SetMarkerStyle(22);
     // punzi_curve->GetXaxis()->SetTitle("MLP response");
     punzi_curve->GetXaxis()->SetTitle("BDT response");
-    punzi_curve->GetYaxis()->SetTitle("Significance");
+    punzi_curve->GetYaxis()->SetTitle("Punzi FoM");
     punzi_curve->SetMarkerColor(kOrange);
     punzi_curve->Draw("p");
     //cFOM->SaveAs("FOMcurve.pdf");
@@ -151,7 +164,7 @@ void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString 
 {
     TString defaultName = "/home/loren/MSc/datasets/mcsampletruthDecFile26265973_LcCutTruthMatched_IDpart.root";
 
-    bkgInputFileName = getenv("CURRENT_BKG_DATASET");
+    bkgInputFileName = getenv("CURRENT_WS1_DATASET");
     if (!bkgInputFileName)
     {
         std::cout << bkgInputFileName << " could not be found." << std::endl;
@@ -159,7 +172,7 @@ void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString 
         std::cout << "Using default file name: " << bkgInputFileName << std::endl;
     }
 
-    signalFileName = getenv("CURRENT_SIG_DATASET");
+    signalFileName = getenv("CURRENT_MC_DATASET");
     if (!signalFileName)
     {
         std::cout << signalFileName << " could not be found." << std::endl;
