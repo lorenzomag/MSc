@@ -8,7 +8,7 @@ export WORKSPACE_DIR="$PWD"
 export DATASETS_DIR=$WORKSPACE_DIR"/datasets"
 
 # Set current datasets (MonteCarlo and Data)
-export CURRENT_SIG_DATASET=""
+export CURRENT_SIG_DATASET=$DATASETS_DIR"/DATA_2016_RS_LcCut.root"
 export CURRENT_MC_DATASET=$DATASETS_DIR"/LcKPiMC_allVars_mID.root"
 export CURRENT_WS1_DATASET=$DATASETS_DIR"/Data_WS1_LcCut.root"
 export CURRENT_WS2_DATASET=$DATASETS_DIR"/Data_WS2_LcCut.root"
