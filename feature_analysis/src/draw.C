@@ -8,7 +8,7 @@ using namespace ROOT;
 
 std::vector<double> masses = {2942, 2964.3, 3055.9, 3077.2};
 std::vector<EColor> colours = {kBlue, kRed, kGreen, kTeal};
-bool has_masses = true;
+extern bool has_masses;
 
 void draw_features(Search &sig, Search &bkg)
 {
