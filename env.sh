@@ -8,11 +8,10 @@ export WORKSPACE_DIR="$PWD"
 export DATASETS_DIR=$WORKSPACE_DIR"/datasets"
 
 # Set current datasets (MonteCarlo and Data)
-export CURRENT_SIG_DATASET=$DATASETS_DIR"/DATA_2016_RS_LcCut.root"
+export CURRENT_SIG_DATASET=$DATASETS_DIR"/Data_2016_RS_LcMVA.root"
 export CURRENT_MC_DATASET=$DATASETS_DIR"/MC_2016_LcMVA.root"
-export CURRENT_WS1_DATASET=$DATASETS_DIR"/Data2016_Mag_Down_WS1.root"
-#export CURRENT_WS2_DATASET=$DATASETS_DIR"/Data_WS2_LcCut.root"
-export CURRENT_WS2_DATASET=$DATASETS_DIR"/Data2016_Mag_Down_WS2.root"
+export CURRENT_WS1_DATASET=$DATASETS_DIR"/Data_2016_MD_WS1_LcMVA_LcPiCuts.root"
+export CURRENT_WS2_DATASET=$DATASETS_DIR"/Data_2016_MD_WS2_LcMVA_LcPiCuts.root"
 
 
 # Set CMake prefix path for installing libraries for project
