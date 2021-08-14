@@ -15,5 +15,4 @@ printf "DATASETS_DIR\t\t=\t$DATASETS_DIR\n"
 printf "TUTORIALS_DIR\t\t=\t$TUTORIALS_DIR\n" 
 printf "CURRENT_SIG_DATASET\t=\t$CURRENT_SIG_DATASET\n"
 printf "CURRENT_BKG_DATASET\t=\t$CURRENT_BKG_DATASET\n"
-
-lsetup "views LCG_100_LHCB_6 x86_64-centos7-gcc9-opt"
+source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_100_LHCB_6 x86_64-centos7-gcc9-opt
