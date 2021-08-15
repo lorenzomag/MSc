@@ -1,0 +1,29 @@
+{
+    "Use_datasets": {
+        "Data": true,
+        "Simulation": true,
+        "WS1": true,
+        "WS2": true,
+        "WS3": false
+    },
+    
+    "Is_MC": {
+        "Data": false,
+        "Simulation": true,
+        "WS1": false,
+        "WS2": false,
+        "WS3": false
+    },
+
+    "Debug": false,
+
+    "Lc_cuts": true,
+    "Lc_pi_cuts": true,
+
+
+    "TMVA": {
+        "Run number": 1,
+        "Hyper_parameter_set": 1
+    }
+      
+}
