@@ -5,7 +5,7 @@
 
 # Get Project's directories
 export WORKSPACE_DIR="$PWD"
-export DATASETS_DIR="/eos/lhcb/user/f/feoliva/public"
+export DATASETS_DIR="/eos/lhcb/user/l/lprincip/public"
 
 # Set current datasets (MonteCarlo and Data)
 export CURRENT_SIG_DATASET=$DATASETS_DIR"/Data_2016_RS_LcMVA.root"
