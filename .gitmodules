@@ -4,3 +4,6 @@
 [submodule "extern/nativefiledialog-extended"]
 	path = extern/nativefiledialog-extended
 	url = git@github.com:btzy/nativefiledialog-extended.git
+[submodule "extern/SQLiteCpp"]
+	path = extern/SQLiteCpp
+	url = git@github.com:SRombauts/SQLiteCpp.git
