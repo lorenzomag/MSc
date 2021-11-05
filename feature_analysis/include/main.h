@@ -5,7 +5,7 @@
 void set_file_names(TString &, TString &, TString &, TString &, TString &);
 void set_branch_args(PARTICLE &particle);
 
-namespace set
+namespace main_config
 {
     enum type
     {
@@ -13,10 +13,10 @@ namespace set
         ws1,
         ws2
     };
-    const std::map<set::type, bool> use = {
-        {set::type::MC, true},
-        {set::type::ws1, true},
-        {set::type::ws2, true}};
+    const std::map<main_config::type, bool> use = {
+        {MC, true},
+        {ws1, true},
+        {ws2, false}};
 }
 
 #endif // FEATURES_H

@@ -6,19 +6,30 @@
 # Get Project's directories
 export WORKSPACE_DIR="$PWD"
 export DATASETS_DIR=$WORKSPACE_DIR"/datasets"
+export SMALL_DATASETS_DIR=$WORKSPACE_DIR"/small_datasets"
+export LOCAL_DATASETS_DIR=$WORKSPACE_DIR"/local_datasets"
 
 # Set current datasets (MonteCarlo and Data)
 export CURRENT_SIG_DATASET=$DATASETS_DIR"/Data_2016_RS_LcMVA.root"
-export CURRENT_MC_DATASET=$DATASETS_DIR"/MC_2016_LcMVA.root"
-export CURRENT_WS1_DATASET=$DATASETS_DIR"/Data_2016_MD_WS1_LcMVA_LcPiCuts.root"
-export CURRENT_WS2_DATASET=$DATASETS_DIR"/Data_2016_MD_WS2_LcMVA_LcPiCuts.root"
+export CURRENT_MC_DATASET=$DATASETS_DIR"/MC2016_AllMasses_AllEvents_LcSelectionCut.root"
+export CURRENT_SIG_DATASET=$CURRENT_MC_DATASET
+# export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_2016_TMVA1_Lc_AllEvents.root"
+export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS2_Xic_TMVAClassification_Application_AllEvents_LcCut.root"
+export CURRENT_WS1_DATASET=$CURRENT_WS2_DATASET
+
+export SMALL_CURRENT_MC=$SMALL_DATASETS_DIR"/small_MC.root"
+export SMALL_CURRENT_DATA=$SMALL_DATASETS_DIR"/small_WS1.root"
+
 
 
 # Set CMake prefix path for installing libraries for project
+export FETCHCONTENT_BASE_DIR=$WORKSPACE_DIR"/utils/_deps"
 export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH":"$WORKSPACE_DIR
+export PATH=$PATH:$WORKSPACE_DIR"/TMVA_phase/bin"
 
 # Set Database (Database of searches, features, and TMVA runs) location and filename 
 export DATABASE_DIR=$WORKSPACE_DIR"/database"
+export SQL_SCRIPTS=$DATABASE_DIR"/sql_scripts"
 export DATABASE=$DATABASE_DIR"/searches.db"
 
 # If Database is not found, initialise it

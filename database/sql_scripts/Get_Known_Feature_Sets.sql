@@ -1,0 +1,1 @@
+SELECT set_ID, Name, Parent FROM Feature_sets fs LEFT JOIN Feature_set_rel fsr USING (set_ID) LEFT JOIN Features f ON ID == fsr.Feature_ID WHERE set_ID == :ID_stuff;
