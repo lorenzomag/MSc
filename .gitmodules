@@ -1,9 +1,15 @@
-[submodule "utils/nativefiledialog-extended"]
-	path = utils/nativefiledialog-extended
-	url = git@github.com:btzy/nativefiledialog-extended.git
-[submodule "utils/SQLiteCpp"]
-	path = utils/SQLiteCpp
+[submodule "extern/SQLiteCpp"]
+	path = extern/SQLiteCpp
 	url = git@github.com:SRombauts/SQLiteCpp.git
-[submodule "libfort"]
-	path = libfort
-	url = ./utils/libfort/
+[submodule "extern/CLI11"]
+	path = extern/CLI11
+	url = git@github.com:CLIUtils/CLI11.git
+[submodule "extern/rang"]
+	path = extern/rang
+	url = git@github.com:agauniyal/rang.git
+[submodule "extern/nativefiledialog-extended"]
+	path = extern/nativefiledialog-extended
+	url = git@github.com:btzy/nativefiledialog-extended.git
+[submodule "extern/libfort"]
+	path = extern/libfort
+	url = git@github.com:seleznevae/libfort.git
