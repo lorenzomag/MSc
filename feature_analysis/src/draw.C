@@ -8,7 +8,7 @@ using namespace ROOT;
 
 std::vector<double> masses = {2942, 2964.3, 3055.9, 3077.2};
 std::vector<EColor> colours = {kBlue, kRed, kGreen, kTeal};
-extern bool has_masses;
+extern bool has_masses_ID;
 
 void draw_features(Search &sig, Search &bkg)
 {
@@ -31,7 +31,7 @@ void draw_features(Search &sig, Search &bkg)
         }
     }
 
-    if (has_masses)
+    if (has_masses_ID)
         particles["Xicst"].push_back("_MassID");
 
     RDataFrame sig_df(*sig.GetTree(Search::output));
@@ -47,7 +47,7 @@ void draw_features(Search &sig, Search &bkg)
                   << "Scanning particle " << particle.first << std::endl;
         gDirectory->mkdir(particle.first);
         gDirectory->cd(particle.first);
-        if (has_masses)
+        if (has_masses_ID)
             gDirectory->mkdir("masses");
 
         for (auto feature_name : particle.second)
@@ -65,17 +65,28 @@ void draw_features(Search &sig, Search &bkg)
             auto x_min = sig_df.Min(feature).GetValue();
             auto x_max = sig_df.Max(feature).GetValue();
 
+            if (draw_config::suggested_hist_ranges.find(feature) == draw_config::suggested_hist_ranges.end())
+            {
+                x_min = 0;
+                x_max = 0;
+            }
+            else
+            {
+                x_min = draw_config::suggested_hist_ranges.at(feature).first;
+                x_max = draw_config::suggested_hist_ranges.at(feature).second;
+            }
+
             if (feature.Contains("CHI2"))
             {
                 // std::cout << feature << " contains Chi2" << std::endl;
                 std::string filter_req = (std::string)feature + ">= 0";
-                sigHist = sig_df.Filter(filter_req).Histo1D({"", "", 600, 0, 0}, feature);
-                bkgHist = bkg_df.Filter(filter_req).Histo1D({"", "", 600, 0, 0}, feature);
+                sigHist = sig_df.Filter(filter_req).Histo1D({"", "", 600, x_min, x_max}, feature);
+                bkgHist = bkg_df.Filter(filter_req).Histo1D({"", "", 600, x_min, x_max}, feature);
             }
             else
             {
-                sigHist = sig_df.Histo1D({"", "", 600, 0, 0}, feature);
-                bkgHist = bkg_df.Histo1D({"", "", 600, 0, 0}, feature);
+                sigHist = sig_df.Histo1D({"", "", 600, x_min, x_max}, feature);
+                bkgHist = bkg_df.Histo1D({"", "", 600, x_min, x_max}, feature);
             }
             sigHist->SetLineColor(kBlack);
             bkgHist->SetLineColor(kRed);
@@ -97,7 +108,7 @@ void draw_features(Search &sig, Search &bkg)
 
             c1->Clear();
 
-            if (has_masses)
+            if (has_masses_ID)
             {
                 // /// ------- MASSES
 
@@ -142,7 +153,6 @@ void draw_features(Search &sig, Search &bkg)
                 gPad->Modified();
                 gPad->Update();
 
-
                 c1->Write();
                 // c1->BuildLegend();
                 delete hsMasses;
@@ -159,7 +169,7 @@ void draw_features(Search &sig, Search &bkg)
 
 void draw_features(Search &sig, Search &ws1, Search &ws2)
 {
-
+    set_style();
     std::cout << std::endl
               << "Plotting feature comparisons between Signal and possible background sources (WS1 and WS2)" << std::endl;
     std::map<TString, std::vector<TString>> particles;
@@ -209,19 +219,48 @@ void draw_features(Search &sig, Search &ws1, Search &ws2)
             auto x_min = sig_df.Min(feature).GetValue();
             auto x_max = sig_df.Max(feature).GetValue();
 
-            if (feature.Contains("CHI2"))
+            if (feature.Contains("ProbNN"))
             {
-                // std::cout << feature << " contains Chi2" << std::endl;
-                std::string filter_req = (std::string)feature + ">= 0";
-                sigHist = sig_df.Filter(filter_req).Histo1D({"", "", 1000, 0, 0}, feature);
-                bkgHist1 = ws1_df.Filter(filter_req).Histo1D({"", "", 1000, 0, 0}, feature);
-                bkgHist2 = ws2_df.Filter(filter_req).Histo1D({"", "", 1000, 0, 0}, feature);
+                x_min = 0;
+                x_max = 1;
+            }
+            else if (feature.Contains("CHI2"))
+            {
+                x_min = 0;
+                x_max = -999;
+            }
+            else if (draw_config::suggested_hist_ranges.find(feature) == draw_config::suggested_hist_ranges.end())
+            {
+                x_min = 0;
+                x_max = 0;
             }
             else
             {
-                sigHist = sig_df.Histo1D({"", "", 1000, 0, 0}, feature);
-                bkgHist1 = ws1_df.Histo1D({"", "", 1000, 0, 0}, feature);
-                bkgHist2 = ws2_df.Histo1D({"", "", 1000, 0, 0}, feature);
+                x_min = draw_config::suggested_hist_ranges.at(feature).first;
+                x_max = draw_config::suggested_hist_ranges.at(feature).second;
+            }
+
+            if (x_min == 0 && x_max == 0)
+            {
+                sigHist = sig_df.Histo1D({"", "", 1000, x_min, x_max}, feature);
+                bkgHist1 = ws1_df.Histo1D({"", "", 1000, x_min, x_max}, feature);
+                bkgHist2 = ws2_df.Histo1D({"", "", 1000, x_min, x_max}, feature);
+            }
+            else if (x_min == 0 && x_max == -999)
+            {
+                std::string filter_req = (std::string)feature + ">= 0";
+                x_max = 0;
+                sigHist = sig_df.Filter(filter_req).Histo1D({"", "", 1000, x_min, x_max}, feature);
+                bkgHist1 = ws1_df.Filter(filter_req).Histo1D({"", "", 1000, x_min, x_max}, feature);
+                bkgHist2 = ws2_df.Filter(filter_req).Histo1D({"", "", 1000, x_min, x_max}, feature);
+            }
+            else
+            {
+                std::string filter_req = (std::string)feature + ">= " + std::to_string(x_min) + " && " + (std::string)feature + " <= " + std::to_string(x_max);
+                std::cout << filter_req << std::endl;
+                sigHist = sig_df.Filter(filter_req).Histo1D({"", "", 1000, x_min, x_max}, feature);
+                bkgHist1 = ws1_df.Filter(filter_req).Histo1D({"", "", 1000, x_min, x_max}, feature);
+                bkgHist2 = ws2_df.Filter(filter_req).Histo1D({"", "", 1000, x_min, x_max}, feature);
             }
             sigHist->SetLineColor(kBlack);
             bkgHist1->SetLineColor(kRed);

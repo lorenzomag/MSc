@@ -1,0 +1,1 @@
+SELECT DISTINCT r.ID, m.Name FROM TMVA_runs r LEFT JOIN TMVA_method_sets s on r.Method_set == s.set_ID LEFT JOIN TMVA_methods m on s.Method_ID == m.ID

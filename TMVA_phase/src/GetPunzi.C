@@ -1,47 +1,64 @@
 #include "pch.h"
-#include "ROOT/RDataFrame.hxx"
-#include "TLatex.h"
+#include "GetPunzi.hpp"
 
 using namespace ROOT;
 
-void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString &exe_dir, TString &outputFileName);
-
-void punzi_fom(int run = 1, TString method = "BDTG", TString meth_dir = "Method_BDT")
+void GetPunzi(int run = 1, TString method = "BDTG", TString method_dir = "Method_BDT", bool use_SQL = false, TApplication *app = gApplication)
 {
-
     // Open TMVA output file
-    TString filename = (TString) "/home/loren/MSc/TMVA_phase/output/TMVA_run" + run + (TString) ".root";
-    TFile *f = TFile::Open(filename);
+    TString TMVA_output_filename = (TString) "/home/loren/MSc/TMVA_phase/output/TMVA_run" + run + (TString) ".root";
+    TFile *TMVA_output = TFile::Open(TMVA_output_filename);
+
+    if (TMVA_output->IsZombie())
+    {
+        std::cout << "[ERROR] --- " << TMVA_output_filename << " could not be found!\n";
+        exit(1);
+    }
 
     // Get signal and background efficiencies
-    TString get_argS = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effS";
-    TString get_argB = "dataset/" + meth_dir + "/" + method + "/MVA_" + method + "_effB";
+    TString get_effS = (TString) "dataset/" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effS";
+    TString get_effB = (TString) "dataset/" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effB";
 
     // Create stack of histograms
-    TCanvas *cS = new TCanvas("cS", "", 800, 400);
+    TString artist_name;
+    TString run_method_name = method + (TString) " r" + run;
     TString title_stack = (TString) "Run: " + run + (TString) "     Method: " + method + (TString) ";TMVA Response; Efficiency";
-    THStack *hs = new THStack("Efficiencies", title_stack);
-    // --- Hists for signal efficiency
-    TH1F *histS = (TH1F *)f->Get(get_argS);
-    histS->SetNameTitle("Signal", "Efficiency");
-    // --- Hists for bkg efficiency
-    TH1F *histB = (TH1F *)f->Get(get_argB);
-    histB->SetNameTitle("Background", "Efficiency");
 
-    // // --- Hists for correlations
-    // TH1F *histcorrS = (TH1F *)f->Get("dataset/CorrelationMatrixS");
-    // TH1F *histcorrB = (TH1F *)f->Get("dataset/CorrelationMatrixB");
+    artist_name = (TString) "c" + run_method_name;
+    TCanvas *cS = new TCanvas(artist_name, "", 800, 400);
+    artist_name = (TString) "HStack" + run_method_name;
+    THStack *hs = new THStack(artist_name, title_stack);
+    // --- Hists for signal efficiency
+    TH1F *histS = (TH1F *)TMVA_output->Get(get_effS);
+    artist_name = (TString) "Signal " + run_method_name;
+    histS->SetNameTitle(artist_name, "Efficiency");
+    // --- Hists for bkg efficiency
+    TH1F *histB = (TH1F *)TMVA_output->Get(get_effB);
+    artist_name = (TString) "Background " + run_method_name;
+    histB->SetNameTitle(artist_name, "Efficiency");
+
+    // --- Hists for correlations
+    artist_name = (TString) "histcorrS" + run_method_name;
+    TH1F *histcorrS = (TH1F *)TMVA_output->Get("dataset/CorrelationMatrixS");
+    histcorrS->SetName(artist_name);
+    artist_name = (TString) "histcorrB" + run_method_name;
+    TH1F *histcorrB = (TH1F *)TMVA_output->Get("dataset/CorrelationMatrixB");
+    histcorrB->SetName(artist_name);
 
     // --- Hists for punzi
-    TH1F *punzi_curve = new TH1F("punzi_curve", "Punzi FoM", 10000, -1, 1);
+    artist_name = (TString) "Punzi " + run_method_name;
+    TH1F *punzi_curve = new TH1F(artist_name, "Punzi FoM", 10000, -1, 1);
 
     // Select mass and width of particle
     double mass = 3077.2; // MeV
     double width = 3.6;   // MeV
 
     // Get dataset filenames
-    TString signalInputFileName, bkgInputFileName, outputFileName, exe_dir;
-    set_file_names(signalInputFileName, bkgInputFileName, exe_dir, outputFileName);
+    TString bkgInputFileName = getenv("LOCAL_CURRENT_DATA");
+    if (!bkgInputFileName)
+    {
+        std::cout << bkgInputFileName << " could not be found." << std::endl;
+    }
 
     // Defnie RDataFrame for background dataset
     RDataFrame tree_df("DecayTree", bkgInputFileName);
@@ -62,15 +79,23 @@ void punzi_fom(int run = 1, TString method = "BDTG", TString meth_dir = "Method_
     hs->Add(histB);
 
     gStyle->SetPalette(kRainBow);
-    TCanvas *corrS = new TCanvas("corrS", "", 800, 400);
-    TCanvas *corrB = new TCanvas("corrB", "", 800, 400);
-    //corrS->cd();
-    //histcorrS->Draw("zcol text");
-    //corrB->cd();
-    //histcorrB->Draw("zcol text");
+    artist_name = (TString) "corrS " + run_method_name;
+    TCanvas *corrS = new TCanvas(artist_name, "", 800, 400);
+    artist_name = (TString) "corrB " + run_method_name;
+    TCanvas *corrB = new TCanvas(artist_name, "", 800, 400);
+    corrS->cd();
+    histcorrS->Draw("zcol text");
+    corrB->cd();
+    histcorrB->Draw("zcol text");
 
     //    double effS = 0;
     //    double effB = 0;
+
+    float lumi_2016 = 1.6;                     // /fb
+    float lumi_all = 5.6;                      // /fb
+    float lumi_2016_MagDown = lumi_2016 * 0.5; // assumption
+    float bkgScaleFactor = lumi_all / lumi_2016_MagDown;
+    std::cout << "Background scale factor is: " << bkgScaleFactor << std::endl;
 
     for (int i = 0; i < 10000; i = i + 100)
     {
@@ -82,7 +107,7 @@ void punzi_fom(int run = 1, TString method = "BDTG", TString meth_dir = "Method_
         //double newS = 0;
         //double newB = 0;
         double newS = effS;
-        double newB = effB * *numB;
+        double newB = effB * numB.GetValue() * bkgScaleFactor;
 
         //std::cout << "newS = " << newS << ", newB = " << newB << std::endl;
 
@@ -102,7 +127,8 @@ void punzi_fom(int run = 1, TString method = "BDTG", TString meth_dir = "Method_
     // }
 
     gStyle->SetOptStat(0);
-    TCanvas *cFOM = new TCanvas("cFOM", "", 800, 400);
+    artist_name = (TString) "cFOM" + run_method_name;
+    TCanvas *cFOM = new TCanvas(artist_name, "", 800, 400);
     punzi_curve->SetMarkerStyle(22);
     // punzi_curve->GetXaxis()->SetTitle("MLP response");
     punzi_curve->GetXaxis()->SetTitle("BDT response");
@@ -124,37 +150,6 @@ void punzi_fom(int run = 1, TString method = "BDTG", TString meth_dir = "Method_
     sprintf(optcut, "%f ", cut);
     myLatex->DrawLatex(0.2, 0.4, "Optimal Cut");
     myLatex->DrawLatex(0.4, 0.4, optcut);
-}
 
-void set_file_names(TString &signalFileName, TString &bkgInputFileName, TString &exe_dir, TString &outputFileName)
-{
-    bkgInputFileName = getenv("CURRENT_WS1_DATASET");
-    if (!bkgInputFileName)
-    {
-        std::cout << bkgInputFileName << " could not be found." << std::endl;
-    }
-
-    signalFileName = getenv("CURRENT_MC_DATASET");
-    if (!signalFileName)
-    {
-        std::cout << signalFileName << " could not be found." << std::endl;
-    }
-
-    outputFileName = "analysed_" + signalFileName;
-}
-
-int main(int argc, char **argv)
-{
-    TApplication app("Application", &argc, argv);
-
-    punzi_fom();
-
-    std::thread t([&app]()
-                  {
-                      std::cout << "To stop the application, press Enter\n";
-                      std::cin.get();
-                      app.Terminate(0);
-                  });
-
-    app.Run();
+    
 }
