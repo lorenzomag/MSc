@@ -19,6 +19,7 @@ stages:          # List of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
+    - source /cvmfs/sft.cern.ch/lcg/views/setupViews.sh LCG_100_LHCB_6 x86_64-centos7-gcc9-opt
     - echo "Compiling the code..."
     - mkdir -p build
     - cd build
