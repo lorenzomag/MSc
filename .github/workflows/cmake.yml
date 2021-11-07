@@ -10,7 +10,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Debug
   
-permissions: write-all
+permissions: write-all|read-all
 
 jobs:
   get-root:
