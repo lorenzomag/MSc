@@ -175,7 +175,7 @@ int main(int argc, char **argv)
     }
 
     if (parser.got_subcommand("train"))
-        classification(method_names, run, save_output, &app);
+        classification(method_names, run, save_output, use_SQL, &app);
 
     // if (parser.got_subcommand("eval"))
     // {
