@@ -3,7 +3,7 @@
 #include "from_sql.hpp"
 #include "BSlogger.hpp"
 
-int classification(std::set<std::string> method_list, const int run, bool save_output, TApplication *app = gApplication)
+int classification(std::set<std::string> method_list, const int run, bool save_output, bool use_SQL, TApplication *app = gApplication)
 {
    // Enables Multi-threading for ROOT classes that provide it
    ROOT::EnableImplicitMT();

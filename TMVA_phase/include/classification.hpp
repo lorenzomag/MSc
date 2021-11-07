@@ -11,7 +11,7 @@
 #include "SQLiteCpp/SQLiteCpp.h"
 
 
-int classification(std::set<std::string> method_list, const int run, bool save_output, TApplication *app);
+int classification(std::set<std::string> method_list, const int run, bool save_output, bool use_SQL, TApplication *app);
 std::map<std::string, std::string> get_features(SQLite::Database &db, const int run);
 
 #endif // CLASSIFICATION_H
