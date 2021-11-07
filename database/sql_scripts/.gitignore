@@ -1,1 +1,2 @@
-*.met # Used by DBVisualizer
+# Used by DBVisualizer
+*.met
