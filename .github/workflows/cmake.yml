@@ -11,28 +11,80 @@ env:
   BUILD_TYPE: Debug
   
 jobs:
-  get-root:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-      fail-fast: false
-    runs-on: ${{ matrix.os }} 
+  get-root-ubuntu:
+    runs-on: ubuntu-latest 
     steps:
+      - name: Cache root install on ubuntu
+        uses: actions/cache@v2
+        with:
+          key: root-ubuntu
+          path: /usr/share/miniconda
       - name: Install root on ubuntu
-        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: "conda install -c conda-forge root"
+        
+  get-root-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Cache root on MacOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: actions/cache@v2
+        with:
+          key: root-macos
+          path: /usr/local/Cellar/root
       - name: Install root on MacOS
         if: ${{ matrix.os == 'macos-latest' }}
-        run: "brew install root; root-config --cflags;"
-    
+        run: |
+          brew update
+          brew install root
+        
+      
+  example-1:
+    name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.7", "2.7"]
+    steps:
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+      - name: Conda info
+        shell: bash
+        run: conda info
+      - name: Conda list
+        shell: pwsh
+        run: conda list
+        
+  
   build:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    needs: [get-root-ubuntu, get-root-macos]
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest']
     steps:
+    - name: Cache root install on ubuntu
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      uses: actions/cache@v2
+      with:
+        key: root-ubuntu
+        path: /usr/share/miniconda
+    - name: Activate conda env
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: conda activate
+    - name: Cache root on MacOS
+      if: ${{ matrix.os == 'macos-latest' }}
+      uses: actions/cache@v2
+      with:
+        key: root-macos
+        path: /usr/local/Cellar/root
     - uses: actions/checkout@v2
     
     - name: Configure Environment
