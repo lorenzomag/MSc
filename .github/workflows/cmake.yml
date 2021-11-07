@@ -14,18 +14,16 @@ jobs:
   get-root:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
       fail-fast: false
     runs-on: ${{ matrix.os }} 
     steps:
-      - name: Add conda to path
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: echo %PATH%
-      - name: find conda
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: ls %CONDA%
-      - name: Install root
+      - name: Install root on ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: "conda install -c conda-forge root"
+      - name: Install root on MacOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: "brew install root; root-config --cflags;"
     
   build:
     # The CMake configure and build commands are platform agnostic and should work equally
