@@ -26,13 +26,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Cache root on MacOS
-        if: ${{ matrix.os == 'macos-latest' }}
         uses: actions/cache@v2
         with:
           key: root-macos
           path: /usr/local/Cellar/root
       - name: Install root on MacOS
-        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew update
           brew install root
