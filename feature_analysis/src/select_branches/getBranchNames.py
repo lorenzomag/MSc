@@ -7,7 +7,7 @@ def main():
     global load_global_features
     global load_particle_features
 
-    source_file = open("../src/select_features.C")
+    source_file = open("../select_features.C")
     if load_global_features:
         global_branch_file = open("global_branches.txt")
     if load_particle_features:

@@ -1,29 +1,45 @@
 #ifndef PCH
 #define PCH
 
+// #include <atomic>
 #include <cassert>
+#include <chrono>
+#include <fstream>
+// #include <future>
+#include <iomanip>
+#include <iostream>
 #include <map>
 #include <memory>
+// #include <mutex>
 #include <set>
+// #include <thread>
 #include <vector>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
 
-#include "TString.h"
-#include "TTree.h"
-#include "TFile.h"
-#include "TROOT.h"
-#include "TRandom.h"
-#include "TCanvas.h"
-#include "TH1D.h"
-#include "TSystem.h"
-#include "TRint.h"
 #include "TApplication.h"
-#include "TStyle.h"
+#include "TCanvas.h"
+#include "TChain.h"
+#include "TFile.h"
+#include "TH1D.h"
 #include "THStack.h"
+#include "TLatex.h"
+#include "TObjString.h"
+#include "TRandom.h"
+#include "TRint.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TTree.h"
 
+#include "ROOT/RDataFrame.hxx"
 
-#include <nlohmann/json.hpp>
+#include "TMVA/Factory.h"
+#include "TMVA/DataLoader.h"
+#include "TMVA/Tools.h"
+#include "TMVA/OptimizeConfigParameters.h"
+#include "TMVA/TMVAGui.h"
+
+#include "BSlogger.hpp"
+#include "rang.hpp"
 
 #endif // PCH
