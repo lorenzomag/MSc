@@ -1,0 +1,2 @@
+SELECT r.ID as "Run ID",fr.set_ID as "Feature Set ID", f.Name "Feature", f.parent "Base Feature" FROM TMVA_runs r LEFT JOIN Feature_set_rel fr on r.feature_set == fr.set_ID  LEFT JOIN Features f ON fr.Feature_ID = f.ID
+WHERE "Run ID" == ?;
