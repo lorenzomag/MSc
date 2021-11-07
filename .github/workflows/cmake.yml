@@ -10,16 +10,21 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Debug
   
-permissions: write-all|read-all
-
 jobs:
   get-root:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+      fail-fast: false
     runs-on: ${{ matrix.os }} 
     steps:
-      - name: conda-root
+      - name: Add conda to path
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: echo %PATH%
+      - name: find conda
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: ls %CONDA%
+      - name: Install root
         run: "conda install -c conda-forge root"
     
   build:
