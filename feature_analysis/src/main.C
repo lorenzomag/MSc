@@ -5,12 +5,14 @@
 // #include "settings_selection.hpp"
 
 #include "main.h"
-
+bool debug = false;
+bool small_batch = true;
 bool truth_match = true;
-bool has_masses = false;
+bool has_masses_ID = false;
 
 int main(int ac, char **av)
 {
+    ROOT::EnableImplicitMT();
 
     json j_db = select_features(feat_source::default_values);
 
@@ -18,9 +20,8 @@ int main(int ac, char **av)
     Search ws1(j_db, "Ws1", "+-");
     Search ws2(j_db, "Ws2", "++");
 
-    TString MC_inputFileName, WS1_inputFileName,  WS2_inputFileName, outputFileName, exe_dir;
+    TString MC_inputFileName, WS1_inputFileName, WS2_inputFileName, outputFileName, exe_dir;
     set_file_names(MC_inputFileName, WS1_inputFileName, WS2_inputFileName, exe_dir, outputFileName);
-
 
     TFile MC_inputFile(MC_inputFileName, "READ");
     if (MC_inputFile.IsOpen())
@@ -43,7 +44,7 @@ int main(int ac, char **av)
         std::cout << "[ERROR] Input file " << WS1_inputFileName << " could not be found." << std::endl;
         exit(3);
     }
-    
+
     TFile WS2_inputFile(WS2_inputFileName, "READ");
     if (WS2_inputFile.IsOpen())
     {
@@ -57,41 +58,41 @@ int main(int ac, char **av)
 
     // Get input trees
     std::vector<Search *> searches;
-    for (auto search : set::use)
+    for (auto search : main_config::use)
     {
         TString tree_name;
         if (search.second)
         {
             switch (search.first)
             {
-            case set::type::MC:
+            case main_config::type::MC:
                 tree_name = "LcKPiTree/DecayTree";
                 if (MC_inputFile.Get(tree_name))
-                    sig.SetTree((TTree *)MC_inputFile.Get(tree_name), Search::input, "LcKPiTree", "LcKPiTree");
+                    sig.SetTree((TTree *)MC_inputFile.Get(tree_name), Search::input, "Montecarlo", "Montecarlo");
                 else if (MC_inputFile.Get("DecayTree"))
-                    sig.SetTree((TTree *)MC_inputFile.Get("DecayTree"), Search::input, "LcKPiTree", "LcKPiTree");
+                    sig.SetTree((TTree *)MC_inputFile.Get("DecayTree"), Search::input, "Montecarlo", "Montecarlo");
                 else
                     return (-1);
 
                 searches.push_back(&sig);
                 break;
-            case set::type::ws1:
+            case main_config::type::ws1:
                 tree_name = "LcKPiTreeWS1/DecayTree";
                 if (WS1_inputFile.Get(tree_name))
-                    ws1.SetTree((TTree *)WS1_inputFile.Get(tree_name), Search::input, "LcKPiTreeWS1", "LcKPiTreeWS1");
+                    ws1.SetTree((TTree *)WS1_inputFile.Get(tree_name), Search::input, "WS1", "WS1");
                 else if (WS1_inputFile.Get("DecayTree"))
-                    ws1.SetTree((TTree *)WS1_inputFile.Get("DecayTree"), Search::input, "LcKPiTreeWS1", "LcKPiTreeWS1");
+                    ws1.SetTree((TTree *)WS1_inputFile.Get("DecayTree"), Search::input, "WS1", "WS1");
                 else
                     return (-1);
 
                 searches.push_back(&ws1);
                 break;
-            case set::type::ws2:
+            case main_config::type::ws2:
                 tree_name = "LcKPiTreeWS2/DecayTree";
                 if (WS2_inputFile.Get(tree_name))
-                    ws2.SetTree((TTree *)WS2_inputFile.Get(tree_name), Search::input, "LcKPiTreeWS2", "LcKPiTreeWS2");
+                    ws2.SetTree((TTree *)WS2_inputFile.Get(tree_name), Search::input, "WS2", "WS2");
                 else if (WS2_inputFile.Get("DecayTree"))
-                    ws2.SetTree((TTree *)WS2_inputFile.Get("DecayTree"), Search::input, "LcKPiTreeWS2", "LcKPiTreeWS2");
+                    ws2.SetTree((TTree *)WS2_inputFile.Get("DecayTree"), Search::input, "WS2", "WS2");
                 else
                     return (-1);
                 searches.push_back(&ws2);
@@ -176,7 +177,6 @@ int main(int ac, char **av)
                 }
             }
 
-
             if (!has_M)
             {
                 input_tree->SetBranchStatus("Xicst_M", 1);
@@ -185,8 +185,8 @@ int main(int ac, char **av)
             if (is_MC)
             {
                 std::cout << "[INFO] Checking for presence of truth branches." << std::endl;
-                
-                if (!has_MassID && has_masses)
+
+                if (!has_MassID && has_masses_ID)
                 {
                     input_tree->SetBranchStatus("Xicst_MassID", 1);
                     std::cout << "[INFO] Xicst_MassID added\n";
@@ -204,8 +204,8 @@ int main(int ac, char **av)
         std::cout << "\n[INFO] Filling output trees" << std::endl;
         TTree *output_tree = current_search->SetTree(input_tree->CloneTree(0), Search::clone);
 
-        auto n_entries = input_tree->GetEntries();
-
+        auto n_entries = small_batch ? 2000 : input_tree->GetEntries();
+        
         for (int i = 0; i < n_entries; i++)
         {
             input_tree->GetEntry(i);
@@ -214,7 +214,7 @@ int main(int ac, char **av)
                 output_tree->Fill();
             }
 
-            if (i % 50000 == 0)
+            if (i % 500 == 0)
             {
                 std::cout << (double)i * 100 / n_entries << "% : " << i << "/" << n_entries << std::endl;
             }
@@ -223,9 +223,9 @@ int main(int ac, char **av)
         output_tree->Write();
     }
 
-    bool is_sig = set::use.at(set::type::MC);
-    bool is_ws1 = set::use.at(set::type::ws1);
-    bool is_ws2 = set::use.at(set::type::ws2);
+    bool is_sig = main_config::use.at(main_config::type::MC);
+    bool is_ws1 = main_config::use.at(main_config::type::ws1);
+    bool is_ws2 = main_config::use.at(main_config::type::ws2);
 
     if (is_sig && is_ws1 && is_ws2)
         draw_features(sig, ws1, ws2);
@@ -234,8 +234,8 @@ int main(int ac, char **av)
     else if (is_sig && is_ws2 && !is_ws1)
         draw_features(sig, ws2);
     else
-        std::cout << "For the output file to be populated by histograms,"
-                     " a signal tree and at least a Wrong Sign background tree must be properly provided.";
+        std::cerr << "For the output file to be populated by histograms,"
+                     " a signal tree and at least a Wrong Sign background tree must be properly provided.\n";
 
     MC_inputFile.Close();
     WS1_inputFile.Close();
@@ -247,31 +247,31 @@ int main(int ac, char **av)
 
 void set_file_names(TString &MC_inputFileName, TString &WS1_inputFileName, TString &WS2_inputFileName, TString &exe_dir, TString &outputFileName)
 {
-    TString defaultName = "/home/loren/MSc/datasets/MC_Xi_DecFile26265970_Beam6500GeV-2016-MagDown-Nu1.6-25ns-Pythia8.root";
-
-    WS1_inputFileName = getenv("CURRENT_WS1_DATASET");
-    if (!WS1_inputFileName)
+    if (debug)
     {
-        std::cout << WS1_inputFileName << " could not be found." << std::endl;
-        WS1_inputFileName = defaultName;
-        std::cout << "Using default file name: " << WS1_inputFileName << std::endl;
+        WS1_inputFileName = getenv("SMALL_CURRENT_DATA");
+        WS2_inputFileName = getenv("SMALL_CURRENT_DATA");
+        MC_inputFileName = getenv("SMALL_CURRENT_MC");
+    }
+    else
+    {
+        WS1_inputFileName = getenv("CURRENT_WS1_DATASET");
+        WS2_inputFileName = getenv("CURRENT_WS2_DATASET");
+        MC_inputFileName = getenv("CURRENT_MC_DATASET");
     }
 
-    WS2_inputFileName = getenv("CURRENT_WS2_DATASET");
-    if (!WS2_inputFileName)
+    auto check_filename_exists = [](TString filename)
     {
-        std::cout << WS2_inputFileName << " could not be found." << std::endl;
-        WS2_inputFileName = defaultName;
-        std::cout << "Using default file name: " << WS2_inputFileName << std::endl;
-    }
+        if (!filename)
+        {
+            std::cerr << filename << " could not be found." << std::endl;
+            exit(-1);
+        }
+    };
 
-    MC_inputFileName = getenv("CURRENT_MC_DATASET");
-    if (!MC_inputFileName)
-    {
-        std::cout << MC_inputFileName << " could not be found." << std::endl;
-        MC_inputFileName = defaultName;
-        std::cout << "Using default file name: " << MC_inputFileName << std::endl;
-    }
+    check_filename_exists(WS1_inputFileName);
+    check_filename_exists(WS2_inputFileName);
+    check_filename_exists(MC_inputFileName);
 
     outputFileName = "features.root";
 }
