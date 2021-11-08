@@ -1,0 +1,2 @@
+SELECT DISTINCT r.ID as "Run ID",ms.set_ID as "Method Set ID", m.Name "Method" FROM TMVA_runs r LEFT JOIN TMVA_method_sets ms on r.Method_set == ms.set_ID  LEFT JOIN TMVA_methods m ON ms.Method_ID = m.ID
+WHERE "Run ID" == ?;
