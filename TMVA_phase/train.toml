@@ -1,0 +1,4 @@
+train.db=false
+train.save=false
+train.run=1
+train.method= ["DNN_GPU","aoso"]

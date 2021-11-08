@@ -1,5 +1,5 @@
 #include <Math/Vector4D.h>
-#include "../../include/pch.h"
+#include "pch.h"
 #include "TF1.h"
 #include "TApplication.h"
 #include "TRint.h"
@@ -11,12 +11,12 @@
 #include "TROOT.h"
 #include "TLegend.h"
 #include "TFrame.h"
-#include "../../include/lhcbStyle.h"
+#include "lhcbStyle.h"
 
 #define USE_PDG_MASS 0
 #define USE_MASS12 1
 #define Lc_cuts 1
-#define Lc_pi_cuts 0
+#define Lc_pi_cuts 1
 #define ASYNCHRONOUS 0
 #define DEBUG 0
 
@@ -32,6 +32,7 @@ enum inputs
     WS2,
     SIG
 };
+// const TString enum_str[4] = {"Simulation", "WS1"};
 const TString enum_str[4] = {"Simulation", "WS1", "WS2", "Signal"};
 
 bool Lc_cut = false;
@@ -39,7 +40,7 @@ bool Lc_pi_cut = false;
 
 const int kRefresh = 100;
 
-void padRefresh(TPad *pad, int flag);
+void padRefresh(TPad *pad, int flag = 0);
 TCanvas *resonant_state_analysis(const inputs kInput);
 
 int main(int argc, char **argv)
@@ -66,7 +67,7 @@ int main(int argc, char **argv)
     TCanvas *canv;
     TRootCanvas *root_canvas;
 
-    for (inputs input_type : {MC, WS1, WS2, SIG})
+    for (inputs input_type : {MC, WS1})
     {
         canv = resonant_state_analysis(input_type);
         root_canvas = ((TRootCanvas *)canv->GetCanvasImp());
@@ -130,8 +131,8 @@ TCanvas *resonant_state_analysis(const inputs kInput = MC)
         in = new TFile(filename);
         break;
     }
-    TString friend_filename = (TString)"friend_" + filename;
-    TFile *friend_file = new TFile(friend_filename);
+    // TString friend_filename = (TString)"friend_" + filename;
+    // TFile *friend_file = new TFile(friend_filename);
 
     if (!in->IsOpen())
     {
@@ -306,7 +307,7 @@ TCanvas *resonant_state_analysis(const inputs kInput = MC)
     return c1;
 }
 
-void padRefresh(TPad *pad, int flag = 0)
+void padRefresh(TPad *pad, int flag)
 {
     if (!pad)
         return;
