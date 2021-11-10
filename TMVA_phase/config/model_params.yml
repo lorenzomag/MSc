@@ -1,0 +1,138 @@
+---
+methods:
+  BDT:
+    type: BDT
+    use: false
+    hyperparameters:
+      H: false
+      V: false
+      NTrees: 850
+      MinNodeSize: 2.5%
+      MaxDepth: 3
+      BoostType: AdaBoost
+      AdaBoostBeta: 0.5
+      UseBaggedBoost: true
+      BaggedSampleFraction: 0.5
+      SeparationType: GiniIndex
+      nCuts: 20
+  BDTG: # Gradient Boosted
+    type: BDT
+    use: false
+    hyperparameters:
+      H: false
+      V: false
+      NTrees: 1000
+      MinNodeSize: 2.5%
+      BoostType: Grad
+      Shrinkage: 0.10
+      UseBaggedBoost: true
+      BaggedSampleFraction: 0.5
+      nCuts: 20
+      MaxDepth: 2
+  BDTB: # Bagging
+    type: BDT
+    use: false
+    hyperparameters:
+      H: false
+      V: false
+      NTrees: 400
+      BoostType: Bagging
+      SeparationType: GiniIndex
+      nCuts: 20
+  BDTD: # Decorrelation + Adaptive Boost
+    type: BDT
+    use: false
+    hyperparameters:
+      H: false
+      V: false
+      NTrees: 400
+      MinNodeSize: 5%
+      MaxDepth: 3
+      BoostType: AdaBoost
+      AdaBoostBeta: 0.5
+      SeparationType: GiniIndex
+      nCuts: 20
+      VarTransform: Decorrelate
+  BDTF: # Decorrelation + Adaptive Boost
+    type: BDT
+    use: false
+    hyperparameters:
+      H: false
+      V: true
+      NTrees: 400
+      MinNodeSize: 2.5%
+      UseFisherCuts: true
+      MaxDepth: 3
+      BoostType: AdaBoost
+      AdaBoostBeta: 0.5
+      SeparationType: GiniIndex
+      nCuts: 20
+  RuleFit:
+    type: RuleFit
+    use: false
+    hyperparameters:
+      H: false
+      V: false
+      RuleFitModule: RFTMVA
+      Model: ModRuleLinear
+      MinImp: 0.001
+      RuleMinDist: 0.001
+      NTrees: 20
+      fEventsMin: 0.01
+      fEventsMax: 0.5
+      GDTau: -1.0
+      GDTauPrec: 0.01
+      GDStep: 0.01
+      GDNSteps: 10000
+      GDErrScale: 1.02
+  MLP:
+    tpye: MLP
+    use: false
+    hyperparameters:
+      H: false
+      V: false
+      NeuronType: tanh
+      VarTransform: N
+      NCycles: 600
+      HiddenLayers: N+5
+      TestRate: 5
+      UseRegulator: false
+  DNN_CPU:
+    type: DL
+    use: false
+    hyperparameters: &hparams
+      H: false
+      V: false
+      ErrorStrategy: CROSSENTROPY
+      VarTransform: N
+      WeightInitialization: XAVIERUNIFORM
+      Layout: 'TANH|128,TANH|128,TANH|128,LINEAR'
+      TrainingStrategy:
+        - LearningRate: 1e01
+          Momentum: 0.9
+          Repetitions: 1
+          ConvergenceSteps: 20
+          BatchSize: 256
+          TestRepetitions: 10
+          WeightDecay: 1e-4
+          Regularization: L2
+        - LearningRate: 1e01
+          Momentum: 0.9
+          Repetitions: 1
+          ConvergenceSteps: 20
+          BatchSize: 256
+          TestRepetitions: 10
+          WeightDecay: 1e-4
+          Regularization: L2
+        - LearningRate: 1e01
+          Momentum: 0.9
+          Repetitions: 1
+          ConvergenceSteps: 20
+          BatchSize: 256
+          TestRepetitions: 10
+          WeightDecay: 1e-4
+          Regularization: L2
+  DNN_GPU:
+    type: DL
+    use: false
+    hyperparameters: *hparams # Same as DNN_CPU

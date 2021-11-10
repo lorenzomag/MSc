@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     //--------------- OPTIONS FOR DATABASE EXPLORATION
     CLI::App *db_exp = parser.add_subcommand("db", "Describes features and methods sets for selected runs [default: all runs]")->fallthrough();
     db_exp->add_option("-r,--run", run, "TMVA run to display [default: 1]")
-        ->default_val(1)
+        // ->default_val(1)
         ->check(CLI::IsMember(used_MVAs));
 
     db_exp->add_option("-m,--method", method_names, "TMVA method(s) to evaluate [default: BDT,BDTG,MLP]")
@@ -95,7 +95,6 @@ int main(int argc, char **argv)
                                               "[Default: saves to TMVA_temp.root]");
 
     train->add_option("-r,--run", run, "TMVA run ID to train/retrain");
-    // ->required();
 
     train->add_option("-m,--method", method_names, "TMVA method(s) to analyse [default: BDT,BDTG,MLP]")
         ->default_val(default_method_names)
@@ -175,7 +174,7 @@ int main(int argc, char **argv)
     }
 
     if (parser.got_subcommand("train"))
-        classification(method_names, run, save_output, use_SQL, &app);
+        classification(method_names, save_output, use_SQL, &app, run);
 
     // if (parser.got_subcommand("eval"))
     // {

@@ -1,9 +1,12 @@
 #include "pch.h"
 #include "classification.hpp"
 #include "from_sql.hpp"
-#include "BSlogger.hpp"
 
-int classification(std::set<std::string> method_list, const int run, bool save_output, bool use_SQL, TApplication *app = gApplication)
+#include "BSlogger.hpp"
+#include "yaml-cpp/yaml.h"
+using namespace std::string_literals;
+
+void classification(std::set<std::string> method_list, bool save_output, bool use_SQL, TApplication *app = gApplication, const int run = 0)
 {
    // Enables Multi-threading for ROOT classes that provide it
    ROOT::EnableImplicitMT();
@@ -17,12 +20,11 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    //---------------------------------------------------------------
    // This loads the library
    TMVA::Tools::Instance();
-
    // Default MVA methods to be trained + tested
    std::map<std::string, int> Use;
 
    // If database has no methods for current run, use default selection of methods
-   if (!get_methods(db, run, Use))
+   if (!get_methods(db, Use, run))
    {
       // Neural Networks (all are feed-forward Multilayer Perceptrons)
       Use["MLP"] = 1; // Recommended ANN
@@ -66,7 +68,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
             for (std::map<std::string, int>::iterator it = Use.begin(); it != Use.end(); it++)
                std::cout << it->first << " ";
             std::cout << std::endl;
-            return 1;
          }
          Use[regMethod] = 1;
       }
@@ -200,7 +201,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
                         "WeightDecay=1e-4,Regularization=L2,"
                         "DropConfig=0.0+0.0+0.0+0.0, Multithreading=True");
       TString trainingStrategyString("TrainingStrategy=");
-      trainingStrategyString += training0; // + "|" + training1 + "|" + training2;
+      trainingStrategyString += training0 + "|" + training1 + "|" + training2;
 
       // General Options.
       TString dnnOptions("!H:V:ErrorStrategy=CROSSENTROPY:VarTransform=N:"
@@ -289,11 +290,9 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // Launch the GUI for the root macros
    if (!gROOT->IsBatch())
       TMVA::TMVAGui(outfileName);
-
-   return 0;
 }
 
-std::map<std::string, std::string> get_features(SQLite::Database &db, const int run)
+std::map<std::string, std::string> get_features(SQLite::Database &db, const int run = 0)
 {
    std::map<std::string, std::string> map;
 
@@ -336,12 +335,11 @@ std::map<std::string, std::string> get_features(SQLite::Database &db, const int 
    {
       std::cout << rang::fg::yellow << "Run " << rang::style::bold << run << rang::style::reset
                 << rang::fg::yellow << " does not have a filled entry in the SQLite database or doesn't exist yet.\n";
-      exit(7);
    }
    return map;
 }
 
-bool get_methods(SQLite::Database &db, const int run, std::map<std::string, int> &Use)
+bool get_methods(SQLite::Database &db, std::map<std::string, int> &Use, const int run = 0)
 {
    std::string script_dir = getenv("SQL_SCRIPTS");
    std::string script = "Get_Methods.sql";
@@ -391,8 +389,98 @@ bool get_methods(SQLite::Database &db, const int run, std::map<std::string, int>
       Use[method] = 1;
    }
 
-   if (first_line)
-      return false; // no methods in specified run
-   else
+   if (!first_line)
       return true; // methods were collected from run
+   else            // Try from config file
+   {
+      try
+      {
+         std::string config_dir = getenv("TMVA_CONFIG_DIR");
+         std::vector<YAML::Node> configs_vec = YAML::LoadAllFromFile(config_dir + "model_params.yml"s);
+         auto configs = configs_vec[1];
+         auto methods = configs["methods"];
+
+         for (auto method : methods)
+         {
+            Use[method.first.as<std::string>()] = method["use"].as<bool>();
+         }
+         return true;
+      }
+      catch (const std::exception &e)
+      {
+         return false; // no methods in specified run
+      }
+   }
+}
+
+std::string get_hyperparameters(SQLite::Database &db, const std::string &method_name, const int run = 0)
+{
+   std::string script_dir = getenv("SQL_SCRIPTS");
+   std::string config_dir = getenv("TMVA_CONFIG_DIR");
+
+   std::vector<YAML::Node> configs_vec = YAML::LoadAllFromFile(config_dir + "model_params.yml"s);
+   auto configs = configs_vec[1];
+   auto methods = configs["methods"];
+   auto method_params = methods[method_name];
+   // auto method_name = method.first.as<std::string>();
+   // auto method_params = method.second;
+   std::cout << "---------->" << method_name << std::endl;
+   // if (method_name.find("DNN_") != method_name.npos)
+   std::stringstream values;
+   size_t n_params{0};
+   for (auto entry : method_params["hyperparameters"])
+   {
+      n_params++;
+      auto key = entry.first;
+      auto value = entry.second;
+      bool is_bool;
+      try
+      {
+         value = value.as<bool>() ? true : false;
+         is_bool = true;
+      }
+      catch (const YAML::BadConversion &e)
+      {
+         is_bool = false;
+      }
+      catch (const std::exception &e)
+      {
+         std::cerr << e.what() << std::endl;
+         exit(1);
+      }
+
+      if (is_bool)
+         values << (value.as<bool>() ? "" : "!") << key << ':';
+      else if (key.as<std::string>() == "TrainingStrategy")
+      {
+         size_t n_layers = value.size();
+         size_t layer_number{0};
+         std::cout << "Nlayers: " << n_layers << std::endl;
+         values << key << '=';
+         for (auto layer : value)
+         {
+            auto params = layer.as<std::map<std::string, std::string>>();
+            std::cout << "--------- LAYER " << ++layer_number << std::endl;
+            std::stringstream sub_ss;
+            for (auto [key, param] : params)
+            {
+               sub_ss << key << '=' << param << ':';
+            }
+            auto sub_str = sub_ss.str();
+            sub_str.pop_back();
+            values << sub_str;
+            if (layer_number < n_layers)
+               values << '|';
+            else
+               values << ':';
+         }
+      }
+      else
+      {
+         values << key << '=' << value << ':';
+      }
+   }
+   std::string values_str = values.str();
+   values_str.pop_back();
+   return values_str;
 }

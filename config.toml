@@ -1,0 +1,55 @@
+debug_mode = true
+
+# Run number
+run = nan
+feature_ID = nan
+methods_ID = nan
+
+
+[datasets]
+# Full dataset
+data.use = true
+data.file = ""
+
+# Wrong Sign 1 Dataset
+ws1.use = true
+ws1.file = ""
+
+# Wrong Sign 2 Dataset
+ws2.use = true
+ws2.file = ""
+
+# Montecarlo Signal Dataset
+MC.use = true
+MC.file = ""
+
+
+# {
+#     "Use_datasets": {
+#         "Data": true,
+#         "Simulation": true,
+#         "WS1": true,
+#         "WS2": true,
+#         "WS3": false
+#     },
+
+#     "Is_MC": {
+#         "Data": false,
+#         "Simulation": true,
+#         "WS1": false,
+#         "WS2": false,
+#         "WS3": false
+#     },
+
+#     "Debug": false,
+
+#     "Lc_cuts": true,
+#     "Lc_pi_cuts": true,
+
+
+#     "TMVA": {
+#         "Run number": 1,
+#         "Hyper_parameter_set": 1
+#     }
+
+# }

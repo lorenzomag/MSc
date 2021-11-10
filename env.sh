@@ -32,6 +32,9 @@ export DATABASE_DIR=$WORKSPACE_DIR"/database"
 export SQL_SCRIPTS=$DATABASE_DIR"/sql_scripts"
 export DATABASE=$DATABASE_DIR"/searches.db"
 
+# Set Configuration (TOML, YAML, JSON) file directories
+export TMVA_CONFIG_DIR=$WORKSPACE_DIR"/TMVA_phase/config"
+
 # If Database is not found, initialise it
 if [[ ! -f $DATABASE ]]; then
 	CURRENT_DIR=$PWD
