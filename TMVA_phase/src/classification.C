@@ -50,6 +50,7 @@ void classification(std::set<std::string> method_list, bool save_output, bool us
       // ---------------------------------------------------------------
    }
    std::cout << std::endl;
+   exit(0);
    std::cout << "==> Start TMVAClassification" << std::endl;
 
    // Select methods (don't look at this code - not of interest)
@@ -334,7 +335,25 @@ std::map<std::string, std::string> get_features(SQLite::Database &db, const int 
    if (map.empty())
    {
       std::cout << rang::fg::yellow << "Run " << rang::style::bold << run << rang::style::reset
-                << rang::fg::yellow << " does not have a filled entry in the SQLite database or doesn't exist yet.\n";
+                << rang::fg::yellow << " does not have a filled entry in the SQLite database or doesn't exist yet.\n"
+                << "Trying to get features from config.yml\n";
+      try
+      {
+         std::string config_dir = getenv("TMVA_CONFIG_DIR");
+         std::vector<YAML::Node> configs_vec = YAML::LoadAllFromFile(config_dir + "model_params.yml"s);
+         auto configs = configs_vec[0];
+         for (auto feature : configs["features"])
+         {
+            std::string name = feature["name"].as<std::string>();
+            std::string expr = "";
+            if (feature["expr"].IsDefined())
+               expr = feature["expr"].as<std::string>();
+         }
+      }
+      catch (const std::exception &e)
+      {
+         std::cerr << e.what() << std::endl;
+      }
    }
    return map;
 }
