@@ -1,4 +1,10 @@
 ---
+features:
+  - name: Lc_PT
+    expr: ~
+  - name: Xicst_PT
+    expr: log(Xicst_PT)
+---
 methods:
   BDT:
     type: BDT
