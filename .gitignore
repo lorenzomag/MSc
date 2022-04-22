@@ -1,5 +1,6 @@
 # Project specific
 datasets/
+datasets
 .envrc
 .vscode
 training/
