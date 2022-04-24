@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(MSc-project)
 
-
+# Find GIT
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 # Update submodules as needed
@@ -18,6 +18,7 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
     endif()
 endif()
 
+# Configure all parts of project
 add_subdirectory(feature_analysis)
 add_subdirectory(TMVA_phase)
 add_subdirectory(set_masses) #Resolve dependency from nfd (which depends on gtk+3)
