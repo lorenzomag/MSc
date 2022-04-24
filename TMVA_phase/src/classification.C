@@ -30,7 +30,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
 #endif
 
 #ifdef R__HAS_TMVACPU
-   Use["DNN_CPU"] = 0; // Multi-core accelerated DNN.
+   Use["DNN_CPU"] = 1; // Multi-core accelerated DNN.
 #else
    Use["DNN_CPU"] = 0;
 #endif
@@ -45,13 +45,16 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
    Use["RuleFit"] = 0;
    // ---------------------------------------------------------------
-
+   if (!get_methods(db, run, Use))
+   {
+   }
    std::cout << std::endl;
    std::cout << "==> Start TMVAClassification" << std::endl;
-
    // Select methods (don't look at this code - not of interest)
    if (!method_list.empty())
    {
+      for (auto entry : Use)
+         entry.second = 0; // overwrite previous settings if command line args are provided
       for (std::map<std::string, int>::iterator it = Use.begin(); it != Use.end(); it++)
          it->second = 0;
 
@@ -81,6 +84,8 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    TString signalFileName = getenv("CURRENT_MC_DATASET");
    TString bkgFileName = getenv("CURRENT_WS1_DATASET");
 
+   // TString signalFileName = getenv("SMALL_CURRENT_MC");
+   // TString bkgFileName = getenv("SMALL_CURRENT_WS1");
    if (!gSystem->AccessPathName(signalFileName))
    {
       sigInput = TFile::Open(signalFileName); // check if file in local directory exists
@@ -101,6 +106,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    if (!bkgInput)
    {
       std::cout << "ERROR: could not open data file" << std::endl;
+      std::cout << bkgFileName << '\n';
       exit(1);
    }
    std::cout << "--- TMVAClassification       : Using input file: " << bkgInput->GetName() << " for background" << std::endl;
@@ -113,7 +119,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    TString outfileName;
    if (save_output)
-      outfileName = (TString)"TMVA_run" + run + (TString)".root";
+      outfileName = (TString) "TMVA_run" + run + (TString) ".root";
    else
       outfileName = "TMVA_temp.root";
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
@@ -137,14 +143,19 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
    // [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
 
-   //TMVA variable to use for the training
-
+   // TMVA variable to use for the training
+   size_t n_features = 190;
    for (auto [expr, name] : feature_map)
+   {
+      if (n_features > 0)
+         n_features--;
+      else
+         break;
       if (name == "")
          dataloader->AddVariable(expr, 'F');
       else
          dataloader->AddVariable(expr, name, "", 'F');
-
+   }
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
    // input variables, the response values of all trained MVAs, and the spectator variables
@@ -220,7 +231,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
          factory->BookMethod(dataloader, TMVA::Types::kDL, "DNN_CPU", cpuOptions);
       }
    }
-   
    // Boosted Decision Trees
 
    if (Use["BDT"]) // Adaptive Boost
@@ -336,4 +346,60 @@ std::map<std::string, std::string> get_features(SQLite::Database &db, const int 
       exit(7);
    }
    return map;
+}
+
+bool get_methods(SQLite::Database &db, const int run, std::map<std::string, int> &Use)
+{
+   std::string script_dir = getenv("SQL_SCRIPTS");
+   std::string script = "Get_Methods.sql";
+   std::ifstream file(script_dir + "/" + script);
+   if (!file)
+   {
+      std::cerr << rang::fg::red << "File " << script << " not found\n";
+      exit(6);
+   }
+
+   std::string str, stmt;
+   while (getline(file, str))
+   {
+      stmt.append(str + "\n");
+   }
+   SQLite::Statement query(db, stmt);
+   query.bind(1, run);
+   bool first_line = true;
+   while (query.executeStep())
+   {
+      int set_ID = query.getColumn("Method Set ID");
+      std::string method = query.getColumn("Method");
+      if (first_line)
+      {
+         std::cout << std::endl
+                   << rang::fg::blue
+                   << std::left << std::setw(15) << "Run:" << std::setw(5) << run << std::endl
+                   << std::left << std::setw(15) << "Method set:" << std::setw(5) << set_ID
+                   << rang::fg::reset << std::endl;
+         first_line = false;
+      }
+      std::cout << "Method:   " << std::left << std::setw(13) << method << std::endl;
+      if (method == "DNN_GPU" || method == "DNN_CPU")
+      {
+#ifdef R__HAS_TMVAGPU
+         Use["DNN_GPU"] = 1; // CUDA-accelerated DNN training.
+#else
+         Use["DNN_GPU"] = 0;
+#endif
+
+#ifdef R__HAS_TMVACPU
+         Use["DNN_CPU"] = 0; // Multi-core accelerated DNN.
+#else
+         Use["DNN_CPU"] = 0;
+#endif
+      }
+      Use[method] = 1;
+   }
+
+   if (first_line)
+      return false; // no methods in specified run
+   else
+      return true; // methods were collected from run
 }

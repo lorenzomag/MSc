@@ -11,14 +11,16 @@ export LOCAL_DATASETS_DIR=$WORKSPACE_DIR"/local_datasets"
 
 # Set current datasets (MonteCarlo and Data)
 export CURRENT_SIG_DATASET=$DATASETS_DIR"/Data_2016_RS_LcMVA.root"
-export CURRENT_MC_DATASET=$DATASETS_DIR"/MC2016_AllMasses_AllEvents_LcSelectionCut.root"
+export CURRENT_MC_DATASET=$DATASETS_DIR"/MC2016_AllMasses_MUMD_Xic_TMVAClassification_AllEvents_LcCut_PreselCuts_mID.root"
 export CURRENT_SIG_DATASET=$CURRENT_MC_DATASET
-# export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_2016_TMVA1_Lc_AllEvents.root"
-export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS2_Xic_TMVAClassification_Application_AllEvents_LcCut.root"
-export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut.root"
+export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root"
+export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS1_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
+export CURRENT_WS3_DATASET=$DATASETS_DIR"/WS3_Xic_TMVAClassification_Application_AllEvents_LcCut.root"
 
 export SMALL_CURRENT_MC=$SMALL_DATASETS_DIR"/small_MC.root"
-export SMALL_CURRENT_DATA=$SMALL_DATASETS_DIR"/small_WS1.root"
+export SMALL_CURRENT_WS1=$SMALL_DATASETS_DIR"/small_WS1.root"
+export SMALL_CURRENT_WS2=$SMALL_DATASETS_DIR"/small_WS2.root"
+export SMALL_CURRENT_WS3=$SMALL_DATASETS_DIR"/small_WS3.root"
 
 
 
@@ -39,7 +41,6 @@ if [[ ! -f $DATABASE ]]; then
 	source $DATABASE_DIR"/init_db.sh"
 	cd $CURRENT_DIR
 fi
-
 
 # Print output
 printf "WORKSPACE_DIR\t\t=\t$WORKSPACE_DIR\n" 

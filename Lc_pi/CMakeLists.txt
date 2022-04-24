@@ -6,5 +6,5 @@ find_package(ROOT)
 include(${ROOT_USE_FILE})
 
 add_executable(${PROJECT_NAME} resonant_state_analysis.C)
-target_include_directories(${PROJECT_NAME} PRIVATE "/home/loren/MSc/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "$ENV{WORKSPACE_DIR}/include")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${ROOT_LIBRARIES})

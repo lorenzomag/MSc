@@ -1,5 +1,9 @@
 # Project specific
 datasets/
+<<<<<<< HEAD
+=======
+small_datasets/
+>>>>>>> main
 datasets
 .envrc
 .vscode
@@ -252,3 +256,4 @@ Thumbs.db
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,python,julia,root,git
 figures
+bin/
