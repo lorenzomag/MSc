@@ -20,7 +20,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
 
    // Default MVA methods to be trained + tested
    std::map<std::string, int> Use;
-<<<<<<< HEAD
 
    // If database has no methods for current run, use default selection of methods
    // Neural Networks (all are feed-forward Multilayer Perceptrons)
@@ -31,11 +30,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    Use["BDTB"] = 0; // uses Bagging
    Use["BDTD"] = 0; // decorrelation + Adaptive Boost
    Use["BDTF"] = 0; // allow usage of fisher discriminant for node splitting
-=======
-   //
-   // Neural Networks (all are feed-forward Multilayer Perceptrons)
-   Use["MLP"] = 0; // Recommended ANN
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
 #ifdef R__HAS_TMVAGPU
    Use["DNN_GPU"] = 1; // CUDA-accelerated DNN training.
 #else
@@ -47,8 +41,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
 #else
    Use["DNN_CPU"] = 0;
 #endif
-<<<<<<< HEAD
-=======
    //
    // Boosted Decision Trees
    Use["BDT"] = 0;  // uses Adaptive Boost
@@ -57,7 +49,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    Use["BDTD"] = 0; // decorrelation + Adaptive Boost
    Use["BDTF"] = 0; // allow usage of fisher discriminant for node splitting
    //
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
    // Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
    Use["RuleFit"] = 0;
    // ---------------------------------------------------------------
@@ -97,16 +88,11 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    TFile *sigInput(0);
    TFile *bkgInput(0);
 
-<<<<<<< HEAD
-   //TString signalFileName = getenv("CURRENT_MC_DATASET");
-   //TString bkgFileName = getenv("CURRENT_WS1_DATASET");
-=======
    TString signalFileName = getenv("CURRENT_MC_DATASET");
    TString bkgFileName = getenv("CURRENT_WS1_DATASET");
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
 
-   TString signalFileName = getenv("SMALL_CURRENT_MC");
-   TString bkgFileName = getenv("SMALL_CURRENT_WS1");
+   // TString signalFileName = getenv("SMALL_CURRENT_MC");
+   // TString bkgFileName = getenv("SMALL_CURRENT_WS1");
    if (!gSystem->AccessPathName(signalFileName))
    {
       sigInput = TFile::Open(signalFileName); // check if file in local directory exists
@@ -140,11 +126,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
    TString outfileName;
    if (save_output)
-<<<<<<< HEAD
       outfileName = (TString) "TMVA_run" + run + (TString) ".root";
-=======
-      outfileName = (TString)"TMVA_run" + run + (TString)".root";
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
    else
       outfileName = "TMVA_temp.root";
    TFile *outputFile = TFile::Open(outfileName, "RECREATE");
@@ -168,7 +150,6 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
    // [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
 
-<<<<<<< HEAD
    // TMVA variable to use for the training
    size_t n_features = 190;
    for (auto [expr, name] : feature_map)
@@ -177,20 +158,11 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
          n_features--;
       else
          break;
-=======
-   //TMVA variable to use for the training
-
-   for (auto [expr, name] : feature_map)
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
       if (name == "")
          dataloader->AddVariable(expr, 'F');
       else
          dataloader->AddVariable(expr, name, "", 'F');
-<<<<<<< HEAD
    }
-=======
-
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
    // input variables, the response values of all trained MVAs, and the spectator variables
@@ -266,11 +238,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
          factory->BookMethod(dataloader, TMVA::Types::kDL, "DNN_CPU", cpuOptions);
       }
    }
-<<<<<<< HEAD
 
-=======
-   
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
    // Boosted Decision Trees
 
    if (Use["BDT"]) // Adaptive Boost
@@ -352,7 +320,6 @@ std::map<std::string, std::string> get_features(SQLite::Database &db, const int 
       std::cerr << rang::fg::red << "File " << script << " not found\n";
       exit(6);
    }
-<<<<<<< HEAD
 
    std::string str, stmt;
    while (getline(file, str))
@@ -400,9 +367,6 @@ bool get_methods(SQLite::Database &db, const int run, std::map<std::string, int>
       exit(6);
    }
 
-=======
-
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
    std::string str, stmt;
    while (getline(file, str))
    {
@@ -410,7 +374,6 @@ bool get_methods(SQLite::Database &db, const int run, std::map<std::string, int>
    }
    SQLite::Statement query(db, stmt);
    query.bind(1, run);
-<<<<<<< HEAD
    bool first_line = true;
    while (query.executeStep())
    {
@@ -447,32 +410,4 @@ bool get_methods(SQLite::Database &db, const int run, std::map<std::string, int>
       return false; // no methods in specified run
    else
       return true; // methods were collected from run
-=======
-   while (query.executeStep())
-   {
-      static bool first_line = true;
-      int set_ID = query.getColumn("Feature Set ID");
-      std::string feature_expr = query.getColumn("Feature");
-      std::string feature_name = query.getColumn("Base Feature");
-      map[feature_expr] = feature_name;
-      if (first_line)
-      {
-         std::cout << std::endl
-                   << rang::fg::blue
-                   << std::left << std::setw(15) << "Run:" << std::setw(5) << run << std::endl
-                   << std::left << std::setw(15) << "Feature set:" << std::setw(5) << set_ID
-                   << rang::fg::reset << std::endl;
-         first_line = false;
-      }
-      std::cout << "Feature:   " << std::left << std::setw(30) << feature_expr
-                << " from " << feature_name << std::endl;
-   }
-   if (map.empty())
-   {
-      std::cout << rang::fg::yellow << "Run " << rang::style::bold << run << rang::style::reset
-                << rang::fg::yellow << " does not have a filled entry in the SQLite database or doesn't exist yet.\n";
-      exit(7);
-   }
-   return map;
->>>>>>> caae89e6fc87ebcbd8eb46fb81a537bc31c159a3
 }
