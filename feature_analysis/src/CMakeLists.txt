@@ -13,4 +13,4 @@ target_include_directories(${PROJECT_NAME}
                             PUBLIC "$ENV{WORKSPACE_DIR}/include"
                             )
 target_link_libraries(${PROJECT_NAME} PUBLIC ${ROOT_LIBRARIES})
-target_precompile_headers(${PROJECT_NAME} PUBLIC ../include/pch.h)
+target_precompile_headers(${PROJECT_NAME} PUBLIC $ENV{WORKSPACE_DIR}/include/pch.h)

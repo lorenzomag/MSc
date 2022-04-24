@@ -1,11 +1,9 @@
 #ifndef PCH
 #define PCH
 
-// #include <atomic>
 #include <cassert>
 #include <chrono>
 #include <fstream>
-// #include <future>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -41,5 +39,6 @@
 
 #include "BSlogger.hpp"
 #include "rang.hpp"
+#include <nlohmann/json.hpp>
 
 #endif // PCH
