@@ -21,5 +21,5 @@ endif()
 # Configure all parts of project
 add_subdirectory(feature_analysis)
 add_subdirectory(TMVA_phase)
-add_subdirectory(set_masses) #Resolve dependency from nfd (which depends on gtk+3)
+#add_subdirectory(set_masses) #Resolve dependency from nfd (which depends on gtk+3)
 add_subdirectory(Lc_pi)
