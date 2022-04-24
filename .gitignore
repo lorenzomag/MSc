@@ -1,9 +1,6 @@
 # Project specific
 datasets/
-<<<<<<< HEAD
-=======
 small_datasets/
->>>>>>> main
 datasets
 .envrc
 .vscode
