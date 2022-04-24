@@ -22,34 +22,33 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    std::map<std::string, int> Use;
 
    // If database has no methods for current run, use default selection of methods
-   if (!get_methods(db, run, Use))
-   {
-      // Neural Networks (all are feed-forward Multilayer Perceptrons)
-      Use["MLP"] = 1; // Recommended ANN
-      // Boosted Decision Trees
-      Use["BDT"] = 0;  // uses Adaptive Boost
-      Use["BDTG"] = 1; // uses Gradient Boost
-      Use["BDTB"] = 0; // uses Bagging
-      Use["BDTD"] = 0; // decorrelation + Adaptive Boost
-      Use["BDTF"] = 0; // allow usage of fisher discriminant for node splitting
+   // Neural Networks (all are feed-forward Multilayer Perceptrons)
+   Use["MLP"] = 1; // Recommended ANN
+   // Boosted Decision Trees
+   Use["BDT"] = 0;  // uses Adaptive Boost
+   Use["BDTG"] = 1; // uses Gradient Boost
+   Use["BDTB"] = 0; // uses Bagging
+   Use["BDTD"] = 0; // decorrelation + Adaptive Boost
+   Use["BDTF"] = 0; // allow usage of fisher discriminant for node splitting
 #ifdef R__HAS_TMVAGPU
-      Use["DNN_GPU"] = 1; // CUDA-accelerated DNN training.
+   Use["DNN_GPU"] = 1; // CUDA-accelerated DNN training.
 #else
-      Use["DNN_GPU"] = 0;
+   Use["DNN_GPU"] = 0;
 #endif
 
 #ifdef R__HAS_TMVACPU
-      Use["DNN_CPU"] = 1; // Multi-core accelerated DNN.
+   Use["DNN_CPU"] = 1; // Multi-core accelerated DNN.
 #else
-      Use["DNN_CPU"] = 0;
+   Use["DNN_CPU"] = 0;
 #endif
-      // Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
-      Use["RuleFit"] = 0;
-      // ---------------------------------------------------------------
+   // Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
+   Use["RuleFit"] = 0;
+   // ---------------------------------------------------------------
+   if (!get_methods(db, run, Use))
+   {
    }
    std::cout << std::endl;
    std::cout << "==> Start TMVAClassification" << std::endl;
-
    // Select methods (don't look at this code - not of interest)
    if (!method_list.empty())
    {
@@ -81,9 +80,11 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    TFile *sigInput(0);
    TFile *bkgInput(0);
 
-   TString signalFileName = getenv("CURRENT_MC_DATASET");
-   TString bkgFileName = getenv("CURRENT_WS1_DATASET");
+   //TString signalFileName = getenv("CURRENT_MC_DATASET");
+   //TString bkgFileName = getenv("CURRENT_WS1_DATASET");
 
+   TString signalFileName = getenv("SMALL_CURRENT_MC");
+   TString bkgFileName = getenv("SMALL_CURRENT_WS1");
    if (!gSystem->AccessPathName(signalFileName))
    {
       sigInput = TFile::Open(signalFileName); // check if file in local directory exists
@@ -104,6 +105,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    if (!bkgInput)
    {
       std::cout << "ERROR: could not open data file" << std::endl;
+      std::cout << bkgFileName << '\n';
       exit(1);
    }
    std::cout << "--- TMVAClassification       : Using input file: " << bkgInput->GetName() << " for background" << std::endl;
@@ -141,13 +143,18 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
 
    // TMVA variable to use for the training
-
+   size_t n_features = 190;
    for (auto [expr, name] : feature_map)
+   {
+      if (n_features > 0)
+         n_features--;
+      else
+         break;
       if (name == "")
          dataloader->AddVariable(expr, 'F');
       else
          dataloader->AddVariable(expr, name, "", 'F');
-
+   }
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
    // input variables, the response values of all trained MVAs, and the spectator variables
@@ -174,7 +181,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
    // "...:CutRangeMin[2]=-1:CutRangeMax[2]=1"...", where [2] is the third input variable
 
    dataloader->PrepareTrainingAndTestTree(mycuts, mycutb,
-                                          "nTrain_Signal=4000:nTrain_Background=4000:nTest_Signal=2000:nTest_Background=2000:SplitMode=Random:NormMode=NumEvents:!V");
+                                          "nTrain_Signal=100000:nTrain_Background=100000:nTest_Signal=100000:nTest_Background=100000:SplitMode=Random:NormMode=NumEvents:!V");
 
    // TMVA ANN: MLP (recommended ANN) -- all ANNs in TMVA are Multilayer Perceptrons
    if (Use["MLP"])
@@ -200,7 +207,7 @@ int classification(std::set<std::string> method_list, const int run, bool save_o
                         "WeightDecay=1e-4,Regularization=L2,"
                         "DropConfig=0.0+0.0+0.0+0.0, Multithreading=True");
       TString trainingStrategyString("TrainingStrategy=");
-      trainingStrategyString += training0; // + "|" + training1 + "|" + training2;
+      trainingStrategyString += training0 + "|" + training1 + "|" + training2;
 
       // General Options.
       TString dnnOptions("!H:V:ErrorStrategy=CROSSENTROPY:VarTransform=N:"
