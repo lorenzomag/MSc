@@ -1,5 +1,6 @@
 # Project specific
 datasets/
+small_datasets/
 datasets
 .envrc
 .vscode
