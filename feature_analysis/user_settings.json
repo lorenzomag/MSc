@@ -97,8 +97,8 @@
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
-                "_IP_OWNPV": false,
+                "_IPCHI2_OWNPV": true,
+                "_IP_OWNPV": true,
                 "_M": false,
                 "_M12": false,
                 "_M13": false,
@@ -162,14 +162,14 @@
                 "_PIDe": false,
                 "_PIDmu": false,
                 "_PIDp": false,
-                "_PT": false,
+                "_PT": true,
                 "_PX": false,
                 "_PY": false,
                 "_PZ": false,
                 "_ProbNNd": false,
                 "_ProbNNe": false,
                 "_ProbNNghost": false,
-                "_ProbNNk": false,
+                "_ProbNNk": true,
                 "_ProbNNmu": false,
                 "_ProbNNp": false,
                 "_ProbNNpi": false,
@@ -210,7 +210,7 @@
                 "_hasRich": false,
                 "_isMuon": false
             },
-            "include": false
+            "include": true
         },
         "Km": {
             "features": {
@@ -427,8 +427,8 @@
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
-                "_IP_OWNPV": false,
+                "_IPCHI2_OWNPV": true,
+                "_IP_OWNPV": true,
                 "_M": false,
                 "_M12": false,
                 "_M13": false,
@@ -492,7 +492,7 @@
                 "_PIDe": false,
                 "_PIDmu": false,
                 "_PIDp": false,
-                "_PT": false,
+                "_PT": true,
                 "_PX": false,
                 "_PY": false,
                 "_PZ": false,
@@ -540,7 +540,7 @@
                 "_hasRich": false,
                 "_isMuon": false
             },
-            "include": false
+            "include": true
         },
         "Xicst": {
             "features": {
@@ -576,7 +576,7 @@
                 "_DTF_PV_M": false,
                 "_DTF_PV_M12": false,
                 "_DTF_PV_PT": false,
-                "_ENDVERTEX_CHI2": false,
+                "_ENDVERTEX_CHI2": true,
                 "_ENDVERTEX_COV_": false,
                 "_ENDVERTEX_COV_[3][3]": false,
                 "_ENDVERTEX_NDOF": false,
@@ -588,14 +588,14 @@
                 "_ENDVERTEX_ZERR": false,
                 "_ETA": false,
                 "_FDCHI2_ORIVX": false,
-                "_FDCHI2_OWNPV": false,
+                "_FDCHI2_OWNPV": true,
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
-                "_IP_OWNPV": false,
-                "_M": false,
-                "_M12": false,
+                "_IPCHI2_OWNPV": true,
+                "_IP_OWNPV": true,
+                "_M": true,
+                "_M12": true,
                 "_M13": false,
                 "_M23": false,
                 "_MC12TuneV2_ProbNNe": false,
@@ -628,7 +628,7 @@
                 "_MC_GD_MOTHER_KEY": false,
                 "_MC_MOTHER_ID": false,
                 "_MC_MOTHER_KEY": false,
-                "_MM": false,
+                "_MM": true,
                 "_MMERR": false,
                 "_ORIVX_CHI2": false,
                 "_ORIVX_COV_": false,
@@ -705,7 +705,7 @@
                 "_hasRich": false,
                 "_isMuon": false
             },
-            "include": false
+            "include": true
         },
         "p": {
             "features": {
@@ -922,8 +922,8 @@
                 "_FD_ORIVX": false,
                 "_FD_OWNPV": false,
                 "_ID": false,
-                "_IPCHI2_OWNPV": false,
-                "_IP_OWNPV": false,
+                "_IPCHI2_OWNPV": true,
+                "_IP_OWNPV": true,
                 "_M": false,
                 "_M12": false,
                 "_M13": false,
@@ -958,7 +958,7 @@
                 "_MC_GD_MOTHER_KEY": false,
                 "_MC_MOTHER_ID": false,
                 "_MC_MOTHER_KEY": false,
-                "_MM": false,
+                "_MM": true,
                 "_MMERR": false,
                 "_ORIVX_CHI2": false,
                 "_ORIVX_COV_": false,
@@ -987,7 +987,7 @@
                 "_PIDe": false,
                 "_PIDmu": false,
                 "_PIDp": false,
-                "_PT": false,
+                "_PT": true,
                 "_PX": false,
                 "_PY": false,
                 "_PZ": false,
