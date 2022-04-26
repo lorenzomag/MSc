@@ -6,15 +6,15 @@
 
 #include "main.h"
 bool debug = false;
-bool small_batch = true;
-bool truth_match = true;
-bool has_masses_ID = false;
+bool small_batch = false;
+bool truth_match = true; 
+bool has_masses_ID = true;
 
 int main(int ac, char **av)
 {
     ROOT::EnableImplicitMT();
 
-    json j_db = select_features(feat_source::default_values);
+    json j_db = select_features(feat_source::from_file);
 
     Search sig(j_db, "MC", "-+");
     Search ws1(j_db, "Ws1", "+-");
@@ -109,7 +109,7 @@ int main(int ac, char **av)
 
     for (Search *current_search : searches)
     {
-        auto is_MC = current_search->GetName() == "Sig" ? true : false;
+        auto is_MC = current_search->GetName() == "MC" ? true : false;
         bool has_TRUEID = false;
         bool has_M = false;
         bool has_MassID = false;

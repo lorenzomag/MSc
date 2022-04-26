@@ -12,7 +12,7 @@ extern bool has_masses_ID;
 
 void draw_features(Search &sig, Search &bkg)
 {
-    set_style();
+    // set_style();
     std::cout << std::endl
               << "Plotting feature comparisons between Signal and possible background sources (WS1 and/or WS2)" << std::endl;
     std::map<TString, std::vector<TString>> particles;
