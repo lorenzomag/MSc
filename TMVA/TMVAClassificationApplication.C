@@ -42,25 +42,25 @@ void TMVAClassificationApplication( TString myMethodList = "" )
 
    // Cut optimisation
    Use["Cuts"]            = 1;
-   Use["CutsD"]           = 1;
+   Use["CutsD"]           = 0;
    Use["CutsPCA"]         = 0;
    Use["CutsGA"]          = 0;
    Use["CutsSA"]          = 0;
    //
    // 1-dimensional likelihood ("naive Bayes estimator")
-   Use["Likelihood"]      = 1;
+   Use["Likelihood"]      = 0;
    Use["LikelihoodD"]     = 0; // the "D" extension indicates decorrelated input variables (see option strings)
-   Use["LikelihoodPCA"]   = 1; // the "PCA" extension indicates PCA-transformed input variables (see option strings)
+   Use["LikelihoodPCA"]   = 0; // the "PCA" extension indicates PCA-transformed input variables (see option strings)
    Use["LikelihoodKDE"]   = 0;
    Use["LikelihoodMIX"]   = 0;
    //
    // Mutidimensional likelihood and Nearest-Neighbour methods
-   Use["PDERS"]           = 1;
+   Use["PDERS"]           = 0;
    Use["PDERSD"]          = 0;
    Use["PDERSPCA"]        = 0;
-   Use["PDEFoam"]         = 1;
+   Use["PDEFoam"]         = 0;
    Use["PDEFoamBoost"]    = 0; // uses generalised MVA method boosting
-   Use["KNN"]             = 1; // k-nearest neighbour method
+   Use["KNN"]             = 0; // k-nearest neighbour method
    //
    // Linear Discriminant Analysis
    Use["LD"]              = 1; // Linear Discriminant identical to Fisher
@@ -70,7 +70,7 @@ void TMVAClassificationApplication( TString myMethodList = "" )
    Use["HMatrix"]         = 0;
    //
    // Function Discriminant analysis
-   Use["FDA_GA"]          = 1; // minimisation of user-defined function using Genetics Algorithm
+   Use["FDA_GA"]          = 0; // minimisation of user-defined function using Genetics Algorithm
    Use["FDA_SA"]          = 0;
    Use["FDA_MC"]          = 0;
    Use["FDA_MT"]          = 0;
@@ -78,12 +78,12 @@ void TMVAClassificationApplication( TString myMethodList = "" )
    Use["FDA_MCMT"]        = 0;
    //
    // Neural Networks (all are feed-forward Multilayer Perceptrons)
-   Use["MLP"]             = 0; // Recommended ANN
+   Use["MLP"]             = 1; // Recommended ANN
    Use["MLPBFGS"]         = 0; // Recommended ANN with optional training method
    Use["MLPBNN"]          = 1; // Recommended ANN with BFGS training method and bayesian regulator
    Use["CFMlpANN"]        = 0; // Depreciated ANN from ALEPH
    Use["TMlpANN"]         = 0; // ROOT's own ANN
-   Use["DNN_CPU"] = 0;         // CUDA-accelerated DNN training.
+   Use["DNN_CPU"] = 1;         // CUDA-accelerated DNN training.
    Use["DNN_GPU"] = 0;         // Multi-core accelerated DNN.
    //
    // Support Vector Machine
@@ -91,10 +91,10 @@ void TMVAClassificationApplication( TString myMethodList = "" )
    //
    // Boosted Decision Trees
    Use["BDT"]             = 1; // uses Adaptive Boost
-   Use["BDTG"]            = 0; // uses Gradient Boost
-   Use["BDTB"]            = 0; // uses Bagging
-   Use["BDTD"]            = 0; // decorrelation + Adaptive Boost
-   Use["BDTF"]            = 0; // allow usage of fisher discriminant for node splitting
+   Use["BDTG"]            = 1; // uses Gradient Boost
+   Use["BDTB"]            = 1; // uses Bagging
+   Use["BDTD"]            = 1; // decorrelation + Adaptive Boost
+   Use["BDTF"]            = 1; // allow usage of fisher discriminant for node splitting
    //
    // Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
    Use["RuleFit"]         = 1;
@@ -137,25 +137,35 @@ void TMVAClassificationApplication( TString myMethodList = "" )
 
    // Create a set of variables and declare them to the reader
    // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
-   Float_t var1, var2;
-   Float_t var3, var4;
-   reader->AddVariable( "myvar1 := var1+var2", &var1 );
-   reader->AddVariable( "myvar2 := var1-var2", &var2 );
-   reader->AddVariable( "var3",                &var3 );
-   reader->AddVariable( "var4",                &var4 );
+   Float_t var1, var2, var3, var4, var5, var6, var7, var8, var9, var10, var11, var12, var13, var14;
+   reader->AddVariable("Kbach_ProbNNk", &var1);
+   reader->AddVariable("Kbach_ProbNNp", &var2);
+   reader->AddVariable("Kbach_PT", &var3);
+   reader->AddVariable("Kbach_IPCHI2_OWNPV", &var4);
+   reader->AddVariable("Lc_PT", &var5);
+   reader->AddVariable("Lc_IPCHI2_OWNPV", &var6);
+   reader->AddVariable("pibach_IPCHI2_OWNPV", &var7);
+   reader->AddVariable("pibach_PT", &var8);
+   reader->AddVariable("pibach_ProbNNp", &var9);
+   reader->AddVariable("pibach_ProbNNpi", &var10);
+   reader->AddVariable("Xicst_PT", &var11);
+   reader->AddVariable("Xicst_IPCHI2_OWNPV", &var12);
+   reader->AddVariable("Xicst_FDCHI2_OWNPV", &var13);
+   reader->AddVariable("Xicst_ENDVERTEX_CHI2", &var14);
+
 
    // Spectator variables declared in the training have to be added to the reader, too
-   Float_t spec1,spec2;
-   reader->AddSpectator( "spec1 := var1*2",   &spec1 );
-   reader->AddSpectator( "spec2 := var1*3",   &spec2 );
+   // Float_t spec1,spec2;
+   // reader->AddSpectator( "spec1 := var1*2",   &spec1 );
+   // reader->AddSpectator( "spec2 := var1*3",   &spec2 );
 
-   Float_t Category_cat1, Category_cat2, Category_cat3;
-   if (Use["Category"]){
-      // Add artificial spectators for distinguishing categories
-      reader->AddSpectator( "Category_cat1 := var3<=0",             &Category_cat1 );
-      reader->AddSpectator( "Category_cat2 := (var3>0)&&(var4<0)",  &Category_cat2 );
-      reader->AddSpectator( "Category_cat3 := (var3>0)&&(var4>=0)", &Category_cat3 );
-   }
+   // Float_t Category_cat1, Category_cat2, Category_cat3;
+   // if (Use["Category"]){
+   //    // Add artificial spectators for distinguishing categories
+   //    reader->AddSpectator( "Category_cat1 := var3<=0",             &Category_cat1 );
+   //    reader->AddSpectator( "Category_cat2 := (var3>0)&&(var4<0)",  &Category_cat2 );
+   //    reader->AddSpectator( "Category_cat3 := (var3>0)&&(var4>=0)", &Category_cat3 );
+   // }
 
    // Book the MVA methods
 
@@ -265,7 +275,7 @@ void TMVAClassificationApplication( TString myMethodList = "" )
    // we'll later on use only the "signal" events for the test in this example.
    //
    TFile *input(0);
-   TString fname = "./tmva_class_example.root";
+   TString fname = getenv("CURRENT_WS2_DATASET");
    if (!gSystem->AccessPathName( fname )) {
       input = TFile::Open( fname ); // check if file in local directory exists
    }
@@ -287,12 +297,22 @@ void TMVAClassificationApplication( TString myMethodList = "" )
    //   but of course you can use different ones and copy the values inside the event loop
    //
    std::cout << "--- Select signal sample" << std::endl;
-   TTree* theTree = (TTree*)input->Get("TreeS");
-   Float_t userVar1, userVar2;
-   theTree->SetBranchAddress( "var1", &userVar1 );
-   theTree->SetBranchAddress( "var2", &userVar2 );
-   theTree->SetBranchAddress( "var3", &var3 );
-   theTree->SetBranchAddress( "var4", &var4 );
+   TTree* theTree = (TTree*)input->Get("DecayTree");
+   
+   theTree->SetBranchAddress("Kbach_ProbNNk", &var1);
+   theTree->SetBranchAddress("Kbach_ProbNNp", &var2);
+   theTree->SetBranchAddress("Kbach_PT", &var3);
+   theTree->SetBranchAddress("Kbach_IPCHI2_OWNPV", &var4);
+   theTree->SetBranchAddress("Lc_PT", &var5);
+   theTree->SetBranchAddress("Lc_IPCHI2_OWNPV", &var6);
+   theTree->SetBranchAddress("pibach_IPCHI2_OWNPV", &var7);
+   theTree->SetBranchAddress("pibach_PT", &var8);
+   theTree->SetBranchAddress("pibach_ProbNNp", &var9);
+   theTree->SetBranchAddress("pibach_ProbNNpi", &var10);
+   theTree->SetBranchAddress("Xicst_PT", &var11);
+   theTree->SetBranchAddress("Xicst_IPCHI2_OWNPV", &var12);
+   theTree->SetBranchAddress("Xicst_FDCHI2_OWNPV", &var13);
+   theTree->SetBranchAddress("Xicst_ENDVERTEX_CHI2", &var14);
 
    // Efficiency calculator for cut method
    Int_t    nSelCutsGA = 0;
@@ -308,9 +328,6 @@ void TMVAClassificationApplication( TString myMethodList = "" )
       if (ievt%1000 == 0) std::cout << "--- ... Processing event: " << ievt << std::endl;
 
       theTree->GetEntry(ievt);
-
-      var1 = userVar1 + userVar2;
-      var2 = userVar1 - userVar2;
 
       // Return the MVA outputs and fill into histograms
 
