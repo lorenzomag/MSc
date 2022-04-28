@@ -13,7 +13,7 @@ export LOCAL_DATASETS_DIR=$WORKSPACE_DIR"/local_datasets"
 export CURRENT_MC_DATASET=$DATASETS_DIR"/MC2016_AllMasses_MUMD_Xic_TMVAClassification_AllEvents_LcCut_PreselCuts_mID.root"
 export CURRENT_SIG_DATASET=$CURRENT_MC_DATASET
 export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root"
-export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
+export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS1_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
 export CURRENT_WS3_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
 
 export SMALL_CURRENT_MC=$SMALL_DATASETS_DIR"/small_MC.root"
