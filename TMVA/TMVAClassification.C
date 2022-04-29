@@ -44,6 +44,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <fstream>
 
 #include "TChain.h"
 #include "TFile.h"
@@ -58,6 +59,10 @@
 #include "TMVA/Tools.h"
 #include "TMVA/TMVAGui.h"
 
+#include "json.hpp"
+using nlohmann::json;
+
+
 int TMVAClassification(TString myMethodList = "")
 {
    // The explicit loading of the shared libTMVA is done in TMVAlogon.C, defined in .rootrc
@@ -67,10 +72,35 @@ int TMVAClassification(TString myMethodList = "")
    // Methods to be processed can be given as an argument; use format:
    //
    //     mylinux~> root -l TMVAClassification.C\(\"myMethod1,myMethod2,myMethod3\"\)
-   
+
    // Enables Multi-threading for ROOT classes that provide it
    ROOT::EnableImplicitMT();
    std::cout << "<INFO>                : Using " << ROOT::GetThreadPoolSize() << " threads\n";
+
+   // Read json setting file
+    json json_settings;
+
+    std::ifstream inFile;
+    std::string inFileName = "settings.json";
+    inFile.open(inFileName);
+    if (inFile.is_open())
+    {
+        try
+        {
+            inFile >> json_settings;
+        }
+        catch (nlohmann::detail::parse_error)
+        {
+            std::cerr << "[WARNING] Input file \"" << inFileName << "\" was not a properly setup json file;" << std::endl
+                      << "[WARNING] Using \"default_settings.json\" instead." << std::endl;
+        }
+    }
+    else
+    {
+        std::cerr << "[WARNING] Input file \"" << inFileName << "\" not found" << std::endl
+                  << "[WARNING] Using \"default_settings.json\" instead." << std::endl;
+    }
+
    //---------------------------------------------------------------
    // This loads the library
    TMVA::Tools::Instance();
@@ -240,20 +270,31 @@ int TMVAClassification(TString myMethodList = "")
    // Define the input variables that shall be used for the MVA training
    // note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
    // [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
-   dataloader->AddVariable("Kbach_ProbNNk", 'F');
-   dataloader->AddVariable("Kbach_ProbNNp", 'F');
-   dataloader->AddVariable("Kbach_PT", 'F');
-   dataloader->AddVariable("Kbach_IPCHI2_OWNPV", 'F');
-   dataloader->AddVariable("Lc_PT", 'F');
-   dataloader->AddVariable("Lc_IPCHI2_OWNPV", 'F');
-   dataloader->AddVariable("pibach_IPCHI2_OWNPV", 'F');
-   dataloader->AddVariable("pibach_PT", 'F');
-   dataloader->AddVariable("pibach_ProbNNp", 'F');
-   dataloader->AddVariable("pibach_ProbNNpi", 'F');
-   dataloader->AddVariable("Xicst_PT", 'F');
-   dataloader->AddVariable("Xicst_IPCHI2_OWNPV", 'F');
-   dataloader->AddVariable("Xicst_FDCHI2_OWNPV", 'F');
-   dataloader->AddVariable("Xicst_ENDVERTEX_CHI2", 'F');
+
+
+   // TMVA variable to use for the training
+   size_t n_features = 190;
+   for (auto feature : json_settings["features"])
+   { 
+      TString expr = feature["expr"];
+      TString name = feature["name"];
+      TString type = feature["type"];
+      
+      if (n_features > 0)
+         n_features--;
+      else
+         break;
+      if (name == "")
+         dataloader->AddVariable(expr, 'F');
+      else
+         dataloader->AddVariable(expr, name, "", 'F');
+   }
+   // You can add so-called "Spectator variables", which are not used in the MVA training,
+   // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
+   // input variables, the response values of all trained MVAs, and the spectator variables
+
+   dataloader->AddSpectator("Xicst_ID", "Xicst ID", 'F');
+   dataloader->AddSpectator("Xicst_M", "Xicst Mass", 'F');
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
@@ -330,7 +371,7 @@ int TMVAClassification(TString myMethodList = "")
    //    dataloader->PrepareTrainingAndTestTree( mycut,
    //         "NSigTrain=3000:NBkgTrain=3000:NSigTest=3000:NBkgTest=3000:SplitMode=Random:!V" );
    dataloader->PrepareTrainingAndTestTree(mycuts, mycutb,
-                                          "nTrain_Signal=10000:nTrain_Background=10000:nTest_Signal=5000:nTest_Background=5000:SplitMode=Random:NormMode=NumEvents:!V");
+                                          "nTrain_Signal=60000:nTrain_Background=60000:nTest_Signal=20000:nTest_Background=20000:SplitMode=Random:NormMode=NumEvents:!V");
 
    // ### Book MVA methods
    //
@@ -552,7 +593,7 @@ int TMVAClassification(TString myMethodList = "")
    // STILL EXPERIMENTAL and only implemented for BDT's !
    //
    //     factory->OptimizeAllMethods("SigEffAtBkg0.01","Scan");
-   factory->OptimizeAllMethods("ROCIntegral", "Fi  tGA");
+   //     factory->OptimizeAllMethods("ROCIntegral", "Fi  tGA");
    //
    // --------------------------------------------------------------------------------------------------
 
@@ -572,11 +613,12 @@ int TMVAClassification(TString myMethodList = "")
    // Save the output
    outputFile->Close();
 
-   for (auto [method, used] : Use)
+   for (auto item : Use)
    {
+      auto method = item.first;
+      auto used = item.second;
       if (used)
          std::cout << "ROC Integral for \"" << method << "\" is " << factory->GetROCIntegral(dataloader, method) << std::endl;
-         
    }
 
    std::cout << "==> Wrote root file: " << outputFile->GetName() << std::endl;
