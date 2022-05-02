@@ -62,7 +62,6 @@
 #include "json.hpp"
 using nlohmann::json;
 
-
 int TMVAClassification(TString myMethodList = "")
 {
    // The explicit loading of the shared libTMVA is done in TMVAlogon.C, defined in .rootrc
@@ -74,32 +73,32 @@ int TMVAClassification(TString myMethodList = "")
    //     mylinux~> root -l TMVAClassification.C\(\"myMethod1,myMethod2,myMethod3\"\)
 
    // Enables Multi-threading for ROOT classes that provide it
-   ROOT::EnableImplicitMT();
+   ROOT::EnableImplicitMT(2);
    std::cout << "<INFO>                : Using " << ROOT::GetThreadPoolSize() << " threads\n";
 
    // Read json setting file
-    json json_settings;
+   json json_settings;
 
-    std::ifstream inFile;
-    std::string inFileName = "settings.json";
-    inFile.open(inFileName);
-    if (inFile.is_open())
-    {
-        try
-        {
-            inFile >> json_settings;
-        }
-        catch (nlohmann::detail::parse_error)
-        {
-            std::cerr << "[WARNING] Input file \"" << inFileName << "\" was not a properly setup json file;" << std::endl
-                      << "[WARNING] Using \"default_settings.json\" instead." << std::endl;
-        }
-    }
-    else
-    {
-        std::cerr << "[WARNING] Input file \"" << inFileName << "\" not found" << std::endl
-                  << "[WARNING] Using \"default_settings.json\" instead." << std::endl;
-    }
+   std::ifstream inFile;
+   std::string inFileName = "feature_settings.json";
+   inFile.open(inFileName);
+   if (inFile.is_open())
+   {
+      try
+      {
+         inFile >> json_settings;
+      }
+      catch (nlohmann::detail::parse_error)
+      {
+         std::cerr << "[WARNING] Input file \"" << inFileName << "\" was not a properly setup json file;" << std::endl
+                   << "[WARNING] Using \"default_settings.json\" instead." << std::endl;
+      }
+   }
+   else
+   {
+      std::cerr << "[WARNING] Input file \"" << inFileName << "\" not found" << std::endl
+                << "[WARNING] Using \"default_settings.json\" instead." << std::endl;
+   }
 
    //---------------------------------------------------------------
    // This loads the library
@@ -109,7 +108,7 @@ int TMVAClassification(TString myMethodList = "")
    std::map<std::string, int> Use;
 
    // Cut optimisation
-   Use["Cuts"] = 1;
+   Use["Cuts"] = 0;
    Use["CutsD"] = 0;
    Use["CutsPCA"] = 0;
    Use["CutsGA"] = 0;
@@ -164,17 +163,17 @@ int TMVAClassification(TString myMethodList = "")
 #endif
    //
    // Support Vector Machine
-   Use["SVM"] = 1;
+   Use["SVM"] = 0;
    //
    // Boosted Decision Trees
-   Use["BDT"] = 1;  // uses Adaptive Boost
+   Use["BDT"] = 0;  // uses Adaptive Boost
    Use["BDTG"] = 1; // uses Gradient Boost
    Use["BDTB"] = 1; // uses Bagging
    Use["BDTD"] = 1; // decorrelation + Adaptive Boost
    Use["BDTF"] = 1; // allow usage of fisher discriminant for node splitting
    //
    // Friedman's RuleFit method, ie, an optimised series of cuts ("rules")
-   Use["RuleFit"] = 1;
+   Use["RuleFit"] = 0;
    // ---------------------------------------------------------------
 
    std::cout << std::endl;
@@ -271,19 +270,13 @@ int TMVAClassification(TString myMethodList = "")
    // note that you may also use variable expressions, such as: "3*var1/var2*abs(var3)"
    // [all types of expressions that can also be parsed by TTree::Draw( "expression" )]
 
-
    // TMVA variable to use for the training
-   size_t n_features = 190;
    for (auto feature : json_settings["features"])
-   { 
+   {
       TString expr = feature["expr"];
       TString name = feature["name"];
       TString type = feature["type"];
-      
-      if (n_features > 0)
-         n_features--;
-      else
-         break;
+
       if (name == "")
          dataloader->AddVariable(expr, 'F');
       else
@@ -293,7 +286,6 @@ int TMVAClassification(TString myMethodList = "")
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
    // input variables, the response values of all trained MVAs, and the spectator variables
 
-   dataloader->AddSpectator("Xicst_ID", "Xicst ID", 'F');
    dataloader->AddSpectator("Xicst_M", "Xicst Mass", 'F');
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,

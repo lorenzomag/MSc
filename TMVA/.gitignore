@@ -2,3 +2,6 @@ dataset/
 files/
 TMVAClassification
 TMVAClassificationApplication
+runs/
+.snakemake/
+dag.svg

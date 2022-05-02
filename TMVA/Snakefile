@@ -1,0 +1,45 @@
+METHODS = [""]
+
+rule compile_classification:
+    input:
+        "TMVAClassification.C",
+        "makefile"
+    output:
+        "TMVAClassification",
+    threads: 1
+    shell:
+        "make -j{threads} TMVAClassification"
+
+
+rule compile_application:
+    input:
+        "TMVAClassificationApplication.C",
+        "makefile"
+    output:
+        "TMVAClassificationApplication",
+    threads: 1
+    shell:
+        "make -j{threads} {output}"
+
+rule compile_punzi:
+    input:
+        "GetPunzi.C",
+        "makefile"
+    output:
+        "GetPunzi",
+    threads: 1
+    shell:
+        "make -j{threads} {output}"
+
+rule run_classification:
+    input:
+        feature_set = "feature_sets/set{set_number}.json",
+        app = "TMVAClassification"
+    output:
+        "runs/run_fs{set_number}_hp1/TMVA.root",
+        directory("runs/run_fs{set_number}_hp1/dataset")
+    log:
+        "runs/run_fs{set_number}_hp1/logs/classification_output.log"
+    threads: 2
+    shell:
+        "./scripts/run_classification.sh -f{wildcards.set_number} {METHODS} > {log}"
