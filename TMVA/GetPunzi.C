@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <string_view>
 
 #include "TChain.h"
 #include "TFile.h"
@@ -13,6 +14,7 @@
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "TROOT.h"
+#include "TMVA/tmvaglob.h"
 
 #include "TMVA/Factory.h"
 #include "TMVA/DataLoader.h"
@@ -25,8 +27,9 @@ using namespace ROOT;
 
 void GetPunzi()
 {
-    // Open TMVA output file
-    TString TMVA_output_filename = (TString) "/home/loren/MSc/TMVA_phase/output/TMVA_run" + run + (TString) ".root";
+
+    // Open TMVA Classification output file
+    TString TMVA_output_filename = (TString) "TMVA.root";
     TFile *TMVA_output = TFile::Open(TMVA_output_filename);
 
     if (TMVA_output->IsZombie())
@@ -34,6 +37,10 @@ void GetPunzi()
         std::cout << "[ERROR] --- " << TMVA_output_filename << " could not be found!\n";
         exit(1);
     }
+
+    TString method = "MLP";
+    int run = 1;
+    TString method_dir = "Method_MLP";
 
     // Get signal and background efficiencies
     TString get_effS = (TString) "dataset/" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effS";
@@ -74,11 +81,12 @@ void GetPunzi()
     double width = 3.6;   // MeV
 
     // Get dataset filenames
-    TString bkgInputFileName = getenv("LOCAL_CURRENT_DATA");
-    if (!bkgInputFileName)
-    {
-        std::cout << bkgInputFileName << " could not be found." << std::endl;
-    }
+    std::string_view bkgInputFileName = getenv("CURRENT_WS1_DATASET");
+    
+    // if (!bkgInputFileName)
+    // {
+    //     std::cout << bkgInputFileName << " could not be found." << std::endl;
+    // }
 
     // Defnie RDataFrame for background dataset
     RDataFrame tree_df("DecayTree", bkgInputFileName);
@@ -154,6 +162,7 @@ void GetPunzi()
     punzi_curve->GetXaxis()->SetTitle("BDT response");
     punzi_curve->GetYaxis()->SetTitle("Punzi FoM");
     punzi_curve->SetMarkerColor(kOrange);
+    TMVA::TMVAGlob::SetFrameStyle(punzi_curve);
     punzi_curve->Draw("p");
     //cFOM->SaveAs("FOMcurve.pdf");
 
