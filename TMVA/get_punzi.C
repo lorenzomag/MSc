@@ -10,7 +10,10 @@
 #include "TString.h"
 #include "THStack.h"
 #include "TObjString.h"
+#include "TLine.h"
+#include "TFormula.h"
 #include "TLatex.h"
+#include "TGaxis.h"
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "TROOT.h"
@@ -25,8 +28,12 @@
 
 using namespace ROOT;
 TString GetFormula();
+TString GetLatexFormula();
 int calculate_background_integral(RDataFrame tree_df, double mass = 3077.2, double width = 3.6);
 
+int maxLenTitle(0);
+
+TString fFormula = "S / ((5./3.) + sqrt(B))";
 std::map<int, std::pair<double, double>> mass_cases = {
     // {1, {2942., 15.}},
     // {2, {2964.3, 20.9}},
@@ -57,8 +64,12 @@ void get_punzi()
     // Obtain Xicst mass distribution
     RDataFrame tree_df("DecayTree", bkgInputFileName);
 
-    TString method = "MLP";
-    TString method_dir = "Method_MLP";
+    TFormula f("punzi", GetFormula());
+    TString cname = "Classifier";
+    if (cname.Length() > maxLenTitle)
+        maxLenTitle = cname.Length();
+
+    TString method, method_dir;
     for (auto mass_case : mass_cases)
     {
         int mass_case_id = mass_case.first;
@@ -89,18 +100,32 @@ void get_punzi()
                 TDirectory *titDir = (TDirectory *)titkey->ReadObj();
                 TMVA::TMVAGlob::GetMethodName(method_dir, key);
                 TMVA::TMVAGlob::GetMethodTitle(method, titDir);
+
                 std::cout << "Method: " << method << "\tDir:" << method_dir << std::endl;
 
-                // Get signal and background efficiencies
+                // Strings to get signal and background efficiencies
                 TString get_effS = (TString) "dataset/Method_" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effS";
                 TString get_effB = (TString) "dataset/Method_" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effB";
-                TString get_ROC = (TString) "dataset/Method_" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effB";
+
+                TString artist_name;
+                // Create canvas
+                artist_name = method + (TString) " - MassID" + mass_case_id;
+                TCanvas *c = new TCanvas(artist_name, artist_name, 800, 400);
+
+                c->SetGrid(1);
+                c->SetTicks(0, 0);
+
+                TStyle *TMVAStyle = gROOT->GetStyle("Plain"); // our style is based on Plain
+                c->SetTopMargin(.2);
+                if (method == "BDTG")
+                {
+                    c->SetRightMargin(3.0);
+                    TMVAStyle->SetLineStyleString(5, "[32 22]");
+                    TMVAStyle->SetLineStyleString(6, "[12 22]");
+                }
 
                 // Create stack of histograms
-                TString artist_name;
                 TString title_stack = (TString) "Method: " + method + (TString) " - Mass Case " + mass_case_id + (TString) ";TMVA Response; Efficiency";
-                artist_name = method + (TString) " - MassID" + mass_case_id;
-                TCanvas *cS = new TCanvas(artist_name, artist_name, 800, 400);
                 artist_name = (TString) "HStack" + method + (TString) " - MassID" + mass_case_id;
                 THStack *hs = new THStack(artist_name, title_stack);
 
@@ -114,44 +139,114 @@ void get_punzi()
                 artist_name = (TString) "Background Efficiency " + method + (TString) " - MassID" + mass_case_id;
                 histB->SetNameTitle(artist_name, artist_name);
 
+                int nbins = histS->GetNbinsX();
+                double low = histS->GetBinLowEdge(1);
+                double high = histS->GetBinLowEdge(nbins + 1);
+
                 // --- Hists for punzi
                 artist_name = (TString) "Punzi " + method + (TString) " - MassID" + mass_case_id;
-                TH1F *punzi_curve = new TH1F(artist_name, artist_name, 10000, -1, 1);
+                TH1F *punzi_curve = new TH1F(artist_name, artist_name, nbins, low, high);
 
-                hs->Add(histB);
-                hs->Add(histS);
+                // set the histogram style
+                TMVA::TMVAGlob::SetSignalAndBackgroundStyle(histS, histB);
+                histS->SetFillStyle(0);
+                histB->SetFillStyle(0);
+                punzi_curve->SetFillStyle(0);
+                histS->SetLineWidth(3);
+                histB->SetLineWidth(3);
+                punzi_curve->SetLineWidth(3);
 
-                cS->SetTicks(0, 0);
+                // TStyle *TMVAStyle = gROOT->GetStyle("Plain");
+                // c->SetTopMargin(.2);
 
-                TStyle *TMVAStyle = gROOT->GetStyle("Plain");
-                TMVAStyle->SetLineStyleString(5, "[32 32]");
-                TMVAStyle->SetLineStyleString(6, "[12 22]");
-
-                cS->SetTopMargin(.2);
-
-                for (int i = 0; i < 10000; i = i + 100)
+                double maxPunzi = -1;
+                for (int i = 1; i <= nbins; i++)
                 {
-                    double effS = histS->GetBinContent(i);
-                    double effB = histB->GetBinContent(i);
+                    double eS = histS->GetBinContent(i);
+                    double eB = histB->GetBinContent(i);
 
-                    double newB = effB * numB;
+                    double B = eB * numB;
 
-                    double formula = effS / (5. / 2. + sqrt(newB));
-                    punzi_curve->SetBinContent(i, formula);
+                    double punzi = f.Eval(eS, B);
+
+                    if (punzi > maxPunzi)
+                        maxPunzi = punzi;
+
+                    punzi_curve->SetBinContent(i, punzi);
                 }
 
-                float maximum = punzi_curve->GetMaximum();
                 int binmax = punzi_curve->GetMaximumBin();
                 double cut = punzi_curve->GetXaxis()->GetBinCenter(binmax);
+                punzi_curve->Scale(1 / maxPunzi);
 
                 // hs->Add(punzi_curve);
-                std::cout << "Maximum  " << maximum << "  Optimal cut   " << cut << std::endl;
+                std::cout << "Maximum  " << maxPunzi << "  Optimal cut   " << cut << std::endl;
+
+                // TMVA::TMVAGlob::SetFrameStyle(histS);
+
+                histS->SetMaximum(1.1);
+                histS->Draw("histl");
+                histB->Draw("samehistl");
+
+                Int_t signifColor = TColor::GetColor("#00aa00");
+                punzi_curve->SetLineColor(signifColor);
+                punzi_curve->Draw("samehistl");
+
+                histS->Draw("sameaxis");
+
+                // Draw legend
+                TLegend *legend1 = new TLegend(c->GetLeftMargin(), 1 - c->GetTopMargin(),
+                                               c->GetLeftMargin() + 0.4, 1 - c->GetTopMargin() + 0.12);
+                legend1->SetFillStyle(1);
+                legend1->AddEntry(histS, "Signal efficiency", "L");
+                legend1->AddEntry(histB, "Background efficiency", "L");
+                legend1->Draw("same");
+                legend1->SetBorderSize(1);
+                legend1->SetMargin(0.3);
+
+                TLegend *legend2 = new TLegend(c->GetLeftMargin() + 0.4, 1 - c->GetTopMargin(),
+                                               1 - c->GetRightMargin(), 1 - c->GetTopMargin() + 0.12);
+                legend2->SetFillStyle(1);
+                legend2->AddEntry(punzi_curve, GetLatexFormula().Data(), "L");
+                legend2->Draw("same");
+                legend2->SetBorderSize(1);
+                legend2->SetMargin(0.3);
+                gStyle->SetOptStat(0);
+                c->Update();
+
+                TLine *effline = new TLine(punzi_curve->GetXaxis()->GetXmin(), 1, punzi_curve->GetXaxis()->GetXmax(), 1);
+                effline->SetLineWidth(1);
+                effline->SetLineColor(1);
+                effline->Draw();
+
+                // print comments
+                TLatex tl, *line1, *line2;
+                tl.SetNDC();
+                tl.SetTextSize(0.033);
+                Int_t maxbin = punzi_curve->GetMaximumBin();
+                line1 = tl.DrawLatex(0.15, 0.23, Form("For %1.0d background", numB));
+                tl.DrawLatex(0.15, 0.19, "events the maximum " + GetLatexFormula() + " is");
+
+                line2 = tl.DrawLatex(0.15, 0.15, Form("%4.2e when cutting at %5.2f", maxPunzi, punzi_curve->GetXaxis()->GetBinCenter(maxbin)));
+                // save canvas to file
+                c->Update();
+
+                // Draw second axes
+                TGaxis *rightAxis = new TGaxis(c->GetUxmax(), c->GetUymin(),
+                                               c->GetUxmax(), c->GetUymax(), 0, 1.1 * maxPunzi, 510, "+L");
+                rightAxis->SetLineColor(signifColor);
+                rightAxis->SetLabelColor(signifColor);
+                rightAxis->SetTitleColor(signifColor);
+
+                rightAxis->SetTitleSize(punzi_curve->GetXaxis()->GetTitleSize());
+                rightAxis->SetTitle("Punzi Figure of Merit");
+                rightAxis->Draw();
+
+                c->Update();
 
                 gSystem->Exec("mkdir -p plots");
                 TString filename = (TString) "plots/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
-
-                punzi_curve->Draw("p");
-                cS->Print(filename);
+                c->Print(filename);
             }
         }
     }
@@ -175,26 +270,37 @@ int calculate_background_integral(RDataFrame tree_df, double mass, double width)
     return numB.GetValue();
 }
 
+TString GetLatexFormula()
+{
+    TString f = fFormula;
+    f.ReplaceAll("(", "{");
+    f.ReplaceAll(")", "}");
+    f.ReplaceAll("S", "eS");
+    f.ReplaceAll("sqrt", "#sqrt");
+    return f;
+}
+
 TString GetFormula()
 {
-   // replace all occurrence of S and B but only if neighbours are not alphanumerics
-   auto replace_vars = [](TString & f, char oldLetter, char newLetter ) {
-      auto pos = f.First(oldLetter);
-      while(pos != kNPOS) {
-         if ( ( pos > 0 && !TString(f[pos-1]).IsAlpha() ) ||
-              ( pos < f.Length()-1 &&  !TString(f[pos+1]).IsAlpha() ) )
-         {
-            f[pos] = newLetter;
-         }
-      int pos2 = pos+1;
-      pos = f.Index(oldLetter,pos2);
-      }
-   };
-
-   TString formula = "S / ((5./3.) * sqrt(B))";
-   replace_vars(formula,'S','x');
-   replace_vars(formula,'B','y');
-   // f.ReplaceAll("S","x");
-   // f.ReplaceAll("B","y");
-   return formula;
+    // replace all occurrence of S and B but only if neighbours are not alphanumerics
+    auto replace_vars = [](TString &f, char oldLetter, char newLetter)
+    {
+        auto pos = f.First(oldLetter);
+        while (pos != kNPOS)
+        {
+            if ((pos > 0 && !TString(f[pos - 1]).IsAlpha()) ||
+                (pos < f.Length() - 1 && !TString(f[pos + 1]).IsAlpha()))
+            {
+                f[pos] = newLetter;
+            }
+            int pos2 = pos + 1;
+            pos = f.Index(oldLetter, pos2);
+        }
+    };
+    TString formula = fFormula;
+    replace_vars(formula, 'S', 'x');
+    replace_vars(formula, 'B', 'y');
+    // f.ReplaceAll("S","x");
+    // f.ReplaceAll("B","y");
+    return formula;
 }
