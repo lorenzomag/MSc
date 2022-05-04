@@ -1,4 +1,4 @@
-METHODS = [""]
+METHODS = ["BDTD"]
 
 rule compile_classification:
     input:
@@ -7,8 +7,9 @@ rule compile_classification:
     output:
         "TMVAClassification",
     threads: 1
+    log: ".snakemake_logs"
     shell:
-        "make -j{threads} TMVAClassification"
+        "make -j{threads} TMVAClassification >> {log}"
 
 
 rule compile_application:
@@ -18,28 +19,30 @@ rule compile_application:
     output:
         "TMVAClassificationApplication",
     threads: 1
+    log: ".snakemake_logs"
     shell:
-        "make -j{threads} {output}"
-
-rule compile_punzi:
-    input:
-        "GetPunzi.C",
-        "makefile"
-    output:
-        "GetPunzi",
-    threads: 1
-    shell:
-        "make -j{threads} {output}"
+        "make -j{threads} {output} >> {log}"
 
 rule run_classification:
     input:
         feature_set = "feature_sets/set{set_number}.json",
         app = "TMVAClassification"
     output:
-        "runs/run_fs{set_number}_hp1/TMVA.root",
-        directory("runs/run_fs{set_number}_hp1/dataset")
+        protected("runs/run_fs{set_number}_hp{hp_number}/TMVA.root"),
+        protected(directory("runs/run_fs{set_number}_hp{hp_number}/dataset"))
     log:
-        "runs/run_fs{set_number}_hp1/logs/classification_output.log"
+        "runs/run_fs{set_number}_hp{hp_number}/logs/classification_output.log"
     threads: 2
     shell:
-        "./scripts/run_classification.sh -f{wildcards.set_number} {METHODS} > {log}"
+        "./scripts/run_classification.sh -f{wildcards.set_number} -h{wildcards.hp_number} {METHODS} > {log}"
+
+rule run_punzi_analysis:
+    input:
+        "runs/run_fs{set_number}_hp{hp_number}/TMVA.root",
+        "get_punzi.C"
+    output:
+        directory("runs/run_fs{set_number}_hp{hp_number}/punzi")
+    threads: 1
+    log: "runs/run_fs{set_number}_hp{hp_number}/punzi/log.txt"
+    shell:
+        "./scripts/run_punzi.sh -f{wildcards.set_number} -h {wildcards.hp_number} > {log}"

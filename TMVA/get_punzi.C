@@ -1,9 +1,3 @@
-#include <cstdlib>
-#include <iostream>
-#include <map>
-#include <string>
-#include <string_view>
-
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -26,6 +20,13 @@
 
 #include "ROOT/RDataFrame.hxx"
 
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <string>
+#include <string_view>
+#include <fstream>
+
 using namespace ROOT;
 TString GetFormula();
 TString GetLatexFormula();
@@ -35,9 +36,9 @@ int maxLenTitle(0);
 
 TString fFormula = "S / ((5./3.) + sqrt(B))";
 std::map<int, std::pair<double, double>> mass_cases = {
-    // {1, {2942., 15.}},
-    // {2, {2964.3, 20.9}},
-    // {3, {3055.9, 7.8}},
+    {1, {2942., 15.}},
+    {2, {2964.3, 20.9}},
+    {3, {3055.9, 7.8}},
     {4, {3077.2, 3.6}}};
 
 void get_punzi()
@@ -59,6 +60,10 @@ void get_punzi()
     {
         std::cout << bkgInputFileName << " could not be found." << std::endl;
     }
+
+    gSystem->Exec("mkdir -p punzi");
+    std::ofstream logFile("punzi/punzi.csv");
+    logFile << "Mass ID, Method, Max Punzi" << std::endl;
 
     // Defnie RDataFrame for background dataset
     // Obtain Xicst mass distribution
@@ -182,6 +187,10 @@ void get_punzi()
                 // hs->Add(punzi_curve);
                 std::cout << "Maximum  " << maxPunzi << "  Optimal cut   " << cut << std::endl;
 
+                logFile << mass_case_id << ", "
+                        << method << ", "
+                        << std::scientific << maxPunzi << std::endl;
+
                 // TMVA::TMVAGlob::SetFrameStyle(histS);
 
                 histS->SetMaximum(1.1);
@@ -244,8 +253,7 @@ void get_punzi()
 
                 c->Update();
 
-                gSystem->Exec("mkdir -p plots");
-                TString filename = (TString) "plots/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
+                TString filename = (TString) "punzi/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
                 c->Print(filename);
             }
         }
