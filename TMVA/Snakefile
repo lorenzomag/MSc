@@ -28,13 +28,27 @@ rule run_classification:
         feature_set = "feature_sets/set{set_number}.json",
         app = "TMVAClassification"
     output:
-        protected("runs/run_fs{set_number}_hp{hp_number}/TMVA.root"),
-        protected(directory("runs/run_fs{set_number}_hp{hp_number}/dataset"))
+        "runs/run_fs{set_number}_hp{hp_number}/TMVA.root",
+        directory("runs/run_fs{set_number}_hp{hp_number}/dataset")
     log:
         "runs/run_fs{set_number}_hp{hp_number}/logs/classification_output.log"
     threads: 2
     shell:
         "./scripts/run_classification.sh -f{wildcards.set_number} -h{wildcards.hp_number} {METHODS} > {log}"
+
+rule run_application:
+    input:
+        "feature_sets/set{set_number}.json",
+        "TMVAClassificationApplication",
+        "runs/run_fs{set_number}_hp{hp_number}/TMVA.root"
+    output:
+        "runs/run_fs{set_number}_hp{hp_number}/TMVApp.root"
+    log:
+        "runs/run_fs{set_number}_hp{hp_number}/logs/application_output.log"
+    threads: 1
+    shell:
+        "./scripts/run_application.sh -f{wildcards.set_number} -h{wildcards.hp_number} {METHODS} > {log}"
+
 
 rule run_punzi_analysis:
     input:
