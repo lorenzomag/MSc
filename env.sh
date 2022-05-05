@@ -16,7 +16,7 @@ export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application
 export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS1_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
 export CURRENT_WS3_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
 
-export CURRENT_APPLICATION_DATASET=$CURRENT_WS1_DATASET
+export CURRENT_APPLICATION_DATASET=$CURRENT_WS2_DATASET
 
 export SMALL_CURRENT_MC=$SMALL_DATASETS_DIR"/small_MC.root"
 export SMALL_CURRENT_WS1=$SMALL_DATASETS_DIR"/small_WS1.root"
