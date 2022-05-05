@@ -388,6 +388,39 @@ void TMVAClassificationApplication(TString myMethodList = "")
    std::vector<Float_t> vecVar(4); // vector for EvaluateMVA tests
 
    std::cout << "--- Processing: " << theTree->GetEntries() << " events" << std::endl;
+
+   TFile *target = new TFile("TMVApp.root", "RECREATE");
+   TTree *mva_tree = new TTree("mva_response", "mva_response");
+
+   Double_t MVA_LD,
+       MVA_MLP,
+       MVA_MLPBNN,
+       MVA_DNN_CPU,
+       MVA_BDT,
+       MVA_BDTG,
+       MVA_BDTB,
+       MVA_BDTD,
+       MVA_BDTF;
+
+   if (Use["LD"])
+      mva_tree->Branch("MVA_LD",&MVA_LD);
+   if (Use["MLP"])
+      mva_tree->Branch("MVA_MLP",&MVA_MLP);
+   if (Use["MLPBNN"])
+      mva_tree->Branch("MVA_MLPBNN",&MVA_MLPBNN);
+   if (Use["DNN_CPU"])
+      mva_tree->Branch("MVA_DNN_CPU",&MVA_DNN_CPU);
+   if (Use["BDT"])
+      mva_tree->Branch("MVA_BDT",&MVA_BDT);
+   if (Use["BDTG"])
+      mva_tree->Branch("MVA_BDTG",&MVA_BDTG);
+   if (Use["BDTB"])
+      mva_tree->Branch("MVA_BDTB",&MVA_BDTB);
+   if (Use["BDTD"])
+      mva_tree->Branch("MVA_BDTD",&MVA_BDTD);
+   if (Use["BDTF"])
+      mva_tree->Branch("MVA_BDTF",&MVA_BDTF);
+
    TStopwatch sw;
    sw.Start();
    for (Long64_t ievt = 0; ievt < theTree->GetEntries(); ievt++)
@@ -399,14 +432,7 @@ void TMVAClassificationApplication(TString myMethodList = "")
       theTree->GetEntry(ievt);
 
       for (int i = 0; i < n_features; i++)
-      {
          vars[i] = treeVars[i];
-
-         if (ievt % 1000 == 0)
-            std::cout << std::setw(12) << std::left << vars[i];
-      }
-      if (ievt % 1000 == 0)
-         std::cout << std::endl;
 
       // Return the MVA outputs and fill into histograms
 
@@ -445,13 +471,22 @@ void TMVAClassificationApplication(TString myMethodList = "")
       if (Use["BoostedFisher"])
          histFiB->Fill(reader->EvaluateMVA("BoostedFisher method"));
       if (Use["LD"])
-         histLD->Fill(reader->EvaluateMVA("LD method"));
+      {
+         MVA_LD = reader->EvaluateMVA("LD method");
+         histLD->Fill(MVA_LD);
+      }
       if (Use["MLP"])
-         histNn->Fill(reader->EvaluateMVA("MLP method"));
+      {
+         MVA_MLP = reader->EvaluateMVA("MLP method");
+         histNn->Fill(MVA_MLP);
+      }
       if (Use["MLPBFGS"])
          histNnbfgs->Fill(reader->EvaluateMVA("MLPBFGS method"));
       if (Use["MLPBNN"])
-         histNnbnn->Fill(reader->EvaluateMVA("MLPBNN method"));
+      {
+         MVA_MLPBNN = reader->EvaluateMVA("MLPBNN method");
+         histNnbnn->Fill(MVA_MLPBNN);
+      }
       if (Use["CFMlpANN"])
          histNnC->Fill(reader->EvaluateMVA("CFMlpANN method"));
       if (Use["TMlpANN"])
@@ -459,17 +494,35 @@ void TMVAClassificationApplication(TString myMethodList = "")
       if (Use["DNN_GPU"])
          histDnnGpu->Fill(reader->EvaluateMVA("DNN_GPU method"));
       if (Use["DNN_CPU"])
-         histDnnCpu->Fill(reader->EvaluateMVA("DNN_CPU method"));
+      {
+         MVA_DNN_CPU = reader->EvaluateMVA("DNN_CPU method");
+         histDnnCpu->Fill(MVA_DNN_CPU);
+      }
       if (Use["BDT"])
-         histBdt->Fill(reader->EvaluateMVA("BDT method"));
+      {
+         MVA_BDT = reader->EvaluateMVA("BDT method");
+         histBdt->Fill(MVA_BDT);
+      }
       if (Use["BDTG"])
-         histBdtG->Fill(reader->EvaluateMVA("BDTG method"));
+      {
+         MVA_BDTG = reader->EvaluateMVA("BDTG method");
+         histBdtG->Fill(MVA_BDTG);
+      }
       if (Use["BDTB"])
-         histBdtB->Fill(reader->EvaluateMVA("BDTB method"));
+      {
+         MVA_BDTB = reader->EvaluateMVA("BDTB method");
+         histBdtB->Fill(MVA_BDTB);
+      }
       if (Use["BDTD"])
-         histBdtD->Fill(reader->EvaluateMVA("BDTD method"));
+      {
+         MVA_BDTD = reader->EvaluateMVA("BDTD method");
+         histBdtD->Fill(MVA_BDTB);
+      }
       if (Use["BDTF"])
-         histBdtF->Fill(reader->EvaluateMVA("BDTF method"));
+      {
+         MVA_BDTF = reader->EvaluateMVA("BDTF method");
+         histBdtF->Fill(MVA_BDTF);
+      }
       if (Use["RuleFit"])
          histRf->Fill(reader->EvaluateMVA("RuleFit method"));
       if (Use["SVM_Gauss"])
@@ -504,6 +557,8 @@ void TMVAClassificationApplication(TString myMethodList = "")
          probHistFi->Fill(reader->GetProba("Fisher method"));
          rarityHistFi->Fill(reader->GetRarity("Fisher method"));
       }
+
+      mva_tree->Fill();
    }
 
    // Get elapsed time
@@ -545,7 +600,6 @@ void TMVAClassificationApplication(TString myMethodList = "")
 
    // Write histograms
 
-   TFile *target = new TFile("TMVApp.root", "RECREATE");
    if (Use["Likelihood"])
       histLk->Write();
    if (Use["LikelihoodD"])
@@ -631,6 +685,8 @@ void TMVAClassificationApplication(TString myMethodList = "")
       if (rarityHistFi != 0)
          rarityHistFi->Write();
    }
+
+   mva_tree->Write();
    target->Close();
 
    std::cout << "--- Created root file: \"TMVApp.root\" containing the MVA output histograms" << std::endl;

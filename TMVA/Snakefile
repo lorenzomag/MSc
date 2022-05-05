@@ -1,4 +1,5 @@
-METHODS = ["BDTD"]
+METHODS = ["BDTG", "MLP", "BDTF"]
+
 
 rule compile_classification:
     input:
