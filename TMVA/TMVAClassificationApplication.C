@@ -12,6 +12,7 @@
 /// \author Andreas Hoecker
 
 #include <cstdlib>
+#include <array>
 #include <vector>
 #include <iostream>
 #include <map>
@@ -169,13 +170,15 @@ void TMVAClassificationApplication(TString myMethodList = "")
 
    // Create a set of variables and declare them to the reader
    // - the variable names MUST corresponds in name and type to those given in the weight file(s) used
-   std::vector<Float_t> vars;
-   size_t n_vars(0);
-   for (auto feature : json_settings["features"])
+
+   const auto features = json_settings["features"];
+   const size_t n_features = features.size();
+   std::array<Float_t, 30> vars;
+
+   for (int i = 0; i < n_features; i++)
    {
-      vars.emplace_back();
-      TString expr = feature["expr"];
-      reader->AddVariable(expr, &vars[n_vars++]);
+      TString expr = features[i]["expr"];
+      reader->AddVariable(expr, &vars[i]);
    }
 
    // Spectator variables declared in the training have to be added to the reader, too
@@ -184,7 +187,6 @@ void TMVAClassificationApplication(TString myMethodList = "")
    // reader->AddSpectator( "spec2 := var1*3",   &spec2 );
    Float_t Xicst_M;
    reader->AddSpectator("Xicst_M", &Xicst_M);
-
 
    // Float_t Category_cat1, Category_cat2, Category_cat3;
    // if (Use["Category"]){
@@ -367,13 +369,17 @@ void TMVAClassificationApplication(TString myMethodList = "")
    std::cout << "--- Select signal sample" << std::endl;
    TTree *theTree = (TTree *)input->Get("DecayTree");
 
-   n_vars = 0;
-   for (auto feature : json_settings["features"])
+   std::array<Double_t, 30> treeVars;
+   for (int i = 0; i < n_features; i++)
    {
+      auto feature = features[i];
       TString expr = feature["expr"];
-      theTree->SetBranchAddress(expr, &vars[n_vars++]);
+      TString name = feature["name"];
+      theTree->SetBranchAddress(expr, &treeVars[i]);
    }
-   theTree->SetBranchAddress("Xicst_M", &Xicst_M);
+
+   Double_t treeXicst_M;
+   theTree->SetBranchAddress("Xicst_M", &treeXicst_M);
 
    // Efficiency calculator for cut method
    Int_t nSelCutsGA = 0;
@@ -391,6 +397,16 @@ void TMVAClassificationApplication(TString myMethodList = "")
          std::cout << "--- ... Processing event: " << ievt << std::endl;
 
       theTree->GetEntry(ievt);
+
+      for (int i = 0; i < n_features; i++)
+      {
+         vars[i] = treeVars[i];
+
+         if (ievt % 1000 == 0)
+            std::cout << std::setw(12) << std::left << vars[i];
+      }
+      if (ievt % 1000 == 0)
+         std::cout << std::endl;
 
       // Return the MVA outputs and fill into histograms
 
