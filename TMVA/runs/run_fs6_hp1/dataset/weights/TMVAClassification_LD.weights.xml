@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<MethodSetup Method="LD::LD">
+  <GeneralInfo>
+    <Info name="TMVA Release" value="4.2.1 [262657]"/>
+    <Info name="ROOT Release" value="6.26/02 [399874]"/>
+    <Info name="Creator" value="s1412595"/>
+    <Info name="Date" value="Sun May  1 13:47:17 2022"/>
+    <Info name="Host" value="Linux root-ubuntu-2004-1 5.4.0-73-generic #82-Ubuntu SMP Wed Apr 14 17:39:42 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux"/>
+    <Info name="Dir" value="/home/s1412595/Desktop/MSc/TMVA/runs/run_fs6_hp1"/>
+    <Info name="Training events" value="120000"/>
+    <Info name="TrainingTime" value="2.38790989e-01"/>
+    <Info name="AnalysisType" value="Classification"/>
+  </GeneralInfo>
+  <Options>
+    <Option name="V" modified="Yes">False</Option>
+    <Option name="VerbosityLevel" modified="No">Default</Option>
+    <Option name="VarTransform" modified="Yes">None</Option>
+    <Option name="H" modified="Yes">True</Option>
+    <Option name="CreateMVAPdfs" modified="Yes">True</Option>
+    <Option name="IgnoreNegWeightsInTraining" modified="No">False</Option>
+  </Options>
+  <Variables NVar="11">
+    <Variable VarIndex="0" Expression="Kbach_ProbNNk" Label="Kbach_ProbNNk" Title="Kbach_ProbNNk" Unit="" Internal="Kbach_ProbNNk" Type="F" Min="5.10000885e-01" Max="9.99803305e-01"/>
+    <Variable VarIndex="1" Expression="Kbach_ProbNNp" Label="Kbach_ProbNNp" Title="Kbach_ProbNNp" Unit="" Internal="Kbach_ProbNNp" Type="F" Min="3.09430192e-07" Max="9.99382198e-01"/>
+    <Variable VarIndex="2" Expression="Kbach_PT" Label="Kbach_PT" Title="Kbach_PT" Unit="" Internal="Kbach_PT" Type="F" Min="4.03433502e+02" Max="1.47210791e+04"/>
+    <Variable VarIndex="3" Expression="Lc_PT" Label="Lc_PT" Title="Lc_PT" Unit="" Internal="Lc_PT" Type="F" Min="2.52761890e+03" Max="4.00415273e+04"/>
+    <Variable VarIndex="4" Expression="pibach_PT" Label="pibach_PT" Title="pibach_PT" Unit="" Internal="pibach_PT" Type="F" Min="2.00006271e+02" Max="3.32139111e+03"/>
+    <Variable VarIndex="5" Expression="pibach_ProbNNpi" Label="pibach_ProbNNpi" Title="pibach_ProbNNpi" Unit="" Internal="pibach_ProbNNpi" Type="F" Min="1.00149095e-01" Max="9.99639690e-01"/>
+    <Variable VarIndex="6" Expression="pibach_ProbNNp" Label="pibach_ProbNNp" Title="pibach_ProbNNp" Unit="" Internal="pibach_ProbNNp" Type="F" Min="4.44849604e-07" Max="9.56227481e-01"/>
+    <Variable VarIndex="7" Expression="Xicst_IPCHI2_OWNPV" Label="Xicst_IPCHI2_OWNPV" Title="Xicst_IPCHI2_OWNPV" Unit="" Internal="Xicst_IPCHI2_OWNPV" Type="F" Min="1.37118786e-05" Max="2.63996133e+04"/>
+    <Variable VarIndex="8" Expression="Xicst_ENDVERTEX_CHI2" Label="Xicst_ENDVERTEX_CHI2" Title="Xicst_ENDVERTEX_CHI2" Unit="" Internal="Xicst_ENDVERTEX_CHI2" Type="F" Min="1.72308029e-03" Max="5.99373703e+01"/>
+    <Variable VarIndex="9" Expression="pibach_IPCHI2_OWNPV" Label="pibach_IPCHI2_OWNPV" Title="pibach_IPCHI2_OWNPV" Unit="" Internal="pibach_IPCHI2_OWNPV" Type="F" Min="8.96283200e-06" Max="8.99967575e+00"/>
+    <Variable VarIndex="10" Expression="Kbach_IPCHI2_OWNPV" Label="Kbach_IPCHI2_OWNPV" Title="Kbach_IPCHI2_OWNPV" Unit="" Internal="Kbach_IPCHI2_OWNPV" Type="F" Min="1.30371254e-05" Max="8.99991798e+00"/>
+  </Variables>
+  <Spectators NSpec="1">
+    <Spectator SpecIndex="0" Expression="Xicst_M" Label="Xicst_M" Title="Xicst Mass" Unit="F" Internal="Xicst_M" Type="F" Min="2.92377637e+03" Max="3.90779272e+03"/>
+  </Spectators>
+  <Classes NClass="2">
+    <Class Name="Signal" Index="0"/>
+    <Class Name="Background" Index="1"/>
+  </Classes>
+  <Transformations NTransformations="0"/>
+  <MVAPdfs>
+    <PDF Name="LD_PDFSig" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_S_original" NBins="50" XMin="-2.8217175602912903e-01" XMax="2.7263083457946777e+00" HasEquidistantBins="1">
+        0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 1.10799765e-03 2.21599530e-03 2.49299472e-03 1.05259777e-02 3.49019260e-02 6.23248679e-02 1.27142731e-01 2.17998538e-01 3.72564211e-01 5.79205773e-01 8.55928186e-01 1.09830267e+00 1.30605223e+00 1.53900874e+00 1.67667745e+00 1.66809047e+00 1.54842672e+00 1.38416607e+00 1.09691768e+00 8.59252179e-01 6.37098650e-01 4.48185050e-01 3.29352302e-01 2.35172502e-01 1.65368650e-01 1.19940746e-01 7.31278451e-02 5.06908926e-02 3.62869231e-02 2.90849384e-02 1.77279624e-02 1.41269701e-02 6.92498533e-03 4.15499120e-03 3.87799178e-03 1.38499707e-03 1.93899589e-03 5.53998826e-04 2.76999413e-04 2.76999413e-04 2.76999413e-04 5.53998826e-04 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 
+      </Histogram>
+    </PDF>
+    <PDF Name="LD_PDFBkg" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_B_original" NBins="50" XMin="-2.8217175602912903e-01" XMax="2.7263083457946777e+00" HasEquidistantBins="1">
+        8.30984389e-04 8.30984389e-04 6.09388552e-03 2.49295317e-02 5.23520165e-02 9.39012360e-02 1.55394081e-01 2.84750651e-01 4.91388769e-01 8.11871748e-01 1.13595566e+00 1.44480486e+00 1.80739105e+00 2.02704792e+00 2.01956906e+00 1.72346162e+00 1.36863129e+00 1.08886654e+00 7.62843669e-01 5.08285451e-01 3.35163704e-01 1.86417498e-01 1.14398851e-01 6.23238292e-02 4.59811362e-02 2.24365785e-02 1.35727450e-02 1.02488075e-02 5.53989593e-03 3.87792715e-03 2.49295317e-03 3.32393756e-03 8.30984389e-04 1.38497398e-03 8.30984389e-04 8.30984389e-04 2.76994796e-04 2.76994796e-04 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 2.76994796e-04 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 
+      </Histogram>
+    </PDF>
+  </MVAPdfs>
+  <Weights NOut="1" NCoeff="12">
+    <Coefficient IndexOut="0" IndexCoeff="0" Value="-7.2692441602934610e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="1" Value="8.3371418491759086e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="2" Value="-1.5129304813840441e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="3" Value="1.1531055366999966e-04"/>
+    <Coefficient IndexOut="0" IndexCoeff="4" Value="1.5018368722255573e-05"/>
+    <Coefficient IndexOut="0" IndexCoeff="5" Value="2.0876055467805043e-04"/>
+    <Coefficient IndexOut="0" IndexCoeff="6" Value="4.7365037710929592e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="7" Value="4.7444251219690020e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="8" Value="-2.1640081945349259e-05"/>
+    <Coefficient IndexOut="0" IndexCoeff="9" Value="-4.3884686444816412e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="10" Value="-5.0872211960919789e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="11" Value="-3.8757397691338569e-03"/>
+  </Weights>
+</MethodSetup>
