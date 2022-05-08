@@ -7,3 +7,4 @@ runs/
 .snakemake/
 dag.svg
 plots/
+.snakemake_logs
