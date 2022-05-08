@@ -15,37 +15,38 @@
 #include "TRint.h"
 #include "TStopwatch.h"
 
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
 #include "TStyle.h"
-#include "TMVA/MethodCuts.h"
+
+#include "ROOT/RDataFrame.hxx"
 
 #include "json.hpp"
 
 using nlohmann::json;
+using ROOT::RDataFrame;
 
-void TMVAnalyse()
+void TMVAnalyse(const int FEATURE_SET = 9, const int HYPERPARAM_SET = 1)
 {
+    ROOT::EnableImplicitMT();
 
-    TString dataset_name = getenv("CURRENT_APPLICATION_DATASET");
-    TFile dataset_file(dataset_name);
+    TFile *file = new TFile(getenv("CURRENT_APPLICATION_DATASET"));
+    TTree *tree = (TTree *)file->Get("DecayTree");
 
-    TTree *dataset = (TTree *)dataset_file.Get("DecayTree");
-    dataset->AddFriend("mva_response", "TMVApp.root");
+    tree->AddFriend("mva_response", Form("runs/run_fs%d_hp%d/TMVApp.root", FEATURE_SET, HYPERPARAM_SET));
 
-    TCanvas *c1 = new TCanvas("c1", "c1", 700, 600);
-    dataset->Draw("Xicst_M");
-    dataset->Draw("Xicst_M", "data_type==0", "same");
-    dataset->Draw("Xicst_M", "data_type==1", "same");
+    RDataFrame ds(*tree);
 
-    TCanvas *c2 = new TCanvas("c2", "c2", 700, 600);
-    gStyle->SetLineColor(kRed);
-    dataset->Draw("Xicst_M", "data_type==0");
-    gStyle->SetLineColor(kBlue);
-    dataset->Draw("Xicst_M", "MVA_MLP>0.94","same");
-    
+    auto sig = ds.Filter("data_type == 0");
+    auto bkg = ds.Filter("data_type == 1");
+    auto ds_app = ds.Filter("MVA_BDTG > 0.94").Filter("MassID == 1");
 
-    TCanvas *c3 = new TCanvas("c3", "c3", 700, 600);
-    dataset->Draw("Xicst_M");
-    dataset->Draw("Xicst_M", "MVA_MLP>0.94", "same");
+        auto massHist = ds_app.Histo1D("Xicst_M");
+    auto sigHist = sig.Histo1D("Xicst_M");
+    auto bkgHist = bkg.Histo1D("Xicst_M");
+
+    // TCanvas *c1 = new TCanvas("c1","c3");
+    TCanvas *c2 = new TCanvas("c2", "c4");
+
+    // massHist->DrawClone();
+    // sigHist->DrawClone();
+    massHist->DrawClone();
 }
