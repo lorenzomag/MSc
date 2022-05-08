@@ -1,4 +1,5 @@
-METHODS = ["BDTG", "MLP", "BDTF"]
+# METHODS = ["BDTG", "MLP", "BDTF"]
+METHODS =[""]
 
 
 rule compile_classification:
