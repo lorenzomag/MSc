@@ -1,2 +1,0 @@
-Building TMVAClassificationApplication ... g++ -pthread -std=c++14 -m64 -I/usr/local/root/include -ggdb TMVAClassificationApplication.C -L/usr/local/root/lib -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lROOTVecOps -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -lROOTDataFrame -Wl,-rpath,/usr/local/root/lib -pthread -lm -ldl -rdynamic -lMLP -lMinuit -lTreePlayer -lTMVA -lTMVAGui -lXMLIO  -lMLP -lm -o TMVAClassificationApplication
-Done
