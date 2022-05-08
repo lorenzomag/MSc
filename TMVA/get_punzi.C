@@ -53,6 +53,10 @@ void get_punzi()
         exit(1);
     }
 
+    gSystem->Exec("mkdir -p punzi");
+    std::ofstream logFile("punzi/punzi.csv");
+    logFile << "Mass ID, Method, Max Punzi" << std::endl;
+
     // Get dataset filenames
     std::string_view bkgInputFileName = getenv("CURRENT_WS1_DATASET");
 
@@ -60,11 +64,6 @@ void get_punzi()
     {
         std::cout << bkgInputFileName << " could not be found." << std::endl;
     }
-
-    gSystem->Exec("mkdir -p punzi");
-    std::ofstream logFile("punzi/punzi.csv");
-    logFile << "Mass ID, Method, Max Punzi" << std::endl;
-
     // Defnie RDataFrame for background dataset
     // Obtain Xicst mass distribution
     RDataFrame tree_df("DecayTree", bkgInputFileName);
@@ -83,6 +82,7 @@ void get_punzi()
 
         auto numB = calculate_background_integral(tree_df, mass, width);
         std::cout << "For mass case " << mass_case.first << ": " << numB << std::endl;
+        
 
         TIter next(TMVA_output->GetDirectory("dataset")->GetListOfKeys());
         TKey *key(0);
@@ -169,13 +169,20 @@ void get_punzi()
                 {
                     double eS = histS->GetBinContent(i);
                     double eB = histB->GetBinContent(i);
-
+                    if (eB < 0.0001)
+                        continue;
                     double B = eB * numB;
 
                     double punzi = f.Eval(eS, B);
 
                     if (punzi > maxPunzi)
                         maxPunzi = punzi;
+
+                    if (eS < 0.3 && method == "BDTG" && mass_case_id == 2)
+                    {
+                        std::cout << std::setw(10) << std::left << eB
+                                  << std::setw(10) << punzi << std::endl;
+                    }
 
                     punzi_curve->SetBinContent(i, punzi);
                 }
@@ -234,7 +241,7 @@ void get_punzi()
                 tl.SetTextSize(0.033);
                 Int_t maxbin = punzi_curve->GetMaximumBin();
                 line1 = tl.DrawLatex(0.15, 0.23, Form("For %1.0d background", numB));
-                tl.DrawLatex(0.15, 0.19, "events the maximum " + GetLatexFormula() + " is");
+                tl.DrawLatex(0.15, 0.19, "events the maximum Punzi is");
 
                 line2 = tl.DrawLatex(0.15, 0.15, Form("%4.2e when cutting at %5.2f", maxPunzi, punzi_curve->GetXaxis()->GetBinCenter(maxbin)));
                 // save canvas to file
