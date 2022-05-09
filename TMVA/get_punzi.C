@@ -41,7 +41,7 @@ std::map<int, std::pair<double, double>> mass_cases = {
     {3, {3055.9, 7.8}},
     {4, {3077.2, 3.6}}};
 
-void get_punzi()
+void get_punzi(double bkgCut = 0)
 {
     // Open TMVA Classification output file
     TString TMVA_output_filename = (TString) "TMVA.root";
@@ -52,9 +52,17 @@ void get_punzi()
         std::cout << "[ERROR] --- " << TMVA_output_filename << " could not be found!\n";
         exit(1);
     }
-
-    gSystem->Exec("mkdir -p punzi");
-    std::ofstream logFile("punzi/punzi.csv");
+    std::ofstream logFile;
+    if (bkgCut)
+    {
+        gSystem->Exec("mkdir -p punzi_cut");
+        logFile = std::ofstream("punzi_cut/punzi.csv");
+    }
+    else
+    {
+        gSystem->Exec("mkdir -p punzi");
+        logFile = std::ofstream("punzi/punzi.csv");
+    }
     logFile << "Mass ID, Method, Max Punzi" << std::endl;
 
     // Get dataset filenames
@@ -73,6 +81,9 @@ void get_punzi()
     if (cname.Length() > maxLenTitle)
         maxLenTitle = cname.Length();
 
+    if (bkgCut)
+        std::cout << "Operating with cut on background efficiency lower than " << bkgCut << std::endl;
+
     TString method, method_dir;
     for (auto mass_case : mass_cases)
     {
@@ -82,7 +93,6 @@ void get_punzi()
 
         auto numB = calculate_background_integral(tree_df, mass, width);
         std::cout << "For mass case " << mass_case.first << ": " << numB << std::endl;
-        
 
         TIter next(TMVA_output->GetDirectory("dataset")->GetListOfKeys());
         TKey *key(0);
@@ -136,7 +146,9 @@ void get_punzi()
 
                 // --- Hists for signal efficiency
                 TH1F *histS = (TH1F *)TMVA_output->Get(get_effS);
-                artist_name = (TString) "Signal Efficiency " + method + (TString) " - MassID" + mass_case_id;
+                artist_name = (TString) "Punzi Curve " + method + (TString) " - MassID" + mass_case_id;
+                if (bkgCut)
+                    artist_name = artist_name + (TString) " (Cut: b_eff >  " + bkgCut + (TString) ")";
                 histS->SetNameTitle(artist_name, artist_name);
 
                 // --- Hists for bkg efficiency
@@ -169,7 +181,7 @@ void get_punzi()
                 {
                     double eS = histS->GetBinContent(i);
                     double eB = histB->GetBinContent(i);
-                    if (eB < 0.0001)
+                    if (eB < bkgCut)
                         continue;
                     double B = eB * numB;
 
@@ -260,7 +272,11 @@ void get_punzi()
 
                 c->Update();
 
-                TString filename = (TString) "punzi/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
+                TString filename; 
+                if (bkgCut)
+                    filename = (TString) "punzi_cut/" + method + (TString) "m" + mass_case_id + (TString) "_cut.svg";
+                else
+                    filename = (TString) "punzi/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
                 c->Print(filename);
             }
         }
@@ -295,6 +311,8 @@ TString GetLatexFormula()
     return f;
 }
 
+
+// Copied from mvaeffs.cxx in ROOT src
 TString GetFormula()
 {
     // replace all occurrence of S and B but only if neighbours are not alphanumerics
@@ -315,7 +333,5 @@ TString GetFormula()
     TString formula = fFormula;
     replace_vars(formula, 'S', 'x');
     replace_vars(formula, 'B', 'y');
-    // f.ReplaceAll("S","x");
-    // f.ReplaceAll("B","y");
     return formula;
 }
