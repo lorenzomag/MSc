@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 workspace_dir = f"{os.environ.get('WORKSPACE_DIR')}/TMVA"
-feature_sets_to_analyse = range(1, 11)
+feature_sets_to_analyse = range(1,16)
 hyperparams_to_analyse = [1]
 
 
@@ -22,7 +22,7 @@ def best_punzi(ds, massID=0):
         ds = ds[ds["Mass ID"] == massID]
 
     sorted_ds = ds.sort_values(by="Max Punzi", ascending=False)
-    print(sorted_ds.head(5))
+    print(sorted_ds.head(10))
 
 
 def fetch_dataset():
@@ -32,7 +32,7 @@ def fetch_dataset():
         for hp in hyperparams_to_analyse:
             try:
                 ds_temp = pd.read_csv(
-                    f"{workspace_dir}/runs/run_fs{fs}_hp{hp}/punzi/punzi.csv", header=0)
+                    f"{workspace_dir}/runs/run_fs{fs}_hp{hp}/punzi_cut/punzi.csv", header=0)
             except:
                 continue
             ds_new = ds_temp.assign(feature_set=fs).assign(hyperparam_set=hp)

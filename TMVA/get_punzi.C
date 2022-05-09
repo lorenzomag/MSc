@@ -41,7 +41,7 @@ std::map<int, std::pair<double, double>> mass_cases = {
     {3, {3055.9, 7.8}},
     {4, {3077.2, 3.6}}};
 
-void get_punzi()
+void get_punzi(double bkgCut = 0)
 {
     // Open TMVA Classification output file
     TString TMVA_output_filename = (TString) "TMVA.root";
@@ -52,6 +52,18 @@ void get_punzi()
         std::cout << "[ERROR] --- " << TMVA_output_filename << " could not be found!\n";
         exit(1);
     }
+    std::ofstream logFile;
+    if (bkgCut)
+    {
+        gSystem->Exec("mkdir -p punzi_cut");
+        logFile = std::ofstream("punzi_cut/punzi.csv");
+    }
+    else
+    {
+        gSystem->Exec("mkdir -p punzi");
+        logFile = std::ofstream("punzi/punzi.csv");
+    }
+    logFile << "Mass ID, Method, Max Punzi" << std::endl;
 
     // Get dataset filenames
     std::string_view bkgInputFileName = getenv("CURRENT_WS1_DATASET");
@@ -60,11 +72,6 @@ void get_punzi()
     {
         std::cout << bkgInputFileName << " could not be found." << std::endl;
     }
-
-    gSystem->Exec("mkdir -p punzi");
-    std::ofstream logFile("punzi/punzi.csv");
-    logFile << "Mass ID, Method, Max Punzi" << std::endl;
-
     // Defnie RDataFrame for background dataset
     // Obtain Xicst mass distribution
     RDataFrame tree_df("DecayTree", bkgInputFileName);
@@ -73,6 +80,9 @@ void get_punzi()
     TString cname = "Classifier";
     if (cname.Length() > maxLenTitle)
         maxLenTitle = cname.Length();
+
+    if (bkgCut)
+        std::cout << "Operating with cut on background efficiency lower than " << bkgCut << std::endl;
 
     TString method, method_dir;
     for (auto mass_case : mass_cases)
@@ -136,7 +146,9 @@ void get_punzi()
 
                 // --- Hists for signal efficiency
                 TH1F *histS = (TH1F *)TMVA_output->Get(get_effS);
-                artist_name = (TString) "Signal Efficiency " + method + (TString) " - MassID" + mass_case_id;
+                artist_name = (TString) "Punzi Curve " + method + (TString) " - MassID" + mass_case_id;
+                if (bkgCut)
+                    artist_name = artist_name + (TString) " (Cut: b_eff >  " + bkgCut + (TString) ")";
                 histS->SetNameTitle(artist_name, artist_name);
 
                 // --- Hists for bkg efficiency
@@ -169,13 +181,20 @@ void get_punzi()
                 {
                     double eS = histS->GetBinContent(i);
                     double eB = histB->GetBinContent(i);
-
+                    if (eB < bkgCut)
+                        continue;
                     double B = eB * numB;
 
                     double punzi = f.Eval(eS, B);
 
                     if (punzi > maxPunzi)
                         maxPunzi = punzi;
+
+                    if (eS < 0.3 && method == "BDTG" && mass_case_id == 2)
+                    {
+                        std::cout << std::setw(10) << std::left << eB
+                                  << std::setw(10) << punzi << std::endl;
+                    }
 
                     punzi_curve->SetBinContent(i, punzi);
                 }
@@ -234,7 +253,7 @@ void get_punzi()
                 tl.SetTextSize(0.033);
                 Int_t maxbin = punzi_curve->GetMaximumBin();
                 line1 = tl.DrawLatex(0.15, 0.23, Form("For %1.0d background", numB));
-                tl.DrawLatex(0.15, 0.19, "events the maximum " + GetLatexFormula() + " is");
+                tl.DrawLatex(0.15, 0.19, "events the maximum Punzi is");
 
                 line2 = tl.DrawLatex(0.15, 0.15, Form("%4.2e when cutting at %5.2f", maxPunzi, punzi_curve->GetXaxis()->GetBinCenter(maxbin)));
                 // save canvas to file
@@ -253,7 +272,11 @@ void get_punzi()
 
                 c->Update();
 
-                TString filename = (TString) "punzi/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
+                TString filename; 
+                if (bkgCut)
+                    filename = (TString) "punzi_cut/" + method + (TString) "m" + mass_case_id + (TString) "_cut.svg";
+                else
+                    filename = (TString) "punzi/" + method + (TString) "m" + mass_case_id + (TString) ".svg";
                 c->Print(filename);
             }
         }
@@ -288,6 +311,8 @@ TString GetLatexFormula()
     return f;
 }
 
+
+// Copied from mvaeffs.cxx in ROOT src
 TString GetFormula()
 {
     // replace all occurrence of S and B but only if neighbours are not alphanumerics
@@ -308,7 +333,5 @@ TString GetFormula()
     TString formula = fFormula;
     replace_vars(formula, 'S', 'x');
     replace_vars(formula, 'B', 'y');
-    // f.ReplaceAll("S","x");
-    // f.ReplaceAll("B","y");
     return formula;
 }

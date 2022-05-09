@@ -1,6 +1,6 @@
 # METHODS = ["BDTG", "MLP", "BDTF"]
 METHODS =[""]
-
+PUNZI_CUT = 0.0001
 
 rule compile_classification:
     input:
@@ -62,3 +62,14 @@ rule run_punzi_analysis:
     log: "runs/run_fs{set_number}_hp{hp_number}/punzi/log.txt"
     shell:
         "./scripts/run_punzi.sh -f{wildcards.set_number} -h {wildcards.hp_number} > {log}"
+
+rule run_punzi_cut_analysis:
+    input:
+        "runs/run_fs{set_number}_hp{hp_number}/TMVA.root",
+        "get_punzi.C"
+    output:
+        directory("runs/run_fs{set_number}_hp{hp_number}/punzi_cut")
+    threads: 1
+    log: "runs/run_fs{set_number}_hp{hp_number}/punzi_cut/log.txt"
+    shell:
+        "./scripts/run_punzi.sh -f{wildcards.set_number} -h {wildcards.hp_number} -c {PUNZI_CUT} > {log}"
