@@ -4,6 +4,7 @@
 ###################################################################### 
 BINS = TMVAClassification \
         TMVAClassificationApplication \
+		TMVAnalyse
 
 
 CXX = g++

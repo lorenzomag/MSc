@@ -63,7 +63,7 @@ void get_punzi(double bkgCut = 0)
         gSystem->Exec("mkdir -p punzi");
         logFile = std::ofstream("punzi/punzi.csv");
     }
-    logFile << "Mass ID, Method, Max Punzi" << std::endl;
+    logFile << "Mass ID,Method,Max Punzi,Cut,ROC Integral" << std::endl;
 
     // Get dataset filenames
     std::string_view bkgInputFileName = getenv("CURRENT_WS1_DATASET");
@@ -121,6 +121,7 @@ void get_punzi(double bkgCut = 0)
                 // Strings to get signal and background efficiencies
                 TString get_effS = (TString) "dataset/Method_" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effS";
                 TString get_effB = (TString) "dataset/Method_" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_effB";
+                TString get_ROC = (TString) "dataset/Method_" + method_dir + (TString) "/" + method + (TString) "/MVA_" + method + (TString) "_rejBvsS";
 
                 TString artist_name;
                 // Create canvas
@@ -156,6 +157,11 @@ void get_punzi(double bkgCut = 0)
                 artist_name = (TString) "Background Efficiency " + method + (TString) " - MassID" + mass_case_id;
                 histB->SetNameTitle(artist_name, artist_name);
 
+                // --- Hists for bkg efficiency
+                TH1F *histROC = (TH1F *)TMVA_output->Get(get_ROC);
+                artist_name = (TString) "ROC for " + method + (TString) " - MassID" + mass_case_id;
+                histB->SetNameTitle(artist_name, artist_name);
+                auto ROC_integral=  histROC->Integral();
                 int nbins = histS->GetNbinsX();
                 double low = histS->GetBinLowEdge(1);
                 double high = histS->GetBinLowEdge(nbins + 1);
@@ -206,9 +212,11 @@ void get_punzi(double bkgCut = 0)
                 // hs->Add(punzi_curve);
                 std::cout << "Maximum  " << maxPunzi << "  Optimal cut   " << cut << std::endl;
 
-                logFile << mass_case_id << ", "
-                        << method << ", "
-                        << std::scientific << maxPunzi << std::endl;
+                logFile << mass_case_id << ","
+                        << method << ","
+                        << std::scientific << maxPunzi << ","
+                        << cut << ","
+                        << ROC_integral << std::endl;
 
                 // TMVA::TMVAGlob::SetFrameStyle(histS);
 
@@ -272,7 +280,7 @@ void get_punzi(double bkgCut = 0)
 
                 c->Update();
 
-                TString filename; 
+                TString filename;
                 if (bkgCut)
                     filename = (TString) "punzi_cut/" + method + (TString) "m" + mass_case_id + (TString) "_cut.svg";
                 else
@@ -310,7 +318,6 @@ TString GetLatexFormula()
     f.ReplaceAll("sqrt", "#sqrt");
     return f;
 }
-
 
 // Copied from mvaeffs.cxx in ROOT src
 TString GetFormula()

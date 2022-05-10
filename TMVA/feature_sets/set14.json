@@ -1,0 +1,54 @@
+{
+    "features": [
+        {
+            "expr": "Kbach_ProbNNk",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "Kbach_PT",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "Lc_PT",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "Xicst_PT",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "pibach_ProbNNpi",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "Xicst_IPCHI2_OWNPV",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "Xicst_ENDVERTEX_CHI2",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "pibach_IPCHI2_OWNPV",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "pibach_PT",
+            "name": "",
+            "type": "F"
+        },
+        {
+            "expr": "Kbach_IPCHI2_OWNPV",
+            "name": "",
+            "type": "F"
+        }
+    ]
+}
