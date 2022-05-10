@@ -34,7 +34,7 @@ int calculate_background_integral(RDataFrame tree_df, double mass = 3077.2, doub
 
 int maxLenTitle(0);
 
-TString fFormula = "S / ((5./3.) + sqrt(B))";
+TString fFormula = "S / ((5./2.) + sqrt(B))";
 std::map<int, std::pair<double, double>> mass_cases = {
     {1, {2942., 15.}},
     {2, {2964.3, 20.9}},
