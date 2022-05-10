@@ -1,9 +1,18 @@
+import argparse
 import pandas as pd
 import numpy as np
 import os
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", metavar='N', type=int, nargs='*', default=range(1, 30),
+                    help="""
+                    Select feature sets; space-separated list of set numbers (Defaults all)""")
+args = parser.parse_args()
+
 workspace_dir = f"{os.environ.get('WORKSPACE_DIR')}/TMVA"
-feature_sets_to_analyse = range(1,16)
+
+feature_sets_to_analyse = args.f
 hyperparams_to_analyse = [1]
 
 
@@ -22,7 +31,7 @@ def best_punzi(ds, massID=0):
         ds = ds[ds["Mass ID"] == massID]
 
     sorted_ds = ds.sort_values(by="Max Punzi", ascending=False)
-    print(sorted_ds.head(10))
+    print(sorted_ds.head(10).to_markdown())
 
 
 def fetch_dataset():
@@ -42,6 +51,7 @@ def fetch_dataset():
     ds.columns = [x.strip() for x in ds.columns]
 
     ds.to_csv(f"{workspace_dir}/punzi_analysis/all_punzi.csv")
+    ds.style.to_latex(f"{workspace_dir}/punzi_analysis/all_punzi.tex")
     return ds
 
 
