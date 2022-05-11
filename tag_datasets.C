@@ -16,13 +16,15 @@
 enum data_type : int
 {
     kSIGNAL,
-    kBACKGROUND
+    kWS1,
+    kWS2,
+    kWS3
 };
 void add_branch(TTree *tree, data_type dt);
 
 void tag_datasets()
 {
-    TString signal_inFileName = getenv("CURRENT_MC_DATASET");
+    TString signal_inFileName = getenv("CURRENT_WS2_DATASET");
     int ext_length = ((TString) ".root").Length();
     TString signal_outFileName(signal_inFileName);
     signal_outFileName.Insert(signal_inFileName.Length() - ext_length, "_typeID");
@@ -48,22 +50,22 @@ void tag_datasets()
     std::cout << "---> Cloning DecayTree from Signal data set" << std::endl;
     TTree *cloned_mc_tree = (TTree *)mc_tree->CloneTree();
     std::cout << "---> Adding id branch to signal tree" << std::endl;
-    add_branch(cloned_mc_tree, data_type::kSIGNAL);
+    add_branch(cloned_mc_tree, data_type::kWS2);
     std::cout << "---> Writing signal tree to file" << std::endl;
     cloned_mc_tree->Write("", TObject::kOverwrite);
     out_file->Close();
 
     delete out_file;
 
-    out_file = new TFile(background_outFileName, "RECREATE");
-    std::cout << "---> Cloning DecayTree from Background data set" << std::endl;
-    TTree *cloned_ws_tree = (TTree *)ws_tree->CloneTree();
-    std::cout << "---> Adding id branch to background tree" << std::endl;
-    add_branch(cloned_ws_tree, data_type::kBACKGROUND);
-    std::cout << "---> Writing background tree to file" << std::endl;
-    cloned_ws_tree->Write("", TObject::kOverwrite);
-    out_file->Close();
-    delete out_file;
+    // out_file = new TFile(background_outFileName, "RECREATE");
+    // std::cout << "---> Cloning DecayTree from Background data set" << std::endl;
+    // TTree *cloned_ws_tree = (TTree *)ws_tree->CloneTree();
+    // std::cout << "---> Adding id branch to background tree" << std::endl;
+    // add_branch(cloned_ws_tree, data_type::kBACKGROUND);
+    // std::cout << "---> Writing background tree to file" << std::endl;
+    // cloned_ws_tree->Write("", TObject::kOverwrite);
+    // out_file->Close();
+    // delete out_file;
 }
 
 void add_branch(TTree *tree, data_type dt)
