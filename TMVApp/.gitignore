@@ -1,0 +1,12 @@
+dataset/
+files/
+TMVAClassification
+TMVAClassificationApplication
+TMVAnalyse
+runs/
+.snakemake/
+dag.svg
+plots/
+.snakemake_logs
+/punzi/
+/punzi_cut/
