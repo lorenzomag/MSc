@@ -14,9 +14,9 @@
 #include <math.h>
 #include "TMath.h"
 
-ClassImp(XicstBG);
+ClassImp(MarksBG);
 
-XicstBG::XicstBG(const char *name, const char *title,
+MarksBG::MarksBG(const char *name, const char *title,
                  RooAbsReal &_m,
                  RooAbsReal &_a,
                  RooAbsReal &_b,
@@ -30,7 +30,7 @@ XicstBG::XicstBG(const char *name, const char *title,
 {
 }
 
-XicstBG::XicstBG(const XicstBG &other, const char *name) : RooAbsPdf(other, name),
+MarksBG::MarksBG(const MarksBG &other, const char *name) : RooAbsPdf(other, name),
                                                            m("m", this, other.m),
                                                            a("a", this, other.a),
                                                            b("b", this, other.b),
@@ -39,7 +39,7 @@ XicstBG::XicstBG(const XicstBG &other, const char *name) : RooAbsPdf(other, name
 {
 }
 
-Double_t XicstBG::evaluate() const
+Double_t MarksBG::evaluate() const
 {
   double x = m - cutoff; // Shifted mass
   double evaluation = a * (pow(x, power)) + b * x;
@@ -52,7 +52,7 @@ Double_t XicstBG::evaluate() const
   return evaluation;
 }
 
-Int_t XicstBG::getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char * /*rangeName*/) const
+Int_t MarksBG::getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, const char * /*rangeName*/) const
 {
   // LIST HERE OVER WHICH VARIABLES ANALYTICAL INTEGRATION IS SUPPORTED,
   // ASSIGN A NUMERIC CODE FOR EACH SUPPORTED (SET OF) PARAMETERS
@@ -65,7 +65,7 @@ Int_t XicstBG::getAnalyticalIntegral(RooArgSet &allVars, RooArgSet &analVars, co
   return 0;
 }
 
-Double_t XicstBG::analyticalIntegral(Int_t code, const char *rangeName) const
+Double_t MarksBG::analyticalIntegral(Int_t code, const char *rangeName) const
 {
   // RETURN ANALYTICAL INTEGRAL DEFINED BY RETURN CODE ASSIGNED BY getAnalyticalIntegral
   // THE MEMBER FUNCTION x.min(rangeName) AND x.max(rangeName) WILL RETURN THE INTEGRATION
@@ -88,6 +88,6 @@ Double_t XicstBG::analyticalIntegral(Int_t code, const char *rangeName) const
   // indefinite integral
   auto integ = int_max - int_min;
 
-  // std::cout << "XicstBG::analyticalIntegral called: integral between " << xmin << " and " << xmax << " is " << integ << std::endl;
+  // std::cout << "MarksBG::analyticalIntegral called: integral between " << xmin << " and " << xmax << " is " << integ << std::endl;
   return integ;
 }

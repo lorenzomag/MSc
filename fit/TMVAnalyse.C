@@ -93,18 +93,28 @@ void TMVAnalyse(const std::string method = "MLP", const double cut = 0.89)
   // RooExponential exp_pdf("exp", "exponential pdf", xshift, exp_c);
   // RooProdPdf bg("pow_exp", "pow*exp", RooArgSet(pow_pdf, exp_pdf));   //Ryun
 
-  RooRealVar a("a", "a", 2.6, 0, 18);
-  RooRealVar b("b", "b", -0.01, -0.05, 0.0);
-  RooRealVar power("power", "Power", 0.27, 0.0, 1.0);
+  RooRealVar a("a", "a", 1, 0, 18);
+  RooRealVar b("b", "b", -0.001, -0.05, 0.0);
+  RooRealVar power("power", "Power", 0.02, 0.0, 0.1);
   RooRealVar cutoff("cutoff", "Cutoff", 22, 0, 40);
+
 
   // // Build PDF
   // // RooGenericPdf bg("bg", "bg", "a*((x-cutoff)^(power)) +(b*(x-cutoff))", RooArgList(x, a, b, cutoff, power));
   // RooDstD0BG bg("bg","bg",x,cutoff,power,a,b);
-  XicstBG bg("bg", "bg", x, a, b, power, cutoff);
+  MarksBG bg("bg", "bg", x, a, b, power, cutoff);
 
   // // Fit PDF
-  fit_results = bg.fitTo(rooDataSet, Save());
+  a.setConstant();
+  power.setConstant();
+  bg.fitTo(rooDataSet,Range(200,800));
+  
+  b.setConstant();
+  a.setConstant(kFALSE);
+  bg.fitTo(rooDataSet, Range(0.0,40.0));
+  
+  power.setConstant(kFALSE);
+  bg.fitTo(rooDataSet, Range(0.0,840.0));
 
 
   // Plot
@@ -112,7 +122,7 @@ void TMVAnalyse(const std::string method = "MLP", const double cut = 0.89)
   canv->Divide(1, 2);
   canv->cd(1);
   RooPlot *frame = x.frame();
-  rooDataSet.plotOn(frame);
+  rooDataSet.plotOn(frame,Binning(1000));
   bg.plotOn(frame);
   bg.paramOn(frame);
   frame->DrawClone();
