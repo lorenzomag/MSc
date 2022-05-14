@@ -13,18 +13,18 @@
 #include "RooAbsReal.h"
 #include "RooAbsCategory.h"
  
-class XicstBG : public RooAbsPdf {
+class MarksBG : public RooAbsPdf {
 public:
-  XicstBG() {} ; 
-  XicstBG(const char *name, const char *title,
+  MarksBG() {} ; 
+  MarksBG(const char *name, const char *title,
 	      RooAbsReal& _m,
 	      RooAbsReal& _a,
 	      RooAbsReal& _b,
 	      RooAbsReal& _power,
 	      RooAbsReal& _cutoff);
-  XicstBG(const XicstBG& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new XicstBG(*this,newname); }
-  inline virtual ~XicstBG() { }
+  MarksBG(const MarksBG& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new MarksBG(*this,newname); }
+  inline virtual ~MarksBG() { }
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
@@ -41,7 +41,7 @@ protected:
 
 private:
 
-  ClassDef(XicstBG,1) // Your description goes here...
+  ClassDef(MarksBG,1) // Your description goes here...
 };
  
 #endif
