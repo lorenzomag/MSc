@@ -18,11 +18,9 @@ export CURRENT_WS3_DATASET=$DATASETS_DIR"/WS3_2016_Xic_TMVAClassification_Applic
 
 export CURRENT_APPLICATION_DATASET=$DATASETS_DIR"/MC_WS1.root"
 
-export SMALL_CURRENT_MC=$SMALL_DATASETS_DIR"/small_MC.root"
-export SMALL_CURRENT_WS1=$SMALL_DATASETS_DIR"/small_WS1.root"
-export SMALL_CURRENT_WS2=$SMALL_DATASETS_DIR"/small_WS2.root"
-export SMALL_CURRENT_WS3=$SMALL_DATASETS_DIR"/small_WS3.root"
-
+export CURRENT_WS1_2016_DATASET=$DATASETS_DIR"/WS1_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts_typeID_TMVA2.root"
+export CURRENT_WS2_2016_DATASET=$DATASETS_DIR"/WS2_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts_typeID_TMVA2.root"
+export CURRENT_WS3_2016_DATASET=$DATASETS_DIR"/WS3_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts_typeID_TMVA2.root"
 
 
 # Set CMake prefix path for installing libraries for project
