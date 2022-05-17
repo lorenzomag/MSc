@@ -8,7 +8,7 @@
 
 #include "Riostream.h"
 
-#include "XicstBG.h"
+#include "MarksBG.h"
 #include "RooAbsReal.h"
 #include "RooAbsCategory.h"
 #include <math.h>
@@ -42,10 +42,11 @@ MarksBG::MarksBG(const MarksBG &other, const char *name) : RooAbsPdf(other, name
 Double_t MarksBG::evaluate() const
 {
   double x = m - cutoff; // Shifted mass
-  double evaluation = a * (pow(x, power)) + b * x;
+  double evaluation = a * (pow(x, power)) + b * x; 
 
   // std::cout << "evaluate called: evaluation is " << evaluation << std::endl;
 
+  // return 0 if below cutoff
   if (TMath::IsNaN(evaluation) && m < cutoff)
     evaluation = 0;
 
@@ -75,19 +76,19 @@ Double_t MarksBG::analyticalIntegral(Int_t code, const char *rangeName) const
   auto xmin = m.min(rangeName);
   auto xmax = m.max(rangeName);
 
-  // Lambda for definite integral
-  auto defIntegral = [&](double x)
+  // Lambda for indefinite integral
+  auto indefIntegral = [&](double x)
   { return ((b * x * (-2 * cutoff + x)) / 2) + (a * pow((-cutoff + x), (1 + power))) / (1 + power); };
 
-  auto int_max = defIntegral(xmax);
-  auto int_min = defIntegral(xmin);
+  auto int_max = indefIntegral(xmax);
+  auto int_min = indefIntegral(xmin);
 
+  //if below cutoff, start from cutoff
   if (TMath::IsNaN(int_min) && xmin < cutoff)
     int_min = 0;
 
-  // indefinite integral
+  // definite integral
   auto integ = int_max - int_min;
 
-  // std::cout << "MarksBG::analyticalIntegral called: integral between " << xmin << " and " << xmax << " is " << integ << std::endl;
   return integ;
 }
