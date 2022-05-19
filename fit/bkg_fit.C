@@ -54,7 +54,7 @@ using ROOT::RDataFrame;
 
 RooFitResult *fit_results;
 
-void fit(const int ws = 1, const std::string method = "MLP", const double cut = 0.89)
+void bkg_fit(const int ws = 1, const std::string method = "MLP", const double cut = 0.89)
 {
   RDataFrame ds(0);
   if (ws == 0)
@@ -237,9 +237,4 @@ void fit(const int ws = 1, const std::string method = "MLP", const double cut = 
   frame_pull->addPlotable(pull_hist, "P");
   frame_pull->DrawClone();
   canv->Draw();
-}
-
-int main(int argc, char **argv)
-{
-  fit();
 }
