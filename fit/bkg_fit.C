@@ -32,6 +32,7 @@
 #include "RooArgusBG.h"
 #include "RooAbsDataHelper.h"
 #include "RooConstVar.h"
+#include "RooTFnBinding.h"
 
 #include "RooProduct.h"
 #include "RooAddition.h"
@@ -136,23 +137,44 @@ void fit(const int ws = 1, const std::string method = "MLP", const double cut = 
   // * MARKS
   // * $a(x-cutoff)^{power} + b(x-cutoff)$
   // ******************************************************
+  // RooRealVar a("a", "a", 1, 0, 18);
+  // RooRealVar b("b", "b", -0.001, -0.05, 0.0);
+  // RooRealVar power("power", "Power", 0.02, 0.0, 0.1);
+  // RooRealVar cutoff("cutoff", "Cutoff", 22, 0, 40);
+
+  // MarksBG bg("bg", "bg", x, a, b, power, cutoff);
+
+  // a.setConstant();
+  // power.setConstant();
+  // bg.fitTo(rooDataSet, Range(200, 800));
+
+  // b.setConstant();
+  // a.setConstant(kFALSE);
+  // bg.fitTo(rooDataSet, Range(0.0, 40.0));
+
+  // power.setConstant(kFALSE);
+  // bg.fitTo(rooDataSet, Range(40.0, 840.0));
+  // ******************************************************
+
+  // ******************************************************
+  // * MARKS + erf
+  // * $a(x-cutoff)^{power} + b(x-cutoff)$
+  // ******************************************************
   RooRealVar a("a", "a", 1, 0, 18);
   RooRealVar b("b", "b", -0.001, -0.05, 0.0);
   RooRealVar power("power", "Power", 0.02, 0.0, 0.1);
-  RooRealVar cutoff("cutoff", "Cutoff", 22, 0, 40);
+  RooRealVar cutoff("cutoff", "Cutoff", 22.1, 0, 40);
 
-  MarksBG bg("bg", "bg", x, a, b, power, cutoff);
+  RooRealVar shift("shift","shift",2,-10.0,10.0);
+  RooRealVar shrink("shrink","shrink",1.2,0.0,2.0);
 
-  a.setConstant();
-  power.setConstant();
-  bg.fitTo(rooDataSet, Range(200, 800));
+  modErf er("er","er",x,cutoff,shift,shrink);
 
-  b.setConstant();
-  a.setConstant(kFALSE);
-  bg.fitTo(rooDataSet, Range(0.0, 40.0));
+  MarksBG mark_bg("mark_bg", "mark_bg", x, a, b, power, cutoff);
 
-  power.setConstant(kFALSE);
-  bg.fitTo(rooDataSet, Range(40.0, 840.0));
+  RooProdPdf bg("bg","mark_bg*er",RooArgList(er,mark_bg));
+
+  bg.fitTo(rooDataSet, Range(0.0, 840.0));
   // ******************************************************
 
   // ******************************************************
