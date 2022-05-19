@@ -1,0 +1,28 @@
+######################################################################
+# Project: TMVA - Toolkit for Multivariate Data Analysis             #
+# Code   : Example usage for TMVA analyses                           #
+###################################################################### 
+BINS = TMVAClassificationApplication 
+
+
+CXX = g++
+CCFLAGS = $(shell root-config --cflags) -ggdb
+
+
+LD = g++
+LDFLAGS = 
+
+LIBS = $(shell root-config --libs) -lMLP -lMinuit -lTreePlayer -lTMVA -lTMVAGui -lXMLIO  -lMLP -lm
+
+
+default : $(BINS)
+
+$(BINS): % : %.C 
+	@echo -n "Building $@ ... "
+	$(CXX) $(CCFLAGS) $< $(LIBS) -o $@
+	@echo "Done"
+
+
+clean: 
+	rm -f *.o	$(BINS)
+

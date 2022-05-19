@@ -1,0 +1,52 @@
+{
+    "features": [
+        {
+            "expr": "Kbach_ProbNNk",
+            "name": "",
+            "type": "F",
+            "range": [0.4,1.0]
+        },
+        {
+            "expr": "Xicst_PT",
+            "name": "",
+            "type": "F",
+            "range": [0.0,25000.0]
+        },
+        {
+            "expr": "pibach_ProbNNpi",
+            "name": "",
+            "type": "F",
+            "range": [0.0,1.0]
+        },
+        {
+            "expr": "Xicst_IPCHI2_OWNPV",
+            "name": "",
+            "type": "F",
+            "range": [0.0,20.0]
+        },
+        {
+            "expr": "Xicst_ENDVERTEX_CHI2",
+            "name": "",
+            "type": "F",
+            "range": [0.0,40.0]
+        },
+        {
+            "expr": "pibach_IPCHI2_OWNPV",
+            "name": "",
+            "type": "F",
+            "range": [0.0,10.0]
+        },
+        {
+            "expr": "pibach_PT",
+            "name": "",
+            "type": "F",
+            "range": [100.0,2000.0]
+        },
+        {
+            "expr": "Kbach_IPCHI2_OWNPV",
+            "name": "",
+            "type": "F",
+            "range": [0.0,10.0]
+        }
+    ]
+}
