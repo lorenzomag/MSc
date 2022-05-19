@@ -10,18 +10,13 @@ export SMALL_DATASETS_DIR=$WORKSPACE_DIR"/small_datasets"
 export LOCAL_DATASETS_DIR=$WORKSPACE_DIR"/local_datasets"
 
 # Set current datasets (MonteCarlo and Data)
-export CURRENT_MC_DATASET=$DATASETS_DIR"/MC2016_AllMasses_MUMD_Xic_TMVAClassification_AllEvents_LcCut_PreselCuts_mID.root"
-export CURRENT_SIG_DATASET=$CURRENT_MC_DATASET
-export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root"
-export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS2_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root"
-export CURRENT_WS3_DATASET=$DATASETS_DIR"/WS1_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts.root" #temporary
+export CURRENT_MC_DATASET=$DATASETS_DIR"/MC2016_AllMasses_MUMD_Xic_TMVAClassification_AllEvents_LcCut_PreselCuts_mID_typeID_TMVA2.root"
+export CURRENT_SIG_DATASET=$DATASETS_DIR"/Data_2016_MUMD_Xics_TMVAClassification_LcCut_PreselCuts.root"
+export CURRENT_WS1_DATASET=$DATASETS_DIR"/WS1_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts_typeID_TMVA2.root"
+export CURRENT_WS2_DATASET=$DATASETS_DIR"/WS2_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts_typeID_TMVA2.root"
+export CURRENT_WS3_DATASET=$DATASETS_DIR"/WS3_2016_Xic_TMVAClassification_Application_AllEvents_LcCut_PreselCuts_typeID_TMVA2.root"
 
-export CURRENT_APPLICATION_DATASET=$DATASETS_DIR"/MC_WS2_2016_merged.root"
-
-export SMALL_CURRENT_MC=$SMALL_DATASETS_DIR"/small_MC.root"
-export SMALL_CURRENT_WS1=$SMALL_DATASETS_DIR"/small_WS1.root"
-export SMALL_CURRENT_WS2=$SMALL_DATASETS_DIR"/small_WS2.root"
-export SMALL_CURRENT_WS3=$SMALL_DATASETS_DIR"/small_WS3.root"
+export CURRENT_APPLICATION_DATASET=$CURRENT_SIG_DATASET
 
 
 
