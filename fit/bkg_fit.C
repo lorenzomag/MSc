@@ -60,9 +60,11 @@ void bkg_fit(const int ws = 1, const std::string method = "MLP", const double cu
   if (ws == 0)
   {
     TChain *tree = new TChain("DecayTree");
-    for (int i = 1; i < 3; i++){
+    for (int i = 1; i < 3; i++)
+    {
       std::cout << getenv(Form("CURRENT_WS%d_DATASET", i)) << std::endl;
-      tree->Add(getenv(Form("CURRENT_WS%d_DATASET", i)));}
+      tree->Add(getenv(Form("CURRENT_WS%d_DATASET", i)));
+    }
     ds = RDataFrame(*tree);
   }
   else
@@ -80,9 +82,11 @@ void bkg_fit(const int ws = 1, const std::string method = "MLP", const double cu
   const double pi_mass = 139.57039; // pi mass from PDG
 
   bkg_cut = bkg_cut.Define("DM", Form("Xicst_M-Lc_M-%f-%f", K_mass, pi_mass));
-
+  auto min_val = bkg_cut.Min("DM").GetValue();
+  auto max_val = bkg_cut.Max("DM").GetValue();
+  max_val = max_val > 850 ? 850 : max_val;
   // Convert from RDataFrame to RooDataSet
-  RooRealVar x("x", "Xicst_M - Lc_M - M_{PDG}(K) - M_{PDG}(#pi)", 0, 850);
+  RooRealVar x("x", "Xicst_M - Lc_M - M_{PDG}(K) - M_{PDG}(#pi)", min_val, max_val);
   RooDataSet rooDataSet = bkg_cut.Book<double>(
                                      RooDataSetHelper("dataset",          // Name
                                                       "Title of dataset", // Title
@@ -105,7 +109,7 @@ void bkg_fit(const int ws = 1, const std::string method = "MLP", const double cu
   // RooExponential exp_pdf("exp", "exponential pdf", xshift, exp_c);
   // RooProdPdf bg("pow_exp", "pow*exp", RooArgSet(pow_pdf, exp_pdf));
 
-  // bg.fitTo(rooDataSet,Range(0.0, 840.0));
+  // bg.fitTo(rooDataSet,Range(min_val, 840.0));
   // ******************************************************
 
   // ******************************************************
@@ -150,10 +154,10 @@ void bkg_fit(const int ws = 1, const std::string method = "MLP", const double cu
 
   // b.setConstant();
   // a.setConstant(kFALSE);
-  // bg.fitTo(rooDataSet, Range(0.0, 40.0));
+  // bg.fitTo(rooDataSet, Range(min_val, 40.0));
 
   // power.setConstant(kFALSE);
-  // bg.fitTo(rooDataSet, Range(40.0, 840.0));
+  // bg.fitTo(rooDataSet, Range(min_val, 840.0));
   // ******************************************************
 
   // ******************************************************
@@ -165,40 +169,19 @@ void bkg_fit(const int ws = 1, const std::string method = "MLP", const double cu
   RooRealVar power("power", "Power", 0.02, 0.0, 0.1);
   RooRealVar cutoff("cutoff", "Cutoff", 22.1, 0, 40);
 
-  RooRealVar shift("shift","shift",2,-10.0,10.0);
-  RooRealVar shrink("shrink","shrink",1.2,0.0,2.0);
+  RooRealVar shift("shift", "shift", 2, -10.0, 10.0);
+  RooRealVar shrink("shrink", "shrink", 1.2, 0.0, 2.0);
 
-  modErf er("er","er",x,cutoff,shift,shrink);
+  modErf er("er", "er", x, cutoff, shift, shrink);
 
   MarksBG mark_bg("mark_bg", "mark_bg", x, a, b, power, cutoff);
 
-  RooProdPdf bg("bg","mark_bg*er",RooArgList(er,mark_bg));
+  RooProdPdf bg("bg", "mark_bg*er", RooArgList(er, mark_bg));
 
-  bg.fitTo(rooDataSet, Range(0.0, 840.0));
+  bg.fitTo(rooDataSet, Range(min_val, 840.0));
   // ******************************************************
 
-  // ******************************************************
-  // * MARKS + erf
-  // * $a(x-cutoff)^{power} + b(x-cutoff)$
-  // ******************************************************
-  // RooRealVar a("a", "a", 1, 0, 18);
-  // RooRealVar b("b", "b", -0.001, -0.05, 0.0);
-  // RooRealVar power("power", "Power", 0.02, 0.0, 0.1);
-  // RooRealVar cutoff("cutoff", "Cutoff", 22.1, 0, 40);
 
-  // RooRealVar shift("shift", "shift", 2, -10.0, 10.0);
-  // RooRealVar shrink("shrink", "shrink", 1.2, 0.0, 2.0);
-
-  // modErf er("er", "er", x, cutoff, shift, shrink);
-
-  // MarksBG mark_bg("mark_bg", "mark_bg", x, a, b, power, cutoff);
-
-  // RooProdPdf bg("bg", "mark_bg*er", RooArgList(er, mark_bg));
-
-  // b.setConstant(kTRUE);
-  // bg.fitTo(rooDataSet, NumCPU(8),Range(0.0, 840.0));
-  // ******************************************************
-  
   // ******************************************************
   // * RYUN + erf
   // ******************************************************
